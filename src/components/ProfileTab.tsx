@@ -841,7 +841,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
       </div>
 
       {/* Customer Support Card */}
-      <div className="p-6 rounded-3xl bg-linear-to-br from-amber-500/5 via-stone-50/50 to-white dark:from-amber-500/10 dark:via-zinc-900/40 dark:to-zinc-900 border border-stone-200 dark:border-zinc-800 shadow-editorial">
+      <div className="p-6 rounded-3xl bg-gradient-to-br from-amber-500/5 via-stone-50/50 to-white dark:from-amber-500/10 dark:via-zinc-900/40 dark:to-zinc-900 border border-stone-200 dark:border-zinc-800 shadow-editorial">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-semibold text-xs mb-1">

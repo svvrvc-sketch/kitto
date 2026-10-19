@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 
 export const ADMIN_USERNAME = 'svrvc';
 export const ADMIN_PHONE = '+998337533373';
+export const ADMIN_CHAT_ID = 5111794979;
 export const SUPPORT_PHONE = '+998337533373';
 export const SUPPORT_TELEGRAM = 'kitto_support';
 
@@ -19,12 +20,12 @@ export function setAdminChatId(chatId: number | string) {
   if (supabaseUrl && supabaseAnonKey && supabaseUrl.startsWith('http')) {
     try {
       const client = createClient(supabaseUrl, supabaseAnonKey, { auth: { persistSession: false } });
-      client
-        .from('profiles')
-        .update({ telegram_chat_id: String(chatId) })
-        .or(`telegram_username.ilike.${ADMIN_USERNAME},contact.eq.${ADMIN_PHONE},role.eq.admin`)
-        .then(() => {})
-        .catch(() => {});
+      Promise.resolve(
+        client
+          .from('profiles')
+          .update({ telegram_chat_id: String(chatId) })
+          .or(`telegram_username.ilike.${ADMIN_USERNAME},contact.eq.${ADMIN_PHONE},role.eq.admin`)
+      ).catch(() => {});
     } catch {
       // ignore background error
     }
@@ -32,7 +33,7 @@ export function setAdminChatId(chatId: number | string) {
 }
 
 export function getAdminChatId(): number | string | undefined {
-  return global.__kittoAdminChatId || process.env.TELEGRAM_ADMIN_CHAT_ID;
+  return global.__kittoAdminChatId || process.env.TELEGRAM_ADMIN_CHAT_ID || ADMIN_CHAT_ID;
 }
 
 /**

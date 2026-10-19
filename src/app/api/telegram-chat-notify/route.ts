@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from 'next/server';
 import { TELEGRAM_BOT_TOKEN, getUserChatId, normalizeUsername, normalizePhone } from '@/lib/telegram-auth';
 import { getAdminChatId, ADMIN_USERNAME, ADMIN_PHONE } from '@/lib/telegram-admin';
@@ -98,7 +99,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true, sent, count: targetChatIds.size });
   } catch (error: any) {
     console.error('[telegram-chat-notify error]:', error);
-    return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ ok: false, error: error?.message || 'Server error' }, { status: 500 });
   }
 }
 

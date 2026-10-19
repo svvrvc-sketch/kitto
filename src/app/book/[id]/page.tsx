@@ -4,8 +4,9 @@ import { createClient } from '@supabase/supabase-js';
 import Link from 'next/link';
 import { ArrowLeft, BookOpen, Clock, MapPin, Share2 } from 'lucide-react';
 
-interface Props {
-  params: Promise<{ id: string }>;
+interface PageProps {
+  params: { id: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
 }
 
 async function getBook(id: string) {
@@ -25,9 +26,9 @@ async function getBook(id: string) {
   }
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { id } = await params;
-  const book = await getBook(id);
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const id = params?.id;
+  const book = id ? await getBook(id) : null;
 
   const defaultTitle = 'Kitto.uz — Toshkentda kitob almashing';
   const defaultDesc = 'Kitoblarni bepul almashing, vaqtincha oʻqishga oling yoki javoningizdagi kitoblarni boshqalar bilan ulashing.';
@@ -78,9 +79,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function BookSharePage({ params }: Props) {
-  const { id } = await params;
-  const book = await getBook(id);
+export default async function BookSharePage({ params }: PageProps) {
+  const id = params?.id;
+  const book = id ? await getBook(id) : null;
 
   return (
     <div className="min-h-screen bg-[#F8F7F4] dark:bg-zinc-950 text-stone-900 dark:text-stone-100 flex flex-col justify-center items-center p-4">
