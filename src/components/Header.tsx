@@ -15,6 +15,7 @@ import {
   MessageSquare,
   Bookmark,
   Home,
+  HelpCircle,
 } from 'lucide-react';
 import { AppTab } from '@/types/book';
 import { useAuth } from '@/context/AuthContext';
@@ -31,6 +32,7 @@ interface HeaderProps {
   myListingsCount: number;
   unreadChatCount?: number;
   onOpenCitySelector?: () => void;
+  onOpenSupport?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -42,6 +44,7 @@ export const Header: React.FC<HeaderProps> = ({
   myListingsCount,
   unreadChatCount = 0,
   onOpenCitySelector,
+  onOpenSupport,
 }) => {
   const { user, isAuthenticated, isAdmin, openAuthModal, logout } = useAuth();
   const { showToast } = useToast();
@@ -262,6 +265,19 @@ export const Header: React.FC<HeaderProps> = ({
                           {savedCount}
                         </span>
                       </button>
+
+                      {onOpenSupport && (
+                        <button
+                          onClick={() => {
+                            setShowProfileMenu(false);
+                            onOpenSupport();
+                          }}
+                          className="w-full text-left px-2.5 py-2 rounded-xl text-xs text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-zinc-800 font-medium flex items-center gap-2"
+                        >
+                          <HelpCircle className="w-3.5 h-3.5 text-amber-500" />
+                          <span>Yordam va takliflar</span>
+                        </button>
+                      )}
                     </div>
 
                     <div className="pt-1 border-t border-stone-100 dark:border-zinc-800">
@@ -285,6 +301,19 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 <UserIcon className="w-3.5 h-3.5" />
                 <span>Kirish</span>
+              </button>
+            )}
+
+            {/* Support Button */}
+            {onOpenSupport && (
+              <button
+                id="header-support-btn"
+                onClick={onOpenSupport}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-stone-200/80 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/60 hover:bg-stone-100 dark:hover:bg-zinc-800 text-stone-700 dark:text-stone-300 transition-colors shadow-xs text-xs font-medium shrink-0"
+                title="Yordam va takliflar: +998337533373, @kitto_support"
+              >
+                <HelpCircle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                <span className="hidden sm:inline">Yordam</span>
               </button>
             )}
 
@@ -359,6 +388,22 @@ export const Header: React.FC<HeaderProps> = ({
                 <Shield className="w-4 h-4" />
                 <span>Admin Panel boshqaruvi</span>
               </Link>
+            )}
+
+            {onOpenSupport && (
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenSupport();
+                }}
+                className="w-full flex items-center justify-between p-2.5 rounded-xl bg-amber-500/10 text-amber-700 dark:text-amber-400 font-medium text-xs border border-amber-500/20"
+              >
+                <div className="flex items-center gap-2">
+                  <HelpCircle className="w-4 h-4" />
+                  <span>Yordam va takliflar</span>
+                </div>
+                <span className="text-[10px] text-stone-500 dark:text-zinc-400">@kitto_support</span>
+              </button>
             )}
 
             {isAuthenticated ? (

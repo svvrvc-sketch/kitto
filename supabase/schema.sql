@@ -22,8 +22,12 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   role TEXT NOT NULL DEFAULT 'user',
   provider TEXT DEFAULT 'direct',
   telegram_username TEXT,
+  telegram_chat_id TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Migration safety for existing tables
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS telegram_chat_id TEXT;
 
 -- Profiles Indexes
 CREATE INDEX IF NOT EXISTS idx_profiles_contact ON public.profiles(contact);

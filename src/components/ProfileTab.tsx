@@ -23,7 +23,11 @@ import {
   Clock,
   BookOpen,
   Camera,
+  Phone,
+  Send,
+  HelpCircle,
 } from 'lucide-react';
+import { SUPPORT_PHONE, SUPPORT_TELEGRAM } from '@/lib/telegram-admin';
 
 const GENRE_CHIPS = [
   'Badiiy adabiyot',
@@ -46,6 +50,7 @@ interface ProfileTabProps {
   myBooks?: Book[];
   onActivateBook?: (bookId: string) => void;
   onOpenBookDetail?: (book: Book) => void;
+  onOpenSupport?: () => void;
 }
 
 export const ProfileTab: React.FC<ProfileTabProps> = ({
@@ -58,6 +63,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
   myBooks = [],
   onActivateBook,
   onOpenBookDetail,
+  onOpenSupport,
 }) => {
   const { user, isAuthenticated, openAuthModal, logout, updateProfile } = useAuth();
   const { showToast } = useToast();
@@ -65,6 +71,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState('');
   const [editContact, setEditContact] = useState('');
+  const [editTelegram, setEditTelegram] = useState('');
   const [editAvatar, setEditAvatar] = useState<string | null>(null);
   const [wishlistInput, setWishlistInput] = useState('');
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
@@ -74,6 +81,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
     if (!user) return;
     setEditName(user.name);
     setEditContact(user.contact);
+    setEditTelegram(user.telegramUsername || '');
     setEditAvatar(user.avatar || null);
     setIsEditing(true);
   };
@@ -103,12 +111,13 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
   const handleSaveEdit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!editName.trim() || !editContact.trim()) {
-      showToast('Ism va aloqa maʼlumotlarini kiriting', 'error');
+      showToast('Ism va telefon raqamini kiriting', 'error');
       return;
     }
     updateProfile({
       name: editName.trim(),
       contact: editContact.trim(),
+      telegramUsername: editTelegram.trim() ? editTelegram.trim().replace(/^@/, '') : undefined,
       avatar: editAvatar || undefined,
     });
     setIsEditing(false);
@@ -276,9 +285,16 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 </div>
 
                 <div className="flex flex-wrap items-center gap-y-1 gap-x-3 mt-1.5 text-xs">
-                  <span className="font-semibold text-stone-900 dark:text-stone-100">
-                    {user.contact}
+                  <span className="font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-1">
+                    <span>📞</span>
+                    <span>{user.contact}</span>
                   </span>
+                  {user.telegramUsername && (
+                    <span className="font-medium text-sky-700 dark:text-sky-400 flex items-center gap-1">
+                      <span>✈️</span>
+                      <span>@{user.telegramUsername.replace(/^@/, '')}</span>
+                    </span>
+                  )}
                   {user.email && (
                     <span className="text-stone-500 dark:text-zinc-400 truncate">
                       {user.email}
@@ -387,10 +403,10 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-3">
               <div>
                 <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">
-                  Ism va familiya
+                  Ism va familiya *
                 </label>
                 <input
                   type="text"
@@ -401,17 +417,33 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">
-                  Telefon yoki Telegram
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={editContact}
-                  onChange={(e) => setEditContact(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-stone-200 dark:border-zinc-800 text-xs bg-stone-50 dark:bg-zinc-900 text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-[#141413] dark:focus:ring-stone-400 dark:focus:border-stone-400"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">
+                    Telefon raqam (majburiy) *
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    value={editContact}
+                    onChange={(e) => setEditContact(e.target.value)}
+                    placeholder="+998 90 123 45 67"
+                    className="w-full px-3 py-2 rounded-xl border border-stone-200 dark:border-zinc-800 text-xs bg-stone-50 dark:bg-zinc-900 text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-[#141413] dark:focus:ring-stone-400 dark:focus:border-stone-400"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">
+                    Telegram username (ixtiyoriy)
+                  </label>
+                  <input
+                    type="text"
+                    value={editTelegram}
+                    onChange={(e) => setEditTelegram(e.target.value)}
+                    placeholder="@username"
+                    className="w-full px-3 py-2 rounded-xl border border-stone-200 dark:border-zinc-800 text-xs bg-stone-50 dark:bg-zinc-900 text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-[#141413] dark:focus:ring-stone-400 dark:focus:border-stone-400"
+                  />
+                </div>
               </div>
             </div>
 
@@ -747,6 +779,53 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             </div>
             <ArrowRight className="w-4 h-4 text-stone-400 group-hover:translate-x-1 transition-transform" />
           </button>
+        </div>
+      </div>
+
+      {/* Customer Support Card */}
+      <div className="p-6 rounded-3xl bg-linear-to-br from-amber-500/5 via-stone-50/50 to-white dark:from-amber-500/10 dark:via-zinc-900/40 dark:to-zinc-900 border border-stone-200 dark:border-zinc-800 shadow-editorial">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-semibold text-xs mb-1">
+              <HelpCircle className="w-4 h-4" />
+              <span>Qoʻllab-quvvatlash va Takliflar</span>
+            </div>
+            <h4 className="font-serif font-bold text-base text-stone-900 dark:text-stone-100">
+              Savol yoki takliflaringiz bormi?
+            </h4>
+            <p className="text-xs text-stone-500 dark:text-zinc-400 mt-1 max-w-md">
+              Kitto boʻyicha qandaydir savol, fikr yoki takliflaringiz boʻlsa, biz bilan bevosita bogʻlaning.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            {onOpenSupport && (
+              <button
+                type="button"
+                onClick={onOpenSupport}
+                className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-stone-50 dark:hover:bg-zinc-700 text-stone-800 dark:text-stone-200 font-semibold text-xs shadow-xs transition-all active:scale-95"
+              >
+                <HelpCircle className="w-3.5 h-3.5 text-amber-500" />
+                <span>Batafsil</span>
+              </button>
+            )}
+            <a
+              href={`https://t.me/${SUPPORT_TELEGRAM}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs shadow-xs transition-all active:scale-95"
+            >
+              <Send className="w-3.5 h-3.5" />
+              <span>@{SUPPORT_TELEGRAM}</span>
+            </a>
+            <a
+              href={`tel:${SUPPORT_PHONE}`}
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 font-semibold text-xs shadow-xs transition-all active:scale-95"
+            >
+              <Phone className="w-3.5 h-3.5" />
+              <span>{SUPPORT_PHONE}</span>
+            </a>
+          </div>
         </div>
       </div>
 

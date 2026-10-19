@@ -16,6 +16,7 @@ import { MessagesTab } from '@/components/MessagesTab';
 import { UserProfileModal } from '@/components/UserProfileModal';
 import { GeolocationPrompt } from '@/components/GeolocationPrompt';
 import { RegionRestrictionModal } from '@/components/RegionRestrictionModal';
+import { SupportModal } from '@/components/SupportModal';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { useChat } from '@/context/ChatContext';
@@ -67,6 +68,7 @@ export default function HomePage() {
   const [selectedProfileUserId, setSelectedProfileUserId] = useState<string | null>(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isRegionBlockedModalOpen, setIsRegionBlockedModalOpen] = useState(false);
+  const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
 
   // Regional check: whether user is detected outside Tashkent
   const isOutsideTashkent = useMemo(() => {
@@ -545,6 +547,7 @@ export default function HomePage() {
         myListingsCount={myListings.length}
         unreadChatCount={totalUnreadCount}
         onOpenCitySelector={() => setIsCityModalOpen(true)}
+        onOpenSupport={() => setIsSupportModalOpen(true)}
       />
 
       {/* Main Content Area */}
@@ -579,6 +582,7 @@ export default function HomePage() {
             onActivateBook={handleActivateBook}
             onOpenBookDetail={handleOpenDetail}
             onOpenAddModal={handleOpenAddBookModal}
+            onOpenSupport={() => setIsSupportModalOpen(true)}
           />
         ) : currentTab === 'messages' ? (
           /* Messages Tab View */
@@ -822,6 +826,12 @@ export default function HomePage() {
         onClose={() => setIsRegionBlockedModalOpen(false)}
         onOpenVoting={() => setIsCityModalOpen(true)}
         userCoordinates={userCoordinates}
+      />
+
+      {/* Support / Feedback Modal */}
+      <SupportModal
+        isOpen={isSupportModalOpen}
+        onClose={() => setIsSupportModalOpen(false)}
       />
     </div>
   );
