@@ -77,6 +77,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(resolvedProfile);
       persistUserStorage(resolvedProfile);
 
+      // Clean OAuth ?code= from browser URL bar
+      if (typeof window !== 'undefined' && window.location.search.includes('code=')) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
       // Async upsert to ensure cloud profile is up to date
       profilesService.upsertProfile(resolvedProfile).catch(() => {});
     } catch (e) {

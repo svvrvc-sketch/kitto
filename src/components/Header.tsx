@@ -304,16 +304,16 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
             )}
 
-            {/* Support Button */}
+            {/* Support Button (Desktop & Tablet) */}
             {onOpenSupport && (
               <button
                 id="header-support-btn"
                 onClick={onOpenSupport}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-stone-200/80 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/60 hover:bg-stone-100 dark:hover:bg-zinc-800 text-stone-700 dark:text-stone-300 transition-colors shadow-xs text-xs font-medium shrink-0"
+                className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-stone-200/80 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/60 hover:bg-stone-100 dark:hover:bg-zinc-800 text-stone-700 dark:text-stone-300 transition-colors shadow-xs text-xs font-medium shrink-0"
                 title="Yordam va takliflar: +998337533373, @kitto_support"
               >
                 <HelpCircle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                <span className="hidden sm:inline">Yordam</span>
+                <span className="hidden md:inline">Yordam</span>
               </button>
             )}
 
@@ -331,10 +331,10 @@ export const Header: React.FC<HeaderProps> = ({
               )}
             </button>
 
-            {/* Mobile / Tablet Hamburger Button */}
+            {/* Tablet Hamburger Button (BottomNav handles phones, Full Nav handles desktop) */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-xl border border-stone-200/80 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/60 text-stone-600 dark:text-stone-300 hover:bg-white dark:hover:bg-zinc-800 lg:hidden transition-colors shadow-sm shrink-0"
+              className="hidden md:flex lg:hidden p-2 rounded-xl border border-stone-200/80 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/60 text-stone-600 dark:text-stone-300 hover:bg-white dark:hover:bg-zinc-800 transition-colors shadow-sm shrink-0"
               aria-label="Menyu"
               title="Menyu"
             >

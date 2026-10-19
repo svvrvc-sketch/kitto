@@ -856,29 +856,31 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             </p>
           </div>
 
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            {onOpenSupport && (
-              <button
-                type="button"
-                onClick={onOpenSupport}
-                className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-stone-50 dark:hover:bg-zinc-700 text-stone-800 dark:text-stone-200 font-semibold text-xs shadow-xs transition-all active:scale-95"
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              {onOpenSupport && (
+                <button
+                  type="button"
+                  onClick={onOpenSupport}
+                  className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-stone-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-stone-50 dark:hover:bg-zinc-700 text-stone-800 dark:text-stone-200 font-semibold text-xs shadow-xs transition-all active:scale-95"
+                >
+                  <HelpCircle className="w-3.5 h-3.5 text-amber-500" />
+                  <span>Batafsil</span>
+                </button>
+              )}
+              <a
+                href={`https://t.me/${SUPPORT_TELEGRAM}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs shadow-xs transition-all active:scale-95"
               >
-                <HelpCircle className="w-3.5 h-3.5 text-amber-500" />
-                <span>Batafsil</span>
-              </button>
-            )}
-            <a
-              href={`https://t.me/${SUPPORT_TELEGRAM}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs shadow-xs transition-all active:scale-95"
-            >
-              <Send className="w-3.5 h-3.5" />
-              <span>@{SUPPORT_TELEGRAM}</span>
-            </a>
+                <Send className="w-3.5 h-3.5" />
+                <span>@{SUPPORT_TELEGRAM}</span>
+              </a>
+            </div>
             <a
               href={`tel:${SUPPORT_PHONE}`}
-              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 font-semibold text-xs shadow-xs transition-all active:scale-95"
+              className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 font-semibold text-xs shadow-xs transition-all active:scale-95"
             >
               <Phone className="w-3.5 h-3.5" />
               <span>{SUPPORT_PHONE}</span>

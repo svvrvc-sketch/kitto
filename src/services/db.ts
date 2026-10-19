@@ -76,6 +76,12 @@ export function mapRowToBook(row: any): Book {
 }
 
 export function mapBookToRow(book: Book): Record<string, any> {
+  const swapTerm = {
+    ...(typeof book.swapTerm === 'object' ? book.swapTerm : { type: 'permanent', durationLabel: 'Doimiy almashuv' }),
+    ownerFavoriteGenres: book.ownerFavoriteGenres || [],
+    ownerWishlist: book.ownerWishlist || [],
+  };
+
   return {
     id: book.id,
     title: book.title,
@@ -89,11 +95,9 @@ export function mapBookToRow(book: Book): Record<string, any> {
     owner_contact: book.ownerContact,
     city: book.city || 'Toshkent',
     location: book.location || TASHKENT_DEFAULT_LOCATION,
-    swap_term: book.swapTerm,
+    swap_term: swapTerm,
     status: book.status || 'active',
     loan_info: book.loanInfo || null,
-    owner_favorite_genres: book.ownerFavoriteGenres || [],
-    owner_wishlist: book.ownerWishlist || [],
     created_at: book.createdAt || new Date().toISOString(),
   };
 }
@@ -118,23 +122,17 @@ export function mapRowToProfile(row: any): UserProfile {
 }
 
 export function mapProfileToRow(profile: UserProfile): Record<string, any> {
-  const avatarVal = profile.avatar || profile.avatar_url || null;
   return {
     id: profile.id,
     name: profile.name,
     contact: profile.contact,
-    email: profile.email || null,
     city: profile.city || 'Toshkent',
     favorite_genres: profile.favoriteGenres || [],
     wishlist_books: profile.wishlistBooks || [],
-    avatar: avatarVal,
-    avatar_url: avatarVal,
-    role: profile.role || 'user',
-    provider: profile.provider || 'direct',
-    telegram_username: profile.telegramUsername || null,
     created_at: profile.createdAt || new Date().toISOString(),
   };
 }
+
 
 export function mapRowToChat(row: any): ChatThread {
   const messages: ChatMessage[] = Array.isArray(row.messages)
@@ -239,6 +237,22 @@ export const booksService = {
           try {
             if (typeof window !== 'undefined') {
               localStorage.setItem(STORAGE_BOOKS_KEY, JSON.stringify(mappedBooks));
+
+              // Auto-sync any previously stuck local books to Supabase
+              if (localBooks.length > 0) {
+                const remoteIds = new Set(mappedBooks.map((b) => b.id));
+                const unsynced = localBooks.filter((b) => !remoteIds.has(b.id));
+                if (unsynced.length > 0) {
+                  for (const ub of unsynced) {
+                    const row = mapBookToRow(ub);
+                    supabase.from('books').insert(row).then(({ error: syncErr }) => {
+                      if (!syncErr) {
+                        console.log('[Kitto] Auto-synced previous book to cloud:', ub.title);
+                      }
+                    }).catch(() => {});
+                  }
+                }
+              }
             }
           } catch (e) {
             console.warn('Could not cache books to localStorage:', e);
@@ -260,30 +274,58 @@ export const booksService = {
    * Adds a new book listing to Supabase and caches to localStorage.
    */
   async addBook(book: Book): Promise<Book> {
-    // 1. Immediately cache to local storage & memory
     booksService.clearCache();
+
+    // 1. Sync to Supabase Cloud FIRST
+    if (isSupabaseConfigured) {
+      try {
+        const row = mapBookToRow(book);
+        const { error } = await supabase.from('books').insert(row);
+        if (error) {
+          console.error('[Kitto Cloud] Supabase addBook primary error:', error.message);
+          // Fallback insert with essential columns
+          const minimalRow = {
+            id: row.id,
+            title: row.title,
+            author: row.author,
+            category: row.category,
+            condition: row.condition,
+            description: row.description,
+            cover_url: row.cover_url,
+            owner_id: row.owner_id,
+            owner_name: row.owner_name,
+            owner_contact: row.owner_contact,
+            city: row.city,
+            location: row.location,
+            swap_term: row.swap_term,
+            status: row.status,
+            loan_info: row.loan_info,
+            created_at: row.created_at,
+          };
+          const { error: retryError } = await supabase.from('books').insert(minimalRow);
+          if (retryError) {
+            console.error('[Kitto Cloud] Supabase addBook fallback error:', retryError.message);
+          } else {
+            console.log('[Kitto Cloud] Book successfully saved via fallback!');
+          }
+        } else {
+          console.log('[Kitto Cloud] Book successfully published to Supabase:', book.title);
+        }
+      } catch (err) {
+        console.error('Network error adding book to Supabase:', err);
+      }
+    }
+
+    // 2. Immediately cache to local storage & memory
     if (typeof window !== 'undefined') {
       try {
-        const cached = await booksService.getBooks();
+        const cached = await booksService.getBooks(true);
         const updated = [book, ...cached.filter((b) => b.id !== book.id)];
         localStorage.setItem(STORAGE_BOOKS_KEY, JSON.stringify(updated));
         inMemoryBooksCache = updated;
         lastBooksFetchTimestamp = Date.now();
       } catch (e) {
         console.error('Local cache error:', e);
-      }
-    }
-
-    // 2. Sync to Supabase
-    if (isSupabaseConfigured) {
-      try {
-        const row = mapBookToRow(book);
-        const { error } = await supabase.from('books').insert(row);
-        if (error) {
-          console.error('Supabase addBook error:', error.message);
-        }
-      } catch (err) {
-        console.error('Network error adding book to Supabase:', err);
       }
     }
 
@@ -370,8 +412,6 @@ export const booksService = {
         if (updates.coverUrl !== undefined) rowUpdates.cover_url = updates.coverUrl;
         if (updates.ownerName !== undefined) rowUpdates.owner_name = updates.ownerName;
         if (updates.ownerContact !== undefined) rowUpdates.owner_contact = updates.ownerContact;
-        if (updates.ownerFavoriteGenres !== undefined) rowUpdates.owner_favorite_genres = updates.ownerFavoriteGenres;
-        if (updates.ownerWishlist !== undefined) rowUpdates.owner_wishlist = updates.ownerWishlist;
         if (updates.status !== undefined) rowUpdates.status = updates.status;
         if (updates.loanInfo !== undefined) rowUpdates.loan_info = updates.loanInfo;
 
