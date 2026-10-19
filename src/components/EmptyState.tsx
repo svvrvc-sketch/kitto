@@ -67,10 +67,10 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         </div>
 
         <h3 className="font-serif text-2xl font-bold text-stone-900 dark:text-stone-100 tracking-tight mb-2">
-          Hozircha kitoblar joylanmagan
+          Siz hali kitob qoʻshmadingiz
         </h3>
         <p className="max-w-md text-sm text-stone-500 dark:text-zinc-400 font-sans leading-relaxed mb-6">
-          Javoningizdagi kitoblarni ulashing — vaqtincha o&#39;qishga bering yoki boshqasiga almashtiring.
+          Javoningizdagi oʻqilgan kitoblarni boshqalar bilan ulashing!
         </p>
 
         <button
@@ -79,7 +79,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           className="flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 font-semibold text-xs tracking-wide shadow-tactile transition-all active:scale-95"
         >
           <PlusCircle className="w-4 h-4" />
-          <span>+ Kitob joylash</span>
+          <span>+ Birinchi kitobni qoʻshish</span>
         </button>
       </div>
     );

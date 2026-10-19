@@ -12,6 +12,9 @@ export interface UserProfile {
   role?: 'admin' | 'user';         // Role Based Access Control
   provider?: 'google' | 'telegram' | 'direct' | 'guest';
   telegramUsername?: string;
+  trustScore?: number;             // Karma / Ishonch bali
+  isTrusted?: boolean;              // "Ishonchli kitobxon" badge (trustScore >= 3)
+  completedSwaps?: number;          // Total successful swaps
 }
 
 export type User = UserProfile;

@@ -188,6 +188,24 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.warn('Failed to sync new chat thread to cloud:', err);
     });
 
+    // Instant Telegram Bot Push Notification to Book Owner
+    try {
+      fetch('/api/telegram-chat-notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          recipientId: ownerId,
+          recipientName: ownerName,
+          senderName: currentUserName,
+          bookTitle: book.title,
+          messageSnippet: initialMessage || 'Almashish taklifini yubordi',
+          threadId,
+        }),
+      }).catch(() => {});
+    } catch {
+      // background non-blocking
+    }
+
     setActiveThreadId(threadId);
     return threadId;
   };
@@ -221,6 +239,28 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     chatsService.saveChat(updatedTarget).catch((err) => {
       console.warn('Failed to sync message to cloud:', err);
     });
+
+    // Telegram Push Notification to other participant
+    try {
+      const isOwnerSender = currentUserId === targetThread.ownerId;
+      const recipientId = isOwnerSender ? targetThread.initiatorId : targetThread.ownerId;
+      const recipientName = isOwnerSender ? targetThread.initiatorName : targetThread.ownerName;
+
+      fetch('/api/telegram-chat-notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          recipientId,
+          recipientName,
+          senderName: user?.name || 'Foydalanuvchi',
+          bookTitle: targetThread.bookTitle,
+          messageSnippet: text.trim(),
+          threadId,
+        }),
+      }).catch(() => {});
+    } catch {
+      // ignore
+    }
   };
 
   const totalUnreadCount = threads.reduce((acc, t) => {

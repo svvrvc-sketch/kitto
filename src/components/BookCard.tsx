@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Book } from '@/types/book';
-import { Bookmark, CheckCircle2, Trash2, RefreshCw, MapPin, BookOpen, Camera, Clock } from 'lucide-react';
+import { Bookmark, CheckCircle2, Trash2, RefreshCw, MapPin, BookOpen, Camera, Clock, ShieldCheck, QrCode } from 'lucide-react';
 import { calculateDistanceKm, formatDistance } from '@/lib/geo-utils';
 
 interface BookCardProps {
@@ -15,6 +15,7 @@ interface BookCardProps {
   onDeleteBook?: (bookId: string, e: React.MouseEvent) => void;
   userCoordinates?: { lat: number; lng: number } | null;
   onOpenUserProfile?: (userId: string, e: React.MouseEvent) => void;
+  onOpenQRModal?: (book: Book, mode: 'handover' | 'return') => void;
 }
 
 export const BookCard: React.FC<BookCardProps> = ({
@@ -27,6 +28,7 @@ export const BookCard: React.FC<BookCardProps> = ({
   onDeleteBook,
   userCoordinates = null,
   onOpenUserProfile,
+  onOpenQRModal,
 }) => {
   const [imageError, setImageError] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -106,35 +108,69 @@ export const BookCard: React.FC<BookCardProps> = ({
     }
   };
 
-  // Semantic Badges: Warm Amber (Temporary/Gift), Obsidian/Stone (Permanent)
-  const renderSwapBadge = () => {
-    const termType = book.swapTerm?.type || (book.type === 'gift' ? 'gift' : 'permanent');
-    const label = book.swapTerm?.durationLabel ||
-      (termType === 'gift'
-        ? "🎁 Bepul sovg'a"
-        : termType === 'temporary'
-        ? "⏳ 2 haftaga o'qishga"
-        : "🔄 Doimiy almashuv");
+  const getReturnDateLabel = () => {
+    if (book.loanInfo?.dueAt) {
+      try {
+        const d = new Date(book.loanInfo.dueAt);
+        return d.toLocaleDateString('uz-UZ', { day: 'numeric', month: 'long' });
+      } catch {
+        return '25-oktabr';
+      }
+    }
+    try {
+      const base = new Date(book.createdAt || Date.now());
+      base.setDate(base.getDate() + 14);
+      return base.toLocaleDateString('uz-UZ', { day: 'numeric', month: 'long' });
+    } catch {
+      return '25-oktabr';
+    }
+  };
 
-    if (termType === 'temporary') {
+  // Explicit Book Status Badges
+  const renderSwapBadge = () => {
+    const isTemporarilyGiven = book.status === 'temporarily_given';
+    const isSwapped = book.status === 'swapped' || Boolean(book.isCompleted);
+    const termType = book.swapTerm?.type || (book.type === 'gift' ? 'gift' : 'permanent');
+
+    if (isTemporarilyGiven) {
+      const returnDate = getReturnDateLabel();
       return (
-        <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-900 border border-amber-200 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/50 text-[10px] font-semibold px-2 py-0.5 rounded-md backdrop-blur-sm shadow-xs">
-          <span>{label.startsWith('⏳') ? label : `⏳ ${label}`}</span>
+        <span className="inline-flex items-center gap-1 bg-amber-500 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-lg backdrop-blur-sm shadow-xs border border-amber-400">
+          <Clock className="w-3 h-3" />
+          <span>Hozir mutolaada ({returnDate}da boʻshaydi)</span>
+        </span>
+      );
+    }
+
+    if (isSwapped) {
+      return (
+        <span className="inline-flex items-center gap-1 bg-stone-700 text-stone-200 text-[10px] font-semibold px-2 py-0.5 rounded-lg backdrop-blur-sm shadow-xs">
+          <CheckCircle2 className="w-3 h-3" />
+          <span>Almashilgan</span>
         </span>
       );
     }
 
     if (termType === 'gift') {
       return (
-        <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-900 border border-amber-200 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/50 text-[10px] font-semibold px-2 py-0.5 rounded-md backdrop-blur-sm shadow-xs">
-          <span>{label.startsWith('🎁') ? label : `🎁 ${label}`}</span>
+        <span className="inline-flex items-center gap-1 bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-lg backdrop-blur-sm shadow-xs">
+          <span>🎁 Sovgʻa qilinadi</span>
+        </span>
+      );
+    }
+
+    if (termType === 'temporary') {
+      return (
+        <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-900 border border-amber-300 dark:bg-amber-950/80 dark:text-amber-300 dark:border-amber-900 text-[10px] font-semibold px-2 py-0.5 rounded-lg backdrop-blur-sm shadow-xs">
+          <span>⏳ Almashishga tayyor (Vaqtincha)</span>
         </span>
       );
     }
 
     return (
-      <span className="inline-flex items-center gap-1 bg-[#141413] text-[#F8F7F4] dark:bg-zinc-800 dark:text-stone-100 border border-black/10 dark:border-zinc-700 text-[10px] font-semibold px-2 py-0.5 rounded-md backdrop-blur-sm shadow-xs">
-        <span>{label.startsWith('🔄') ? label : `🔄 ${label}`}</span>
+      <span className="inline-flex items-center gap-1 bg-emerald-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-lg backdrop-blur-sm shadow-xs">
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse" />
+        <span>Almashishga tayyor</span>
       </span>
     );
   };
@@ -182,10 +218,10 @@ export const BookCard: React.FC<BookCardProps> = ({
 
         {/* Status Overlays: Vaqtincha berilgan or Almashildi */}
         {isTemporarilyGiven ? (
-          <div className="absolute inset-0 bg-stone-950/45 backdrop-blur-[2px] flex items-center justify-center z-10 pointer-events-none">
-            <span className="px-3 py-1 rounded-full bg-amber-50 text-amber-900 border border-amber-200 dark:bg-amber-950/80 dark:text-amber-300 dark:border-amber-900/60 text-xs font-serif font-semibold tracking-wide shadow-md flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-              Vaqtincha berilgan
+          <div className="absolute inset-0 bg-stone-950/45 backdrop-blur-[2px] flex items-center justify-center z-10 pointer-events-none p-2 text-center">
+            <span className="px-3 py-1 rounded-full bg-amber-500 text-white text-xs font-serif font-semibold tracking-wide shadow-md flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-white" />
+              <span>Hozir mutolaada ({getReturnDateLabel()}da boʻshaydi)</span>
             </span>
           </div>
         ) : isSwapped ? (
@@ -261,20 +297,31 @@ export const BookCard: React.FC<BookCardProps> = ({
                 : address}
             </span>
           </div>
-          <button
-            type="button"
-            id={`book-owner-${book.id}`}
-            onClick={(e) => {
-              e.stopPropagation();
-              if (onOpenUserProfile) {
-                onOpenUserProfile(book.ownerId, e);
-              }
-            }}
-            className="text-[10px] text-stone-500 dark:text-zinc-400 hover:text-stone-900 dark:hover:text-stone-100 hover:underline shrink-0 transition-colors font-medium"
-            title="Kitobxon profilini ko'rish"
-          >
-            {book.ownerName}
-          </button>
+          <div className="flex items-center gap-1 shrink-0">
+            <button
+              type="button"
+              id={`book-owner-${book.id}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onOpenUserProfile) {
+                  onOpenUserProfile(book.ownerId, e);
+                }
+              }}
+              className="text-[10px] text-stone-500 dark:text-zinc-400 hover:text-stone-900 dark:hover:text-stone-100 hover:underline shrink-0 transition-colors font-medium"
+              title="Kitobxon profilini ko'rish"
+            >
+              {book.ownerName}
+            </button>
+            {(book.ownerIsTrusted || (book.ownerTrustScore && book.ownerTrustScore >= 3)) && (
+              <span
+                className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded bg-amber-500/15 text-amber-700 dark:text-amber-400 text-[9px] font-bold border border-amber-500/20"
+                title="Ishonchli kitobxon (Tasdiqlangan bitimlar)"
+              >
+                <ShieldCheck className="w-2.5 h-2.5 text-amber-500" />
+                <span>Ishonchli</span>
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Action Controls for "E'lonlar" View */}
@@ -282,10 +329,27 @@ export const BookCard: React.FC<BookCardProps> = ({
           <div className="mt-3 pt-2.5 border-t border-stone-200/80 dark:border-zinc-800 flex flex-col gap-2">
             {!confirmDelete ? (
               <div className="flex items-center justify-between gap-1.5">
+                {onOpenQRModal && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onOpenQRModal(book, isTemporarilyGiven ? 'return' : 'handover');
+                    }}
+                    className="flex-1 py-1.5 px-2 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1 bg-amber-500/10 text-amber-800 dark:text-amber-300 hover:bg-amber-500/20 border border-amber-500/25 transition-all shadow-xs"
+                    title="QR kod orqali topshirish yoki qabul qilish (+1 ball)"
+                  >
+                    <QrCode className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                    <span>QR {isTemporarilyGiven ? 'Qabul (+1 ball)' : 'Topshirish (+1)'}</span>
+                  </button>
+                )}
+
                 <button
                   type="button"
                   onClick={handleToggleStatusClick}
-                  className={`flex-1 py-1.5 px-2 rounded-lg text-[10px] font-semibold tracking-wide flex items-center justify-center gap-1 transition-all border ${
+                  className={`py-1.5 px-2 rounded-lg text-[10px] font-semibold tracking-wide flex items-center justify-center gap-1 transition-all border ${
+                    onOpenQRModal ? 'shrink-0' : 'flex-1'
+                  } ${
                     isInactive
                       ? 'bg-stone-100 text-stone-600 border border-stone-200 dark:bg-zinc-900 dark:text-zinc-400 dark:border-zinc-800'
                       : 'bg-amber-50 text-amber-900 border border-amber-200 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/50'

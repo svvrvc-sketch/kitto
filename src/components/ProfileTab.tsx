@@ -26,6 +26,8 @@ import {
   Phone,
   Send,
   HelpCircle,
+  QrCode,
+  Bell,
 } from 'lucide-react';
 import { SUPPORT_PHONE, SUPPORT_TELEGRAM } from '@/lib/telegram-admin';
 
@@ -51,6 +53,7 @@ interface ProfileTabProps {
   onActivateBook?: (bookId: string) => void;
   onOpenBookDetail?: (book: Book) => void;
   onOpenSupport?: () => void;
+  onOpenQRModal?: (book: Book, mode: 'handover' | 'return') => void;
 }
 
 export const ProfileTab: React.FC<ProfileTabProps> = ({
@@ -64,6 +67,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
   onActivateBook,
   onOpenBookDetail,
   onOpenSupport,
+  onOpenQRModal,
 }) => {
   const { user, isAuthenticated, openAuthModal, logout, updateProfile } = useAuth();
   const { showToast } = useToast();
@@ -279,9 +283,16 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   <h2 id="profile-user-name" className="font-serif text-xl sm:text-2xl font-bold text-stone-900 dark:text-stone-100 truncate">
                     {user.name}
                   </h2>
-                  <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-300 border border-amber-200/80 dark:border-amber-900/50">
-                    Foydalanuvchi
-                  </span>
+                  <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs font-bold shadow-xs">
+                    <ShieldCheck className="w-3.5 h-3.5 text-amber-500" />
+                    <span>Ishonch bali: {user.trustScore ?? 1} ball</span>
+                  </div>
+
+                  {(user.isTrusted || (user.trustScore && user.trustScore >= 3)) && (
+                    <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-white text-[11px] font-bold shadow-xs">
+                      <span>🛡️ Ishonchli kitobxon</span>
+                    </span>
+                  )}
                 </div>
 
                 <div className="flex flex-wrap items-center gap-y-1 gap-x-3 mt-1.5 text-xs">
@@ -623,30 +634,77 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                         {book.author}
                       </p>
 
-                      <div className="mt-1">
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-900 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900/50">
-                          <Clock className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                      <div className="mt-1 space-y-1.5">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-amber-50 text-amber-900 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900/50">
+                          <Clock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                           <span>
                             {daysLeft > 0
-                              ? `Vaqtincha berilgan • Qaytishiga ${daysLeft} kun qoldi`
-                              : `Vaqtincha berilgan • Qaytarish muddati yetib keldi`}
+                              ? `Qolgan vaqt: ${daysLeft} kun (14 kundan)`
+                              : `Qaytarish muddati yetib keldi!`}
                           </span>
                         </span>
+
+                        {/* Visual Progress Bar */}
+                        <div className="w-full max-w-xs h-1.5 bg-stone-200 dark:bg-zinc-700 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-amber-500 rounded-full transition-all duration-300"
+                            style={{
+                              width: `${Math.min(100, Math.max(10, ((14 - Math.max(0, daysLeft)) / 14) * 100))}%`,
+                            }}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  {onActivateBook && (
+                  <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                    {onOpenQRModal && (
+                      <button
+                        type="button"
+                        onClick={() => onOpenQRModal(book, 'return')}
+                        className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-xs transition-all active:scale-95"
+                        title="QR-kod bilan qabul qilish va +1 ishonch bali olish"
+                      >
+                        <QrCode className="w-3.5 h-3.5" />
+                        <span>QR Qabul (+1 ball)</span>
+                      </button>
+                    )}
+
                     <button
                       type="button"
-                      id={`activate-book-${book.id}`}
-                      onClick={() => onActivateBook(book.id)}
-                      className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 text-xs font-semibold shadow-xs transition-all active:scale-95 shrink-0 self-end sm:self-center"
+                      onClick={() => {
+                        // Trigger reminder notification
+                        showToast(`✈️ Telegram bot orqali kitobxon eslatildi!`, 'info');
+                        fetch('/api/telegram-chat-notify', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            recipientId: book.ownerId,
+                            recipientName: book.ownerName,
+                            senderName: 'Kitto Eslatma Tizimi',
+                            bookTitle: book.title,
+                            messageSnippet: `Diqqat: "${book.title}" kitobining qaytish muddatiga ${daysLeft} kun qoldi. Iltimos oʻz vaqtida qaytaring.`,
+                          }),
+                        }).catch(() => {});
+                      }}
+                      className="p-1.5 rounded-xl border border-stone-200 dark:border-zinc-700 hover:bg-stone-100 dark:hover:bg-zinc-800 text-stone-600 dark:text-stone-300 transition-colors"
+                      title="Telegram orqali qaytarish eslatmasini yuborish"
                     >
-                      <RefreshCw className="w-3.5 h-3.5" />
-                      <span>Faollashtirish</span>
+                      <Bell className="w-3.5 h-3.5" />
                     </button>
-                  )}
+
+                    {onActivateBook && (
+                      <button
+                        type="button"
+                        id={`activate-book-${book.id}`}
+                        onClick={() => onActivateBook(book.id)}
+                        className="inline-flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl bg-stone-100 dark:bg-zinc-850 hover:bg-stone-200 text-stone-700 dark:text-stone-300 text-xs font-semibold transition-all active:scale-95"
+                      >
+                        <RefreshCw className="w-3 h-3" />
+                        <span>Faollashtirish</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
               );
             })}

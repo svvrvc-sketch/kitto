@@ -24,6 +24,10 @@ export type BookType = 'swap' | 'gift';
 export interface BookLoanInfo {
   lentAt: string;                // ISO timestamp
   dueAt: string;                 // ISO timestamp calculated from durationPreset
+  lentToUserId?: string;
+  lentToUserName?: string;
+  handoverConfirmedAt?: string;
+  handoverQrCode?: string;
 }
 
 export type BookStatus = 'active' | 'temporarily_given' | 'swapped';
@@ -39,6 +43,8 @@ export interface Book {
   ownerId: string;
   ownerName: string;
   ownerContact: string;
+  ownerTrustScore?: number;        // Ishonch bali
+  ownerIsTrusted?: boolean;        // Ishonchli kitobxon
   city: string;                    // Default: "Toshkent"
   location: BookLocation;
   swapTerm: SwapTerm;

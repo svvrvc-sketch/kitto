@@ -17,6 +17,8 @@ import {
   BookOpen,
   Camera,
   Clock,
+  ShieldCheck,
+  QrCode,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
@@ -33,6 +35,7 @@ interface BookDetailModalProps {
   onStartChat?: (book: Book) => void;
   onGoToMyListings?: () => void;
   onOpenUserProfile?: (userId: string) => void;
+  onOpenQRModal?: (book: Book, mode: 'handover' | 'return') => void;
   isSaved?: boolean;
   userCoordinates?: { lat: number; lng: number } | null;
 }
@@ -47,6 +50,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
   onStartChat,
   onGoToMyListings,
   onOpenUserProfile,
+  onOpenQRModal,
   isSaved = false,
   userCoordinates = null,
 }) => {
@@ -148,7 +152,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
 
   const handleShare = async () => {
     const swapLabel = book.swapTerm?.durationLabel || durationLabel;
-    const shareUrl = `https://kitto.uz/?book=${book.id}`;
+    const shareUrl = `https://kitto-fakv.vercel.app/book/${book.id}`;
     const shareText = `📚 "${book.title}" (${book.author}) — ${swapLabel}. Kitto.uz orqali ko'rish: ${shareUrl}`;
 
     if (typeof navigator !== 'undefined' && navigator.share) {
@@ -350,8 +354,14 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
                   {book.ownerName.charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <div className="text-xs font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
+                  <div className="text-xs font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-1.5 flex-wrap">
                     <span className="group-hover/owner:underline underline-offset-2">{book.ownerName}</span>
+                    {(book.ownerIsTrusted || (book.ownerTrustScore && book.ownerTrustScore >= 3)) && (
+                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-400 text-[9px] font-bold border border-amber-500/25">
+                        <ShieldCheck className="w-3 h-3 text-amber-500" />
+                        <span>Ishonchli kitobxon</span>
+                      </span>
+                    )}
                     {isOwner ? (
                       <span className="text-[9px] px-1.5 py-0.2 bg-stone-100 dark:bg-zinc-800 text-stone-700 dark:text-stone-300 font-bold rounded-full border border-stone-200 dark:border-zinc-700">
                         E&#39;lon egasi (Siz)
@@ -478,6 +488,21 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
                 </button>
               )}
             </div>
+
+            {onOpenQRModal && (
+              <button
+                type="button"
+                onClick={() => onOpenQRModal(book, isTemporarilyGiven ? 'return' : 'handover')}
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-900 dark:text-amber-300 border border-amber-500/25 text-xs font-bold transition-all shadow-xs"
+              >
+                <QrCode className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                <span>
+                  {isTemporarilyGiven
+                    ? 'QR-kod bilan qabul qilish (+1 ball)'
+                    : 'QR-kod bilan topshirish (+1 ishonch bali)'}
+                </span>
+              </button>
+            )}
 
             {onDeleteBook && (
               <div className="pt-2 border-t border-stone-200 dark:border-zinc-800 flex items-center justify-between">

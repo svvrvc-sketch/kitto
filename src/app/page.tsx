@@ -17,6 +17,7 @@ import { UserProfileModal } from '@/components/UserProfileModal';
 import { GeolocationPrompt } from '@/components/GeolocationPrompt';
 import { RegionRestrictionModal } from '@/components/RegionRestrictionModal';
 import { SupportModal } from '@/components/SupportModal';
+import { SwapQRModal } from '@/components/SwapQRModal';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { useChat } from '@/context/ChatContext';
@@ -69,11 +70,36 @@ export default function HomePage() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isRegionBlockedModalOpen, setIsRegionBlockedModalOpen] = useState(false);
   const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
+  const [isQRModalOpen, setIsQRModalOpen] = useState(false);
+  const [qrModalBook, setQrModalBook] = useState<Book | null>(null);
+  const [qrModalMode, setQrModalMode] = useState<'handover' | 'return'>('handover');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   // Regional check: whether user is detected outside Tashkent
   const isOutsideTashkent = useMemo(() => {
     return isLocationOutsideTashkent(userCoordinates);
   }, [userCoordinates]);
+
+  // Live Autocomplete Suggestions
+  const autocompleteSuggestions = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q || q.length < 1) return [];
+
+    return books
+      .filter(
+        (b) =>
+          b.title.toLowerCase().includes(q) ||
+          b.author.toLowerCase().includes(q) ||
+          (b.category && b.category.toLowerCase().includes(q))
+      )
+      .slice(0, 6);
+  }, [books, searchQuery]);
+
+  const handleOpenQRModal = useCallback((targetBook: Book, mode: 'handover' | 'return' = 'handover') => {
+    setQrModalBook(targetBook);
+    setQrModalMode(mode);
+    setIsQRModalOpen(true);
+  }, []);
 
   // Dark mode state
   const [darkMode, setDarkMode] = useState(false);
@@ -583,6 +609,7 @@ export default function HomePage() {
             onOpenBookDetail={handleOpenDetail}
             onOpenAddModal={handleOpenAddBookModal}
             onOpenSupport={() => setIsSupportModalOpen(true)}
+            onOpenQRModal={handleOpenQRModal}
           />
         ) : currentTab === 'messages' ? (
           /* Messages Tab View */
@@ -618,13 +645,15 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Search Input Bar */}
+            {/* Search Input Bar with Autocomplete Dropdown */}
             <div className="relative mb-4">
               <Search className="absolute left-3.5 top-3.5 w-4 h-4 text-stone-400 dark:text-zinc-400" />
               <input
                 id="search-input"
                 type="text"
                 value={searchQuery}
+                onFocus={() => setIsSearchFocused(true)}
+                onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Kitob nomi, muallif yoki tuman boʻyicha qidirish..."
                 className="w-full pl-10 pr-10 py-3 rounded-2xl bg-white dark:bg-zinc-900 border border-stone-200/90 dark:border-zinc-800 shadow-sm text-xs sm:text-sm text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-[#141413] dark:focus:ring-stone-400 dark:focus:border-stone-400 transition-all"
@@ -636,6 +665,58 @@ export default function HomePage() {
                 >
                   <X className="w-4 h-4" />
                 </button>
+              )}
+
+              {/* Instant Live Autocomplete Dropdown */}
+              {isSearchFocused && searchQuery.trim().length > 0 && autocompleteSuggestions.length > 0 && (
+                <div
+                  className="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-zinc-900 border border-stone-200/90 dark:border-zinc-800 rounded-2xl shadow-2xl p-2 z-40 animate-in fade-in duration-150 overflow-hidden"
+                  onMouseDown={(e) => e.preventDefault()}
+                >
+                  <div className="px-3 py-1.5 text-[10px] uppercase font-bold tracking-wider text-stone-400 dark:text-zinc-500 border-b border-stone-100 dark:border-zinc-800">
+                    Jonli takliflar ({autocompleteSuggestions.length})
+                  </div>
+                  <div className="divide-y divide-stone-100 dark:divide-zinc-800/60 max-h-72 overflow-y-auto">
+                    {autocompleteSuggestions.map((suggestion) => (
+                      <div
+                        key={suggestion.id}
+                        onClick={() => {
+                          setSearchQuery(suggestion.title);
+                          setIsSearchFocused(false);
+                          handleOpenDetail(suggestion);
+                        }}
+                        className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-stone-50 dark:hover:bg-zinc-850 cursor-pointer transition-colors group"
+                      >
+                        <div className="w-9 h-12 rounded-lg overflow-hidden bg-stone-100 dark:bg-zinc-800 border border-stone-200 dark:border-zinc-700 shrink-0">
+                          {suggestion.coverUrl && !suggestion.coverUrl.includes('unsplash.com') ? (
+                            <img
+                              src={suggestion.coverUrl}
+                              alt={suggestion.title}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-xs">📖</div>
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1 text-left">
+                          <div className="font-serif font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-100 group-hover:text-amber-700 dark:group-hover:text-amber-400 truncate">
+                            {suggestion.title}
+                          </div>
+                          <div className="text-[11px] text-stone-500 dark:text-zinc-400 truncate">
+                            {suggestion.author} • {suggestion.category}
+                          </div>
+                        </div>
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-stone-100 dark:bg-zinc-800 text-stone-600 dark:text-stone-300 shrink-0">
+                          {suggestion.swapTerm?.type === 'gift'
+                            ? '🎁 Sovgʻa'
+                            : suggestion.swapTerm?.type === 'temporary'
+                            ? '⏳ Vaqtincha'
+                            : '🟢 Almashuv'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
 
@@ -732,6 +813,7 @@ export default function HomePage() {
                     onDeleteBook={handleDeleteBook}
                     userCoordinates={userCoordinates}
                     onOpenUserProfile={handleOpenUserProfile}
+                    onOpenQRModal={handleOpenQRModal}
                   />
                 ))}
               </div>
@@ -789,6 +871,7 @@ export default function HomePage() {
         onStartChat={handleStartChatFromDetail}
         onGoToMyListings={() => setCurrentTab('my_listings')}
         onOpenUserProfile={handleOpenUserProfile}
+        onOpenQRModal={handleOpenQRModal}
         isSaved={selectedBook ? savedBookIds.has(selectedBook.id) : false}
         userCoordinates={userCoordinates}
       />
@@ -832,6 +915,23 @@ export default function HomePage() {
       <SupportModal
         isOpen={isSupportModalOpen}
         onClose={() => setIsSupportModalOpen(false)}
+      />
+
+      {/* QR Code Handover & Return Modal (+1 Trust Score / Karma) */}
+      <SwapQRModal
+        isOpen={isQRModalOpen}
+        onClose={() => {
+          setIsQRModalOpen(false);
+          setQrModalBook(null);
+        }}
+        book={qrModalBook}
+        mode={qrModalMode}
+        onConfirmSuccess={(bookId, newStatus) => {
+          handleToggleStatus(bookId);
+          if (selectedBook && selectedBook.id === bookId) {
+            setSelectedBook((prev) => (prev ? { ...prev, status: newStatus } : null));
+          }
+        }}
       />
     </div>
   );
