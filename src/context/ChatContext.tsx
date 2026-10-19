@@ -3,8 +3,8 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { Book } from '@/types/book';
-import { ChatThread, ChatMessage } from '@/types/chat';
-import { chatsService, STORAGE_CHATS_KEY } from '@/services/db';
+import { ChatThread, ChatMessage, BookMiniMeta } from '@/types/chat';
+import { chatsService, booksService, STORAGE_CHATS_KEY } from '@/services/db';
 import { useAuth } from './AuthContext';
 
 interface ChatContextType {
@@ -18,6 +18,17 @@ interface ChatContextType {
   getMessages: (threadId: string) => ChatMessage[];
   startConversation: (book: Book, initialMessage?: string) => string;
   sendMessage: (threadId: string, text: string) => void;
+  sendExchangeProposal: (
+    threadId: string,
+    offeredBook: BookMiniMeta,
+    requestedBook: BookMiniMeta,
+    targetOwnerId?: string
+  ) => void;
+  updateProposalStatus: (
+    threadId: string,
+    proposalId: string,
+    status: 'accepted' | 'declined'
+  ) => Promise<void>;
   markAsRead: (threadId: string) => void;
   totalUnreadCount: number;
 }
@@ -263,6 +274,170 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const sendExchangeProposal = (
+    threadId: string,
+    offeredBook: BookMiniMeta,
+    requestedBook: BookMiniMeta,
+    targetOwnerId?: string
+  ) => {
+    const currentUserId = user?.id || 'guest_user';
+    const proposalId = `prop_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+
+    const newMsg: ChatMessage = {
+      id: `msg_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      senderId: currentUserId,
+      text: `Almashish taklifi: "${offeredBook.title}" ⇄ "${requestedBook.title}"`,
+      createdAt: new Date().toISOString(),
+      isRead: false,
+      type: 'exchange_proposal',
+      proposal: {
+        proposal_id: proposalId,
+        offered_book: offeredBook,
+        requested_book: requestedBook,
+        status: 'pending',
+        target_owner_id: targetOwnerId,
+        created_at: new Date().toISOString(),
+      },
+    };
+
+    const targetThread = threads.find((t) => t.id === threadId);
+    if (!targetThread) return;
+
+    const updatedTarget: ChatThread = {
+      ...targetThread,
+      messages: [...targetThread.messages, newMsg],
+      updatedAt: new Date().toISOString(),
+    };
+
+    const remaining = threads.filter((t) => t.id !== threadId);
+    const reordered = [updatedTarget, ...remaining];
+
+    persistThreads(reordered);
+    chatsService.saveChat(updatedTarget).catch((err) => {
+      console.warn('Failed to sync proposal message to cloud:', err);
+    });
+
+    // Telegram Push Notification to other participant
+    try {
+      const isOwnerSender = currentUserId === targetThread.ownerId;
+      const recipientId = isOwnerSender ? targetThread.initiatorId : targetThread.ownerId;
+      const recipientName = isOwnerSender ? targetThread.initiatorName : targetThread.ownerName;
+
+      fetch('/api/telegram-chat-notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          recipientId,
+          recipientName,
+          senderName: user?.name || 'Foydalanuvchi',
+          bookTitle: targetThread.bookTitle,
+          messageSnippet: `Almashish taklifi: "${offeredBook.title}" ⇄ "${requestedBook.title}"`,
+          threadId,
+        }),
+      }).catch(() => {});
+    } catch {
+      // ignore
+    }
+  };
+
+  const updateProposalStatus = async (
+    threadId: string,
+    proposalId: string,
+    status: 'accepted' | 'declined'
+  ) => {
+    const targetThread = threads.find((t) => t.id === threadId);
+    if (!targetThread) return;
+
+    let targetProposal: any = null;
+
+    const updatedMessages = targetThread.messages.map((m) => {
+      if (m.proposal && (m.proposal.proposal_id === proposalId || m.id === proposalId)) {
+        targetProposal = m.proposal;
+        return {
+          ...m,
+          proposal: {
+            ...m.proposal,
+            status,
+            responded_at: new Date().toISOString(),
+          },
+        };
+      }
+      return m;
+    });
+
+    // If accepted, update both books to borrowed / reserved in DB and notify UI
+    if (status === 'accepted' && targetProposal) {
+      const offeredId = targetProposal.offered_book?.id;
+      const requestedId = targetProposal.requested_book?.id;
+
+      if (offeredId) {
+        booksService.updateBookStatus(offeredId, 'borrowed').catch((e) => {
+          console.warn('Failed to update offered book status:', e);
+        });
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(
+            new CustomEvent('kitto_book_status_updated', {
+              detail: { bookId: offeredId, status: 'borrowed' },
+            })
+          );
+        }
+      }
+
+      if (requestedId) {
+        booksService.updateBookStatus(requestedId, 'borrowed').catch((e) => {
+          console.warn('Failed to update requested book status:', e);
+        });
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(
+            new CustomEvent('kitto_book_status_updated', {
+              detail: { bookId: requestedId, status: 'borrowed' },
+            })
+          );
+        }
+      }
+    }
+
+    const updatedTarget: ChatThread = {
+      ...targetThread,
+      messages: updatedMessages,
+      updatedAt: new Date().toISOString(),
+    };
+
+    const remaining = threads.filter((t) => t.id !== threadId);
+    const reordered = [updatedTarget, ...remaining];
+
+    persistThreads(reordered);
+    await chatsService.saveChat(updatedTarget).catch((err) => {
+      console.warn('Failed to sync updated proposal status to cloud:', err);
+    });
+
+    // Telegram Notification
+    try {
+      const currentUserId = user?.id || 'guest_user';
+      const isOwnerSender = currentUserId === targetThread.ownerId;
+      const recipientId = isOwnerSender ? targetThread.initiatorId : targetThread.ownerId;
+      const recipientName = isOwnerSender ? targetThread.initiatorName : targetThread.ownerName;
+
+      fetch('/api/telegram-chat-notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          recipientId,
+          recipientName,
+          senderName: user?.name || 'Foydalanuvchi',
+          bookTitle: targetThread.bookTitle,
+          messageSnippet:
+            status === 'accepted'
+              ? 'Almashish taklifingiz qabul qilindi! QR-kod orqali topshirishingiz mumkin.'
+              : 'Almashish taklifingiz rad etildi.',
+          threadId,
+        }),
+      }).catch(() => {});
+    } catch {
+      // ignore
+    }
+  };
+
   const totalUnreadCount = threads.reduce((acc, t) => {
     const unread = t.messages.filter((m) => !m.isRead && m.senderId !== user?.id).length;
     return acc + unread;
@@ -281,6 +456,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         getMessages,
         startConversation,
         sendMessage,
+        sendExchangeProposal,
+        updateProposalStatus,
         markAsRead,
         totalUnreadCount,
       }}

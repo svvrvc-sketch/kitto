@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Book } from '@/types/book';
-import { Bookmark, CheckCircle2, Trash2, RefreshCw, MapPin, BookOpen, Camera, Clock, ShieldCheck, QrCode } from 'lucide-react';
+import { Bookmark, CheckCircle2, Trash2, RefreshCw, MapPin, BookOpen, Camera, Clock, ShieldCheck, QrCode, ArrowLeftRight } from 'lucide-react';
 import { calculateDistanceKm, formatDistance } from '@/lib/geo-utils';
 
 interface BookCardProps {
@@ -16,6 +16,7 @@ interface BookCardProps {
   userCoordinates?: { lat: number; lng: number } | null;
   onOpenUserProfile?: (userId: string, e: React.MouseEvent) => void;
   onOpenQRModal?: (book: Book, mode: 'handover' | 'return') => void;
+  onOpenSwapModal?: (book: Book) => void;
 }
 
 export const BookCard: React.FC<BookCardProps> = ({
@@ -29,6 +30,7 @@ export const BookCard: React.FC<BookCardProps> = ({
   userCoordinates = null,
   onOpenUserProfile,
   onOpenQRModal,
+  onOpenSwapModal,
 }) => {
   const [imageError, setImageError] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -323,6 +325,28 @@ export const BookCard: React.FC<BookCardProps> = ({
             )}
           </div>
         </div>
+
+        {/* Action Controls for Non-My Listing Cards (Feed View) */}
+        {!isMyListing && onOpenSwapModal && (
+          <div className="mt-3 pt-2.5 border-t border-stone-200/70 dark:border-zinc-800 flex items-center justify-between gap-2">
+            <span className="text-[10px] sm:text-[11px] font-semibold text-amber-800 dark:text-amber-300 truncate">
+              {book.swapTerm?.durationLabel || 'Almashuv'}
+            </span>
+            <button
+              type="button"
+              id={`book-swap-btn-${book.id}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenSwapModal(book);
+              }}
+              className="py-1 px-2.5 rounded-xl bg-[#141413] hover:bg-black dark:bg-stone-200 dark:hover:bg-white text-white dark:text-stone-900 text-[10px] sm:text-[11px] font-semibold flex items-center gap-1 shadow-xs transition-all active:scale-95 shrink-0"
+              title="Kitob almashish taklifini yuborish"
+            >
+              <ArrowLeftRight className="w-3 h-3 text-amber-500" />
+              <span>Almashish</span>
+            </button>
+          </div>
+        )}
 
         {/* Action Controls for "E'lonlar" View */}
         {isMyListing && (

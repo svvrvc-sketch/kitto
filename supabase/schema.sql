@@ -89,7 +89,26 @@ CREATE INDEX IF NOT EXISTS idx_chats_book_id ON public.chats(book_id);
 CREATE INDEX IF NOT EXISTS idx_chats_updated_at ON public.chats(updated_at DESC);
 
 -- ------------------------------------------------------------------------------
--- 5. REGIONAL VOTES TABLE (Waitlist)
+-- 5. EXCHANGE TRANSACTIONS TABLE (Peer-to-Peer Swap Requests)
+-- ------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.exchange_transactions (
+  id TEXT PRIMARY KEY,
+  initiator_book_id TEXT NOT NULL,
+  target_book_id TEXT NOT NULL,
+  owner_id TEXT NOT NULL,
+  borrower_id TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'declined', 'completed', 'cancelled')),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Exchange Transactions Indexes
+CREATE INDEX IF NOT EXISTS idx_exchange_tx_owner_id ON public.exchange_transactions(owner_id);
+CREATE INDEX IF NOT EXISTS idx_exchange_tx_borrower_id ON public.exchange_transactions(borrower_id);
+CREATE INDEX IF NOT EXISTS idx_exchange_tx_status ON public.exchange_transactions(status);
+
+-- ------------------------------------------------------------------------------
+-- 6. REGIONAL VOTES TABLE (Waitlist)
 -- ------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.regional_votes (
   region_id TEXT PRIMARY KEY,
@@ -139,6 +158,7 @@ ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.books ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.chats ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.regional_votes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.exchange_transactions ENABLE ROW LEVEL SECURITY;
 
 -- Profiles: Public Read & Upsert
 CREATE POLICY "Public profiles are readable by anyone"
@@ -161,6 +181,10 @@ CREATE POLICY "Participants can view and update their chats"
 -- Regional Votes: Public read and vote increment
 CREATE POLICY "Votes are viewable and updatable by everyone"
   ON public.regional_votes FOR ALL USING (true) WITH CHECK (true);
+
+-- Exchange Transactions: Viewable and manageable by participants
+CREATE POLICY "Exchange transactions are viewable and manageable by participants"
+  ON public.exchange_transactions FOR ALL USING (true) WITH CHECK (true);
 
 -- ------------------------------------------------------------------------------
 -- 7. REALTIME REPLICATION PUBLICATION

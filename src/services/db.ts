@@ -3,6 +3,7 @@ import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { Book, BookStatus, BookLoanInfo } from '@/types/book';
 import { UserProfile } from '@/types/auth';
 import { ChatThread, ChatMessage } from '@/types/chat';
+import { ExchangeTransaction, ExchangeTransactionStatus } from '@/types/exchange';
 
 // Storage keys for offline cache & localStorage fallback
 export const STORAGE_BOOKS_KEY = 'kitto_books';
@@ -10,6 +11,7 @@ export const STORAGE_USER_KEY = 'kitto_user';
 export const STORAGE_CHATS_KEY = 'kitto_chats';
 export const STORAGE_VOTES_KEY = 'kitto_region_votes';
 export const STORAGE_SAVED_KEY = 'kitto_saved_ids';
+export const STORAGE_EXCHANGE_KEY = 'kitto_exchange_transactions';
 
 const TASHKENT_DEFAULT_LOCATION = {
   lat: 41.311081,
@@ -142,6 +144,8 @@ export function mapRowToChat(row: any): ChatThread {
         text: String(m.text || ''),
         createdAt: String(m.createdAt || m.created_at || new Date().toISOString()),
         isRead: Boolean(m.isRead ?? m.is_read ?? false),
+        type: m.type || 'text',
+        proposal: m.proposal || undefined,
       }))
     : [];
 
@@ -852,5 +856,148 @@ export const votesService = {
       console.warn('Failed to subscribe to votes channel:', e);
       return () => {};
     }
+  },
+};
+
+// ==============================================================================
+// 6. EXCHANGE TRANSACTIONS SERVICE
+// ==============================================================================
+
+export const exchangeTransactionsService = {
+  /**
+   * Creates a new exchange transaction proposal in Supabase & local cache.
+   */
+  async createTransaction(transaction: ExchangeTransaction): Promise<ExchangeTransaction> {
+    // 1. Save to local storage cache
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem(STORAGE_EXCHANGE_KEY);
+        let list: ExchangeTransaction[] = [];
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed)) list = parsed;
+          } catch {
+            // ignore
+          }
+        }
+        const updated = [transaction, ...list.filter((x) => x.id !== transaction.id)];
+        localStorage.setItem(STORAGE_EXCHANGE_KEY, JSON.stringify(updated));
+      } catch (e) {
+        console.warn('LocalStorage exchange transaction save error:', e);
+      }
+    }
+
+    // 2. Persist to Supabase exchange_transactions table
+    if (isSupabaseConfigured) {
+      try {
+        const row = {
+          id: transaction.id,
+          initiator_book_id: transaction.initiator_book_id,
+          target_book_id: transaction.target_book_id,
+          owner_id: transaction.owner_id,
+          borrower_id: transaction.borrower_id,
+          status: transaction.status,
+          created_at: transaction.created_at || new Date().toISOString(),
+          updated_at: transaction.updated_at || new Date().toISOString(),
+        };
+
+        const { error } = await supabase.from('exchange_transactions').upsert(row, { onConflict: 'id' });
+        if (error) {
+          console.warn('Supabase exchange_transactions upsert warning:', error.message);
+        }
+      } catch (err) {
+        console.warn('Network error saving exchange transaction to Supabase:', err);
+      }
+    }
+
+    return transaction;
+  },
+
+  /**
+   * Updates an existing transaction's status.
+   */
+  async updateTransactionStatus(
+    id: string,
+    status: ExchangeTransactionStatus
+  ): Promise<void> {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem(STORAGE_EXCHANGE_KEY);
+        if (stored) {
+          const list: ExchangeTransaction[] = JSON.parse(stored);
+          const updated = list.map((item) =>
+            item.id === id ? { ...item, status, updated_at: new Date().toISOString() } : item
+          );
+          localStorage.setItem(STORAGE_EXCHANGE_KEY, JSON.stringify(updated));
+        }
+      } catch (e) {
+        console.warn('Local update transaction status error:', e);
+      }
+    }
+
+    if (isSupabaseConfigured) {
+      try {
+        const { error } = await supabase
+          .from('exchange_transactions')
+          .update({ status, updated_at: new Date().toISOString() })
+          .eq('id', id);
+        if (error) {
+          console.warn('Supabase update transaction status error:', error.message);
+        }
+      } catch (err) {
+        console.warn('Network error updating exchange transaction status on Supabase:', err);
+      }
+    }
+  },
+
+  /**
+   * Retrieves exchange transactions for a user (as borrower or owner).
+   */
+  async getTransactions(userId?: string): Promise<ExchangeTransaction[]> {
+    if (isSupabaseConfigured && userId) {
+      try {
+        const { data, error } = await supabase
+          .from('exchange_transactions')
+          .select('*')
+          .or(`owner_id.eq.${userId},borrower_id.eq.${userId}`)
+          .order('created_at', { ascending: false });
+
+        if (!error && Array.isArray(data)) {
+          return data.map((r: any) => ({
+            id: String(r.id),
+            initiator_book_id: String(r.initiator_book_id),
+            target_book_id: String(r.target_book_id),
+            owner_id: String(r.owner_id),
+            borrower_id: String(r.borrower_id),
+            status: r.status as ExchangeTransactionStatus,
+            created_at: String(r.created_at),
+            updated_at: r.updated_at ? String(r.updated_at) : undefined,
+          }));
+        }
+      } catch (err) {
+        console.warn('Network error querying exchange transactions:', err);
+      }
+    }
+
+    // LocalStorage fallback
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem(STORAGE_EXCHANGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) {
+            if (!userId) return parsed;
+            return parsed.filter(
+              (x: ExchangeTransaction) => x.owner_id === userId || x.borrower_id === userId
+            );
+          }
+        }
+      } catch (e) {
+        console.warn('LocalStorage read transactions error:', e);
+      }
+    }
+
+    return [];
   },
 };

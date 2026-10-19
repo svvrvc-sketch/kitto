@@ -30,7 +30,7 @@ export interface BookLoanInfo {
   handoverQrCode?: string;
 }
 
-export type BookStatus = 'active' | 'temporarily_given' | 'swapped';
+export type BookStatus = 'active' | 'temporarily_given' | 'swapped' | 'reserved' | 'borrowed';
 
 export interface Book {
   id: string;

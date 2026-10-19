@@ -19,6 +19,10 @@ import {
   Clock,
   ShieldCheck,
   QrCode,
+  Send,
+  Copy,
+  MessageCircle,
+  ArrowLeftRight,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
@@ -36,6 +40,7 @@ interface BookDetailModalProps {
   onGoToMyListings?: () => void;
   onOpenUserProfile?: (userId: string) => void;
   onOpenQRModal?: (book: Book, mode: 'handover' | 'return') => void;
+  onOpenSwapModal?: (book: Book) => void;
   isSaved?: boolean;
   userCoordinates?: { lat: number; lng: number } | null;
 }
@@ -51,6 +56,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
   onGoToMyListings,
   onOpenUserProfile,
   onOpenQRModal,
+  onOpenSwapModal,
   isSaved = false,
   userCoordinates = null,
 }) => {
@@ -150,32 +156,60 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
     return isSwapped ? 'Faol qilish' : 'Almashildi';
   };
 
-  const handleShare = async () => {
-    const swapLabel = book.swapTerm?.durationLabel || durationLabel;
-    const shareUrl = `https://kitto-fakv.vercel.app/book/${book.id}`;
-    const shareText = `📚 "${book.title}" (${book.author}) — ${swapLabel}. Kitto.uz orqali ko'rish: ${shareUrl}`;
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
+  const getShareUrl = () => {
+    if (typeof window !== 'undefined') {
+      return `${window.location.origin}/book/${book.id}`;
+    }
+    return `https://kitto-fakv.vercel.app/book/${book.id}`;
+  };
+
+  const getShareText = () => {
+    const swapLabel = book.swapTerm?.durationLabel || durationLabel;
+    const shareUrl = getShareUrl();
+    return `📚 "${book.title}" (${book.author}) — ${swapLabel}. Kitto.uz orqali koʻring: ${shareUrl}`;
+  };
+
+  const handleShare = () => {
+    setIsShareModalOpen(true);
+  };
+
+  const handleCopyLink = async () => {
+    const shareUrl = getShareUrl();
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareUrl);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = shareUrl;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
+      setCopied(true);
+      showToast("Havola nusxalandi!", 'success');
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      showToast("Havola nusxalandi!", 'success');
+    }
+  };
+
+  const handleNativeShare = async () => {
     if (typeof navigator !== 'undefined' && navigator.share) {
       try {
         await navigator.share({
           title: `${book.title} — Kitto.uz`,
-          text: shareText,
-          url: shareUrl,
+          text: getShareText(),
+          url: getShareUrl(),
         });
-        showToast("Havola muvaffaqiyatli ulashildi!", 'success');
-        return;
+        showToast("Muvaffaqiyatli ulashildi!", 'success');
       } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
-        if (err?.name === 'AbortError') return;
+        if (err?.name !== 'AbortError') {
+          handleCopyLink();
+        }
       }
-    }
-
-    try {
-      await navigator.clipboard.writeText(shareText);
-      setCopied(true);
-      showToast("Havola nusxalandi! Do'stlaringizga ulashishingiz mumkin.", 'success');
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      showToast("Havola nusxalandi! Do'stlaringizga ulashishingiz mumkin.", 'success');
     }
   };
 
@@ -541,18 +575,39 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
           </div>
         )}
 
-        {/* Primary CTA Button */}
+        {/* Primary CTA Buttons */}
         <div className="mt-6 pt-2">
           {!isOwner ? (
-            <button
-              id="modal-send-message-btn"
-              type="button"
-              onClick={handleMessageClick}
-              className="w-full flex items-center justify-center gap-2.5 py-3.5 px-6 rounded-2xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 font-semibold text-sm shadow-tactile transition-all active:scale-[0.99]"
-            >
-              <MessageSquare className="w-4 h-4" />
-              <span>💬 Xabar yozish (Kelishish)</span>
-            </button>
+            <div className="flex flex-col sm:flex-row gap-2.5">
+              <button
+                id="modal-swap-request-btn"
+                type="button"
+                onClick={() => {
+                  if (!user) {
+                    openAuthModal("Kitob almashish taklifini yuborish uchun tizimga kiring");
+                    return;
+                  }
+                  if (onOpenSwapModal) {
+                    onOpenSwapModal(book);
+                  }
+                }}
+                className="flex-1 flex items-center justify-center gap-2 py-3.5 px-5 rounded-2xl bg-[#141413] hover:bg-black dark:bg-stone-100 dark:hover:bg-white text-white dark:text-stone-900 font-semibold text-xs sm:text-sm shadow-tactile transition-all active:scale-[0.99]"
+              >
+                <ArrowLeftRight className="w-4 h-4 text-amber-500" />
+                <span>Kitob almashish</span>
+              </button>
+
+              <button
+                id="modal-send-message-btn"
+                type="button"
+                onClick={handleMessageClick}
+                className="sm:w-auto flex items-center justify-center gap-2 py-3.5 px-5 rounded-2xl bg-stone-100 hover:bg-stone-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-stone-800 dark:text-stone-200 font-semibold text-xs sm:text-sm transition-all"
+                title="Kitob egasiga to'g'ridan-to'g'ri xabar yozish"
+              >
+                <MessageSquare className="w-4 h-4" />
+                <span>Xabar</span>
+              </button>
+            </div>
           ) : (
             <button
               type="button"
@@ -610,6 +665,127 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
             <p className="text-[11px] text-stone-400 mt-2.5 text-center">
               Kitobning haqiqiy jismoniy holati va sahifalarini tekshirish uchun to&apos;liq ko&apos;rinish
             </p>
+          </div>
+        </div>
+      )}
+
+      {/* Dedicated Share Sheet / Modal */}
+      {isShareModalOpen && (
+        <div
+          className="fixed inset-0 z-60 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-stone-950/70 backdrop-blur-sm animate-in fade-in duration-150"
+          onClick={() => setIsShareModalOpen(false)}
+        >
+          <div
+            className="w-full sm:max-w-md bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 rounded-t-3xl sm:rounded-3xl shadow-2xl p-5 sm:p-6 space-y-4 animate-in slide-in-from-bottom sm:zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 flex items-center justify-center">
+                  <Share2 className="w-4 h-4" />
+                </div>
+                <h3 className="font-serif font-bold text-base text-stone-900 dark:text-stone-100">
+                  Kitobni ulashish
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsShareModalOpen(false)}
+                className="p-1.5 rounded-full hover:bg-stone-100 dark:hover:bg-zinc-800 text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Book preview pill */}
+            <div className="flex items-center gap-3 p-3 rounded-2xl bg-stone-50 dark:bg-zinc-800/60 border border-stone-200/80 dark:border-zinc-700/60">
+              <div className="w-10 h-14 rounded-lg overflow-hidden bg-stone-200 shrink-0">
+                {book.coverUrl ? (
+                  <img src={book.coverUrl} alt={book.title} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-xs">📖</div>
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="font-serif font-bold text-xs text-stone-900 dark:text-stone-100 truncate">
+                  {book.title}
+                </div>
+                <div className="text-[11px] text-stone-500 dark:text-zinc-400 truncate">
+                  {book.author}
+                </div>
+                <div className="text-[10px] text-amber-600 dark:text-amber-400 font-semibold mt-0.5">
+                  {book.swapTerm?.durationLabel || durationLabel}
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Share Buttons */}
+            <div className="space-y-2">
+              {/* Telegram 1-Click Share */}
+              <a
+                href={`https://t.me/share/url?url=${encodeURIComponent(getShareUrl())}&text=${encodeURIComponent(`📚 "${book.title}" (${book.author}) — Kitto.uz orqali kitob almashing!`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-sky-500 hover:bg-sky-600 active:scale-[0.98] text-white font-bold text-xs shadow-tactile transition-all"
+              >
+                <Send className="w-4 h-4" />
+                <span>Telegram orqali yuborish</span>
+              </a>
+
+              {/* WhatsApp 1-Click Share */}
+              <a
+                href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`📚 "${book.title}" (${book.author}) — Kitto.uz orqali ko'rish: ${getShareUrl()}`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-semibold text-xs shadow-xs transition-all"
+              >
+                <MessageCircle className="w-4 h-4" />
+                <span>WhatsApp orqali yuborish</span>
+              </a>
+            </div>
+
+            {/* Copy Link Input */}
+            <div>
+              <div className="text-[11px] font-semibold text-stone-500 dark:text-zinc-400 mb-1.5">
+                Toʻgʻridan-toʻgʻri havola
+              </div>
+              <div className="flex items-center gap-1.5 p-1.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50/80 dark:bg-zinc-800/80">
+                <input
+                  type="text"
+                  readOnly
+                  value={getShareUrl()}
+                  className="flex-1 bg-transparent px-2 text-xs text-stone-700 dark:text-stone-300 outline-none select-all font-mono"
+                />
+                <button
+                  type="button"
+                  onClick={handleCopyLink}
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-white dark:text-stone-900 text-xs font-bold transition-all active:scale-95"
+                >
+                  {copied ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-400 dark:text-emerald-600" />
+                      <span>Nusxalandi</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>Nusxa olish</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Native system share fallback */}
+            {typeof navigator !== 'undefined' && typeof navigator.share === 'function' && (
+              <button
+                type="button"
+                onClick={handleNativeShare}
+                className="w-full py-2 text-center text-xs text-stone-500 hover:text-stone-800 dark:text-zinc-400 dark:hover:text-stone-200 font-medium transition-colors"
+              >
+                Boshqa ilovalar orqali ulashish...
+              </button>
+            )}
           </div>
         </div>
       )}

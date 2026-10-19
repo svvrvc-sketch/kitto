@@ -18,6 +18,7 @@ import { GeolocationPrompt } from '@/components/GeolocationPrompt';
 import { RegionRestrictionModal } from '@/components/RegionRestrictionModal';
 import { SupportModal } from '@/components/SupportModal';
 import { SwapQRModal } from '@/components/SwapQRModal';
+import { SwapRequestModal } from '@/components/exchange/SwapRequestModal';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { useChat } from '@/context/ChatContext';
@@ -73,6 +74,8 @@ export default function HomePage() {
   const [isQRModalOpen, setIsQRModalOpen] = useState(false);
   const [qrModalBook, setQrModalBook] = useState<Book | null>(null);
   const [qrModalMode, setQrModalMode] = useState<'handover' | 'return'>('handover');
+  const [isSwapModalOpen, setIsSwapModalOpen] = useState(false);
+  const [swapModalTargetBook, setSwapModalTargetBook] = useState<Book | null>(null);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   // Regional check: whether user is detected outside Tashkent
@@ -100,6 +103,15 @@ export default function HomePage() {
     setQrModalMode(mode);
     setIsQRModalOpen(true);
   }, []);
+
+  const handleOpenSwapModal = useCallback((targetBook: Book) => {
+    if (!user) {
+      openAuthModal("Kitob almashish taklifini yuborish uchun tizimga kiring");
+      return;
+    }
+    setSwapModalTargetBook(targetBook);
+    setIsSwapModalOpen(true);
+  }, [user, openAuthModal]);
 
   // Dark mode state
   const [darkMode, setDarkMode] = useState(false);
@@ -202,6 +214,23 @@ export default function HomePage() {
     return () => {
       window.removeEventListener('kitto_coords_updated', handleCoordsUpdated);
       window.removeEventListener('bookswap_coords_updated', handleCoordsUpdated);
+    };
+  }, []);
+
+  // Listen for real-time status updates dispatched from exchange proposals or QR codes
+  useEffect(() => {
+    const handleStatusUpdated = (e: any) => {
+      if (e.detail && e.detail.bookId && e.detail.status) {
+        setBooks((prev) =>
+          prev.map((b) =>
+            b.id === e.detail.bookId ? { ...b, status: e.detail.status } : b
+          )
+        );
+      }
+    };
+    window.addEventListener('kitto_book_status_updated', handleStatusUpdated);
+    return () => {
+      window.removeEventListener('kitto_book_status_updated', handleStatusUpdated);
     };
   }, []);
 
@@ -620,6 +649,9 @@ export default function HomePage() {
             }}
             onGoToFeed={() => setCurrentTab('home')}
             onOpenUserProfile={handleOpenUserProfile}
+            onOpenQRModal={handleOpenQRModal}
+            onOpenAddModal={handleOpenAddBookModal}
+            books={books}
           />
         ) : (
           /* Feed, Saved, or My Listings Tab */
@@ -814,6 +846,7 @@ export default function HomePage() {
                     userCoordinates={userCoordinates}
                     onOpenUserProfile={handleOpenUserProfile}
                     onOpenQRModal={handleOpenQRModal}
+                    onOpenSwapModal={handleOpenSwapModal}
                   />
                 ))}
               </div>
@@ -872,6 +905,7 @@ export default function HomePage() {
         onGoToMyListings={() => setCurrentTab('my_listings')}
         onOpenUserProfile={handleOpenUserProfile}
         onOpenQRModal={handleOpenQRModal}
+        onOpenSwapModal={handleOpenSwapModal}
         isSaved={selectedBook ? savedBookIds.has(selectedBook.id) : false}
         userCoordinates={userCoordinates}
       />
@@ -931,6 +965,22 @@ export default function HomePage() {
           if (selectedBook && selectedBook.id === bookId) {
             setSelectedBook((prev) => (prev ? { ...prev, status: newStatus } : null));
           }
+        }}
+      />
+
+      {/* Dual-Catalog Peer-to-Peer Swap Request Modal */}
+      <SwapRequestModal
+        isOpen={isSwapModalOpen}
+        onClose={() => {
+          setIsSwapModalOpen(false);
+          setSwapModalTargetBook(null);
+        }}
+        targetBook={swapModalTargetBook}
+        allBooks={books}
+        onOpenAddModal={handleOpenAddBookModal}
+        onSwapSubmitted={() => {
+          setIsDetailModalOpen(false);
+          setCurrentTab('messages');
         }}
       />
     </div>

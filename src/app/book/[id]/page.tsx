@@ -139,15 +139,29 @@ export default async function BookSharePage({ params }: PageProps) {
           </>
         ) : (
           <div>
-            <h2 className="font-serif text-xl font-bold mb-2">Kitob topilmadi</h2>
-            <p className="text-xs text-stone-500 mb-6">Ushbu kitob almashilgan yoki oʻchirilgan boʻlishi mumkin.</p>
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 py-2.5 px-5 rounded-xl bg-[#141413] text-white text-xs font-semibold"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Bosh sahifaga qaytish</span>
-            </Link>
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 flex items-center justify-center mx-auto mb-3 text-2xl">
+              📖
+            </div>
+            <h2 className="font-serif text-lg font-bold mb-1.5 text-stone-900 dark:text-stone-100">Kitob eʼloni</h2>
+            <p className="text-xs text-stone-500 dark:text-zinc-400 mb-5 max-w-xs mx-auto">
+              Kitobni toʻliq koʻrish, egasi bilan bogʻlanish yoki almashish uchun platformani oching.
+            </p>
+            <div className="space-y-2">
+              <Link
+                href={`/?book=${encodeURIComponent(id)}`}
+                className="w-full inline-flex items-center justify-center gap-2 py-3 px-5 rounded-2xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 text-xs font-bold shadow-tactile transition-all"
+              >
+                <BookOpen className="w-4 h-4" />
+                <span>Kitobni platformada koʻrish</span>
+              </Link>
+              <Link
+                href="/"
+                className="w-full inline-flex items-center justify-center gap-1.5 py-2 px-4 rounded-xl border border-stone-200 dark:border-zinc-800 text-stone-600 dark:text-stone-300 text-xs font-medium hover:bg-stone-50 dark:hover:bg-zinc-800 transition-colors"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Bosh sahifa</span>
+              </Link>
+            </div>
           </div>
         )}
       </div>
