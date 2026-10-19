@@ -320,11 +320,11 @@ export default function AdminPage() {
                 <div key={u.id} className="flex items-center justify-between p-3.5 rounded-xl border border-stone-200 dark:border-zinc-800 bg-stone-50 dark:bg-zinc-850">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-[#141413] text-[#F8F7F4] flex items-center justify-center font-bold text-xs">
-                      {u.name.charAt(0)}
+                      {(u.name || 'U').charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <div className="font-semibold text-xs">{u.name}</div>
-                      <div className="text-[11px] text-stone-500 dark:text-zinc-400">{u.contact}</div>
+                      <div className="font-semibold text-xs">{u.name || 'Foydalanuvchi'}</div>
+                      <div className="text-[11px] text-stone-500 dark:text-zinc-400">{u.contact || ''}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">

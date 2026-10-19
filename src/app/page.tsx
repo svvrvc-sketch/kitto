@@ -522,30 +522,32 @@ export default function HomePage() {
 
   // Filtered books based on currentTab, search, feedFilter
   const filteredBooks = useMemo(() => {
-    let list = [...books];
+    let list = Array.isArray(books) ? books.filter(Boolean) : [];
 
     // Filter by tab
     if (currentTab === 'saved') {
-      list = list.filter((b) => savedBookIds.has(b.id));
+      list = list.filter((b) => b && b.id && savedBookIds.has(b.id));
     } else if (currentTab === 'my_listings') {
-      list = list.filter((b) => user && b.ownerId === user.id);
+      list = list.filter((b) => b && user && b.ownerId === user.id);
     }
 
     // Filter by search query
-    if (searchQuery.trim()) {
+    if (searchQuery && searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
       list = list.filter(
         (b) =>
-          b.title.toLowerCase().includes(q) ||
-          b.author.toLowerCase().includes(q) ||
-          b.category?.toLowerCase().includes(q) ||
-          b.location?.addressText?.toLowerCase().includes(q)
+          b &&
+          ((b.title && b.title.toLowerCase().includes(q)) ||
+            (b.author && b.author.toLowerCase().includes(q)) ||
+            (b.category && b.category.toLowerCase().includes(q)) ||
+            (b.location?.addressText && b.location.addressText.toLowerCase().includes(q)))
       );
     }
 
     // Filter by feedFilter (only on home tab)
     if (currentTab === 'home' && feedFilter !== 'all') {
       list = list.filter((b) => {
+        if (!b) return false;
         const type = b.swapTerm?.type || (b.type === 'gift' ? 'gift' : 'permanent');
         return type === feedFilter;
       });
@@ -554,6 +556,7 @@ export default function HomePage() {
     // Sort by proximity if user coordinates available
     if (userCoordinates) {
       list.sort((a, b) => {
+        if (!a || !b) return 0;
         const aLat = a.location?.lat ?? a.coordinates?.lat ?? TASHKENT_CENTER.lat;
         const aLng = a.location?.lng ?? a.coordinates?.lng ?? TASHKENT_CENTER.lng;
         const bLat = b.location?.lat ?? b.coordinates?.lat ?? TASHKENT_CENTER.lat;
@@ -570,11 +573,11 @@ export default function HomePage() {
 
   // Counts
   const myListings = useMemo(() => {
-    return books.filter((b) => user && b.ownerId === user.id);
+    return (Array.isArray(books) ? books : []).filter((b) => b && user && b.ownerId === user.id);
   }, [books, user]);
 
   const swappedListingsCount = useMemo(() => {
-    return myListings.filter((b) => b.status === 'swapped' || b.isCompleted).length;
+    return myListings.filter((b) => b && (b.status === 'swapped' || b.isCompleted)).length;
   }, [myListings]);
 
   return (

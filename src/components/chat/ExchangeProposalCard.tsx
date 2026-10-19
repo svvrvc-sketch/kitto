@@ -37,6 +37,14 @@ export const ExchangeProposalCard: React.FC<ExchangeProposalCardProps> = ({
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  if (!proposal || !proposal.offered_book || !proposal.requested_book) {
+    return (
+      <div className="p-3 rounded-xl bg-stone-100 dark:bg-zinc-800 text-xs text-stone-500">
+        Taklif ma&#39;lumotlari mavjud emas
+      </div>
+    );
+  }
+
   // Recipient check: If target_owner_id is set, match against that.
   // Otherwise, the recipient is the person who didn't send the proposal message.
   const isRecipient = proposal.target_owner_id
@@ -50,8 +58,12 @@ export const ExchangeProposalCard: React.FC<ExchangeProposalCardProps> = ({
   const isAccepted = status === 'accepted';
   const isDeclined = status === 'declined';
 
-  const offeredCover = proposal.offered_book.cover_url || proposal.offered_book.coverUrl;
-  const requestedCover = proposal.requested_book.cover_url || proposal.requested_book.coverUrl;
+  const offeredCover = proposal.offered_book?.cover_url || proposal.offered_book?.coverUrl;
+  const requestedCover = proposal.requested_book?.cover_url || proposal.requested_book?.coverUrl;
+  const offeredTitle = proposal.offered_book?.title || 'Kitob';
+  const offeredAuthor = proposal.offered_book?.author || '';
+  const requestedTitle = proposal.requested_book?.title || 'Kitob';
+  const requestedAuthor = proposal.requested_book?.author || '';
 
   const handleAcceptClick = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -120,7 +132,7 @@ export const ExchangeProposalCard: React.FC<ExchangeProposalCardProps> = ({
 
         {/* Left Card (Taklif qilingan kitob) */}
         <div
-          onClick={() => onOpenBookDetail && onOpenBookDetail(proposal.offered_book.id)}
+          onClick={() => proposal.offered_book?.id && onOpenBookDetail && onOpenBookDetail(proposal.offered_book.id)}
           className="bg-white dark:bg-zinc-800/90 rounded-xl p-2.5 border border-[#E5E7EB] dark:border-zinc-700/80 flex flex-col items-center text-center shadow-xs cursor-pointer group hover:border-amber-400 dark:hover:border-amber-500 transition-all"
           title="Kitob ma'lumotlarini ko'rish"
         >
@@ -132,7 +144,7 @@ export const ExchangeProposalCard: React.FC<ExchangeProposalCardProps> = ({
             {offeredCover ? (
               <img
                 src={offeredCover}
-                alt={proposal.offered_book.title}
+                alt={offeredTitle}
                 className="w-16 h-24 rounded-lg object-cover"
               />
             ) : (
@@ -141,16 +153,16 @@ export const ExchangeProposalCard: React.FC<ExchangeProposalCardProps> = ({
           </div>
 
           <h4 className="font-serif font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-100 truncate w-full group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors">
-            {proposal.offered_book.title}
+            {offeredTitle}
           </h4>
           <p className="text-[11px] text-charcoal-600 text-stone-600 dark:text-zinc-400 truncate w-full mt-0.5">
-            {proposal.offered_book.author}
+            {offeredAuthor}
           </p>
         </div>
 
         {/* Right Card (So'ralgan kitob) */}
         <div
-          onClick={() => onOpenBookDetail && onOpenBookDetail(proposal.requested_book.id)}
+          onClick={() => proposal.requested_book?.id && onOpenBookDetail && onOpenBookDetail(proposal.requested_book.id)}
           className="bg-white dark:bg-zinc-800/90 rounded-xl p-2.5 border border-[#E5E7EB] dark:border-zinc-700/80 flex flex-col items-center text-center shadow-xs cursor-pointer group hover:border-amber-400 dark:hover:border-amber-500 transition-all"
           title="Kitob ma'lumotlarini ko'rish"
         >
@@ -162,7 +174,7 @@ export const ExchangeProposalCard: React.FC<ExchangeProposalCardProps> = ({
             {requestedCover ? (
               <img
                 src={requestedCover}
-                alt={proposal.requested_book.title}
+                alt={requestedTitle}
                 className="w-16 h-24 rounded-lg object-cover"
               />
             ) : (
@@ -171,10 +183,10 @@ export const ExchangeProposalCard: React.FC<ExchangeProposalCardProps> = ({
           </div>
 
           <h4 className="font-serif font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-100 truncate w-full group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors">
-            {proposal.requested_book.title}
+            {requestedTitle}
           </h4>
           <p className="text-[11px] text-charcoal-600 text-stone-600 dark:text-zinc-400 truncate w-full mt-0.5">
-            {proposal.requested_book.author}
+            {requestedAuthor}
           </p>
         </div>
       </div>

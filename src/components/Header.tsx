@@ -169,19 +169,19 @@ export const Header: React.FC<HeaderProps> = ({
                   {user.avatar ? (
                     <img
                       src={user.avatar}
-                      alt={user.name}
+                      alt={user.name || 'Foydalanuvchi'}
                       className="w-7 h-7 rounded-full object-cover border border-stone-200 dark:border-zinc-700 shrink-0"
                     />
                   ) : (
                     <div className="w-7 h-7 rounded-full bg-[#141413] text-[#F8F7F4] dark:bg-stone-100 dark:text-[#141413] font-bold text-xs flex items-center justify-center shrink-0">
-                      {user.name.charAt(0).toUpperCase()}
+                      {(user.name || 'U').charAt(0).toUpperCase()}
                     </div>
                   )}
                   <span
                     id="header-user-name"
                     className="hidden lg:inline text-stone-800 dark:text-stone-200 max-w-[100px] truncate font-medium"
                   >
-                    {user.name}
+                    {user.name || 'Kitobxon'}
                   </span>
                   <ChevronDown className="w-3.5 h-3.5 text-stone-400 pr-0.5 hidden sm:inline" />
                 </button>
@@ -194,10 +194,10 @@ export const Header: React.FC<HeaderProps> = ({
                   >
                     <div className="p-2 border-b border-stone-100 dark:border-zinc-800">
                       <div className="font-serif font-bold text-xs text-stone-900 dark:text-stone-100 truncate">
-                        {user.name}
+                        {user.name || 'Kitobxon'}
                       </div>
                       <div className="text-[11px] text-stone-500 dark:text-zinc-400 truncate">
-                        {user.contact}
+                        {user.contact || ''}
                       </div>
                     </div>
 

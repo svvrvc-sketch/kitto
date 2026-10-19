@@ -24,50 +24,87 @@ const TASHKENT_DEFAULT_LOCATION = {
 // ==============================================================================
 
 export function mapRowToBook(row: any): Book {
-  const swapTermType = row.swap_term?.type || (row.type === 'gift' ? 'gift' : 'permanent');
+  if (!row || typeof row !== 'object') {
+    return {
+      id: `book_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      title: 'Kitob',
+      author: 'Muallif',
+      category: 'Badiiy',
+      condition: 'yaxshi',
+      ownerId: 'owner',
+      ownerName: 'Kitobxon',
+      ownerContact: '+998 90 000 00 00',
+      city: 'Toshkent',
+      location: TASHKENT_DEFAULT_LOCATION,
+      swapTerm: { type: 'permanent', durationLabel: 'Doimiy almashuv' },
+      status: 'active',
+      createdAt: new Date().toISOString(),
+    };
+  }
+
+  const swapTermType =
+    row.swap_term?.type ||
+    row.swapTerm?.type ||
+    (row.type === 'gift' ? 'gift' : 'permanent');
+
   const durationLabel =
     row.swap_term?.durationLabel ||
+    row.swapTerm?.durationLabel ||
     (swapTermType === 'gift'
       ? "Bepul sovg'a"
       : swapTermType === 'temporary'
       ? "2 haftaga o'qishga"
       : 'Doimiy almashuv');
 
-  const location = row.location || {
-    lat: row.coordinates?.lat ?? TASHKENT_DEFAULT_LOCATION.lat,
-    lng: row.coordinates?.lng ?? TASHKENT_DEFAULT_LOCATION.lng,
-    addressText: row.exact_location || row.city || TASHKENT_DEFAULT_LOCATION.addressText,
+  const rawLoc = typeof row.location === 'object' && row.location !== null ? row.location : {};
+  const location = {
+    lat: typeof rawLoc.lat === 'number' ? rawLoc.lat : (row.coordinates?.lat ?? TASHKENT_DEFAULT_LOCATION.lat),
+    lng: typeof rawLoc.lng === 'number' ? rawLoc.lng : (row.coordinates?.lng ?? TASHKENT_DEFAULT_LOCATION.lng),
+    addressText:
+      rawLoc.addressText ||
+      (typeof row.location === 'string' ? row.location : undefined) ||
+      row.exact_location ||
+      row.exactLocation ||
+      row.city ||
+      TASHKENT_DEFAULT_LOCATION.addressText,
   };
 
   const status: BookStatus = row.status || (row.is_completed ? 'swapped' : 'active');
 
   return {
-    id: String(row.id),
-    title: row.title || 'Nomsiz kitob',
-    author: row.author || 'Muallif nomaʼlum',
-    category: row.category || 'Badiiy adabiyot',
-    condition: row.condition || 'yaxshi',
-    description: row.description || '',
+    id: String(row.id || `book_${Date.now()}`),
+    title: String(row.title || 'Nomsiz kitob'),
+    author: String(row.author || 'Muallif nomaʼlum'),
+    category: String(row.category || 'Badiiy adabiyot'),
+    condition: String(row.condition || 'yaxshi'),
+    description: String(row.description || ''),
     coverUrl: row.cover_url || row.coverUrl || undefined,
-    ownerId: row.owner_id || row.ownerId || 'owner',
-    ownerName: row.owner_name || row.ownerName || 'Kitobxon',
-    ownerContact: row.owner_contact || row.ownerContact || '+998 90 123 45 67',
-    city: row.city || 'Toshkent',
-    location: {
-      lat: location.lat ?? TASHKENT_DEFAULT_LOCATION.lat,
-      lng: location.lng ?? TASHKENT_DEFAULT_LOCATION.lng,
-      addressText: location.addressText || 'Toshkent shahri',
-    },
+    ownerId: String(row.owner_id || row.ownerId || 'owner'),
+    ownerName: String(row.owner_name || row.ownerName || 'Kitobxon'),
+    ownerContact: String(row.owner_contact || row.ownerContact || '+998 90 123 45 67'),
+    city: String(row.city || 'Toshkent'),
+    location,
     swapTerm: {
       type: swapTermType,
-      durationPreset: row.swap_term?.durationPreset || (swapTermType === 'temporary' ? '2_weeks' : undefined),
+      durationPreset:
+        row.swap_term?.durationPreset ||
+        row.swapTerm?.durationPreset ||
+        (swapTermType === 'temporary' ? '2_weeks' : undefined),
       durationLabel,
-      returnConditionNote: row.swap_term?.returnConditionNote,
+      returnConditionNote: row.swap_term?.returnConditionNote || row.swapTerm?.returnConditionNote,
     },
     status,
-    loanInfo: row.loan_info || undefined,
-    ownerFavoriteGenres: row.owner_favorite_genres || row.ownerFavoriteGenres || [],
-    ownerWishlist: row.owner_wishlist || row.ownerWishlist || [],
+    loanInfo: row.loan_info || row.loanInfo || undefined,
+    ownerFavoriteGenres: Array.isArray(row.owner_favorite_genres)
+      ? row.owner_favorite_genres
+      : Array.isArray(row.ownerFavoriteGenres)
+      ? row.ownerFavoriteGenres
+      : [],
+    ownerWishlist: Array.isArray(row.owner_wishlist)
+      ? row.owner_wishlist
+      : Array.isArray(row.ownerWishlist)
+      ? row.ownerWishlist
+      : [],
     createdAt: row.created_at || row.createdAt || new Date().toISOString(),
     // Backward compatibility aliases
     type: swapTermType === 'gift' ? 'gift' : 'swap',
@@ -137,27 +174,44 @@ export function mapProfileToRow(profile: UserProfile): Record<string, any> {
 
 
 export function mapRowToChat(row: any): ChatThread {
+  if (!row || typeof row !== 'object') {
+    return {
+      id: `chat_${Date.now()}`,
+      bookId: 'book',
+      bookTitle: 'Kitob',
+      bookSwapLabel: 'Almashuv',
+      ownerId: 'owner',
+      ownerName: 'Kitobxon',
+      initiatorId: 'initiator',
+      initiatorName: 'Kitobxon',
+      messages: [],
+      updatedAt: new Date().toISOString(),
+    };
+  }
+
   const messages: ChatMessage[] = Array.isArray(row.messages)
-    ? row.messages.map((m: any) => ({
-        id: String(m.id || `msg_${Date.now()}`),
-        senderId: String(m.senderId || m.sender_id || 'sender'),
-        text: String(m.text || ''),
-        createdAt: String(m.createdAt || m.created_at || new Date().toISOString()),
-        isRead: Boolean(m.isRead ?? m.is_read ?? false),
-        type: m.type || 'text',
-        proposal: m.proposal || undefined,
-      }))
+    ? row.messages
+        .filter((m: any) => m && typeof m === 'object')
+        .map((m: any) => ({
+          id: String(m.id || `msg_${Date.now()}`),
+          senderId: String(m.senderId || m.sender_id || 'sender'),
+          text: String(m.text || ''),
+          createdAt: String(m.createdAt || m.created_at || new Date().toISOString()),
+          isRead: Boolean(m.isRead ?? m.is_read ?? false),
+          type: m.type || 'text',
+          proposal: m.proposal && typeof m.proposal === 'object' ? m.proposal : undefined,
+        }))
     : [];
 
   return {
-    id: String(row.id),
-    bookId: String(row.book_id || row.bookId),
+    id: String(row.id || `chat_${Date.now()}`),
+    bookId: String(row.book_id || row.bookId || 'book'),
     bookTitle: String(row.book_title || row.bookTitle || 'Kitob'),
     bookCover: row.book_cover || row.bookCover || undefined,
     bookSwapLabel: String(row.book_swap_label || row.bookSwapLabel || 'Almashuv'),
-    ownerId: String(row.owner_id || row.ownerId),
+    ownerId: String(row.owner_id || row.ownerId || 'owner'),
     ownerName: String(row.owner_name || row.ownerName || 'Kitobxon'),
-    initiatorId: String(row.initiator_id || row.initiatorId),
+    initiatorId: String(row.initiator_id || row.initiatorId || 'initiator'),
     initiatorName: String(row.initiator_name || row.initiatorName || 'Kitobxon'),
     messages,
     updatedAt: String(row.updated_at || row.updatedAt || new Date().toISOString()),

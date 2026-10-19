@@ -31,7 +31,7 @@ export const SwapRequestModal: React.FC<SwapRequestModalProps> = ({
   isOpen,
   onClose,
   targetBook,
-  allBooks,
+  allBooks = [],
   onOpenAddModal,
   onSwapSubmitted,
 }) => {
@@ -65,33 +65,37 @@ export const SwapRequestModal: React.FC<SwapRequestModalProps> = ({
     };
   }, [isOpen, onClose]);
 
+  const safeAllBooks = Array.isArray(allBooks) ? allBooks : [];
+
   // Target owner's active books
   const targetOwnerBooks = useMemo(() => {
-    if (!targetBook) return [];
+    if (!targetBook || !targetBook.ownerId) return [];
     const ownerId = targetBook.ownerId;
     // Filter active books belonging to the target book's owner
-    const list = allBooks.filter(
+    const list = safeAllBooks.filter(
       (b) =>
+        b &&
         b.ownerId === ownerId &&
         (b.status === 'active' || (b.status as string) === 'available' || !b.status)
     );
 
     // Ensure the clicked targetBook is always in the list
-    if (!list.some((b) => b.id === targetBook.id)) {
+    if (targetBook && !list.some((b) => b && b.id === targetBook.id)) {
       list.unshift(targetBook);
     }
     return list;
-  }, [allBooks, targetBook]);
+  }, [safeAllBooks, targetBook]);
 
   // Initiator's active books
   const myAvailableBooks = useMemo(() => {
     if (!user) return [];
-    return allBooks.filter(
+    return safeAllBooks.filter(
       (b) =>
+        b &&
         b.ownerId === user.id &&
         (b.status === 'active' || (b.status as string) === 'available' || !b.status)
     );
-  }, [allBooks, user]);
+  }, [safeAllBooks, user]);
 
   // Auto-select initiator's first book if not selected yet
   useEffect(() => {

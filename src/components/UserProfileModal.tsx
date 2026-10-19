@@ -189,7 +189,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
               />
             ) : (
               <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#141413] text-[#F8F7F4] dark:bg-stone-100 dark:text-[#141413] font-serif font-bold text-xl sm:text-2xl flex items-center justify-center shrink-0 shadow-sm border border-stone-200 dark:border-zinc-700">
-                {userName.charAt(0).toUpperCase()}
+                {(userName || 'K').charAt(0).toUpperCase()}
               </div>
             )}
 

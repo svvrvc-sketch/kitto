@@ -253,12 +253,12 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 {user.avatar ? (
                   <img
                     src={user.avatar}
-                    alt={user.name}
+                    alt={user.name || 'Foydalanuvchi'}
                     className="w-16 h-16 rounded-full object-cover border-2 border-stone-200 dark:border-zinc-700 shadow-sm"
                   />
                 ) : (
                   <div className="w-16 h-16 rounded-full bg-[#141413] dark:bg-stone-100 text-white dark:text-[#141413] font-serif font-bold text-2xl flex items-center justify-center shadow-sm">
-                    {user.name.charAt(0).toUpperCase()}
+                    {(user.name || 'K').charAt(0).toUpperCase()}
                   </div>
                 )}
 

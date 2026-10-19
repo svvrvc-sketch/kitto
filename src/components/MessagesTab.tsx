@@ -242,12 +242,12 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({
               title="Foydalanuvchi profilini ko'rish"
             >
               <div className="w-9 h-9 rounded-full bg-[#141413] text-[#F8F7F4] dark:bg-stone-100 dark:text-[#141413] flex items-center justify-center font-bold text-xs shrink-0 shadow-sm group-hover:scale-105 transition-transform">
-                {otherPersonName.charAt(0).toUpperCase()}
+                {(otherPersonName || 'K').charAt(0).toUpperCase()}
               </div>
 
               <div className="min-w-0">
                 <h3 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100 truncate group-hover:underline underline-offset-2">
-                  {otherPersonName}
+                  {otherPersonName || 'Kitobxon'}
                 </h3>
                 <div className="text-[10px] text-stone-500 dark:text-zinc-400 flex items-center gap-1.5 truncate">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block" />
@@ -660,11 +660,12 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({
           ) : (
             userThreads.map((thread) => {
               const otherPerson =
-                thread.ownerId === currentUserId ? thread.initiatorName : thread.ownerName;
+                (thread.ownerId === currentUserId ? thread.initiatorName : thread.ownerName) || 'Kitobxon';
               const isSelected = thread.id === activeThreadId;
-              const lastMsg = thread.messages[thread.messages.length - 1];
-              const unread = thread.messages.filter(
-                (m) => !m.isRead && m.senderId !== currentUserId
+              const threadMsgs = Array.isArray(thread.messages) ? thread.messages : [];
+              const lastMsg = threadMsgs.length > 0 ? threadMsgs[threadMsgs.length - 1] : undefined;
+              const unread = threadMsgs.filter(
+                (m) => m && !m.isRead && m.senderId !== currentUserId
               ).length;
 
               return (
@@ -681,7 +682,7 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({
                   }`}
                 >
                   <div className="w-10 h-10 rounded-full bg-[#141413] text-[#F8F7F4] dark:bg-stone-100 dark:text-[#141413] flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
-                    {otherPerson.charAt(0).toUpperCase()}
+                    {(otherPerson || 'K').charAt(0).toUpperCase()}
                   </div>
 
                   <div className="flex-1 min-w-0">

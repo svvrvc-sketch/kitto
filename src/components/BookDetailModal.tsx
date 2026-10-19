@@ -385,11 +385,11 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
                 title="Foydalanuvchi profilini ko'rish"
               >
                 <div className="w-8 h-8 rounded-full bg-[#141413] text-[#F8F7F4] dark:bg-stone-100 dark:text-[#141413] flex items-center justify-center font-bold text-xs group-hover/owner:scale-105 transition-transform shadow-xs">
-                  {book.ownerName.charAt(0).toUpperCase()}
+                  {(book.ownerName || 'K').charAt(0).toUpperCase()}
                 </div>
                 <div>
                   <div className="text-xs font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-1.5 flex-wrap">
-                    <span className="group-hover/owner:underline underline-offset-2">{book.ownerName}</span>
+                    <span className="group-hover/owner:underline underline-offset-2">{book.ownerName || 'Kitob egasi'}</span>
                     {(book.ownerIsTrusted || (book.ownerTrustScore && book.ownerTrustScore >= 3)) && (
                       <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-400 text-[9px] font-bold border border-amber-500/25">
                         <ShieldCheck className="w-3 h-3 text-amber-500" />

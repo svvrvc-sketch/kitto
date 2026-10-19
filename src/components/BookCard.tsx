@@ -283,10 +283,10 @@ export const BookCard: React.FC<BookCardProps> = ({
       {/* Book Metadata */}
       <div className="flex flex-col flex-1 p-3.5">
         <h3 className="font-serif font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100 line-clamp-1 group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors tracking-tight leading-snug">
-          {book.title}
+          {book.title || 'Nomsiz kitob'}
         </h3>
         <p className="text-xs text-stone-500 dark:text-zinc-400 line-clamp-1 mt-0.5">
-          {book.author}
+          {book.author || 'Muallif koʻrsatilmagan'}
         </p>
 
         {/* Human-readable Address Text & Distance */}
@@ -312,7 +312,7 @@ export const BookCard: React.FC<BookCardProps> = ({
               className="text-[10px] text-stone-500 dark:text-zinc-400 hover:text-stone-900 dark:hover:text-stone-100 hover:underline shrink-0 transition-colors font-medium"
               title="Kitobxon profilini ko'rish"
             >
-              {book.ownerName}
+              {book.ownerName || 'Kitob egasi'}
             </button>
             {(book.ownerIsTrusted || (book.ownerTrustScore && book.ownerTrustScore >= 3)) && (
               <span
