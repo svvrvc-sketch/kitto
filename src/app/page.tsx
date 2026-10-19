@@ -813,6 +813,7 @@ export default function HomePage() {
       <CitySelectorModal
         isOpen={isCityModalOpen}
         onClose={() => setIsCityModalOpen(false)}
+        isOutsideTashkent={isOutsideTashkent}
       />
 
       {/* Region Restriction Modal (Outside Tashkent Guard) */}

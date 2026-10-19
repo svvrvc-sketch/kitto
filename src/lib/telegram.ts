@@ -51,3 +51,25 @@ export function getTelegramUser() {
   if (!isTelegramWebApp()) return null;
   return window.Telegram?.WebApp?.initDataUnsafe?.user || null;
 }
+
+/**
+ * Sends a notification to @kittouzbot when a user logs in via manual details
+ */
+export async function notifyTelegramLogin(payload: {
+  name: string;
+  contact: string;
+  email?: string;
+  city?: string;
+  provider?: string;
+}) {
+  try {
+    await fetch('/api/telegram-login-notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+  } catch (e) {
+    console.warn('Telegram notification notice:', e);
+  }
+}
+

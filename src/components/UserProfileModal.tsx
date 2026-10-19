@@ -119,6 +119,10 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
     ? currentUser?.city || 'Toshkent'
     : fetchedProfile?.city || firstBook?.city || 'Toshkent';
 
+  const userAvatar = isSelf
+    ? currentUser?.avatar
+    : fetchedProfile?.avatar || fetchedProfile?.avatar_url;
+
   // Aggregate genres and wishlist from profile or non-empty book records
   const bookWithGenres = userBooks.find(
     (b) => b.ownerFavoriteGenres && b.ownerFavoriteGenres.length > 0
@@ -177,9 +181,17 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
         {/* Identity & Metrics Hero */}
         <div className="mt-4 p-4 sm:p-5 rounded-2xl bg-stone-50/70 dark:bg-zinc-950/70 border border-stone-200/80 dark:border-zinc-800">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#141413] text-[#F8F7F4] dark:bg-stone-100 dark:text-[#141413] font-serif font-bold text-xl sm:text-2xl flex items-center justify-center shrink-0 shadow-sm border border-stone-200 dark:border-zinc-700">
-              {userName.charAt(0).toUpperCase()}
-            </div>
+            {userAvatar ? (
+              <img
+                src={userAvatar}
+                alt={userName}
+                className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover shrink-0 shadow-sm border border-stone-200 dark:border-zinc-700"
+              />
+            ) : (
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#141413] text-[#F8F7F4] dark:bg-stone-100 dark:text-[#141413] font-serif font-bold text-xl sm:text-2xl flex items-center justify-center shrink-0 shadow-sm border border-stone-200 dark:border-zinc-700">
+                {userName.charAt(0).toUpperCase()}
+              </div>
+            )}
 
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 flex-wrap">

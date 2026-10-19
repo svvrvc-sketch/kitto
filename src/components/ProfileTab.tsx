@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Book } from '@/types/book';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
+import { compressBookImage } from '@/utils/imageCompressor';
 import {
   User as UserIcon,
   BookMarked,
@@ -21,6 +22,7 @@ import {
   Compass,
   Clock,
   BookOpen,
+  Camera,
 } from 'lucide-react';
 
 const GENRE_CHIPS = [
@@ -63,13 +65,39 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState('');
   const [editContact, setEditContact] = useState('');
+  const [editAvatar, setEditAvatar] = useState<string | null>(null);
   const [wishlistInput, setWishlistInput] = useState('');
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const avatarFileRef = useRef<HTMLInputElement>(null);
 
   const handleStartEdit = () => {
     if (!user) return;
     setEditName(user.name);
     setEditContact(user.contact);
+    setEditAvatar(user.avatar || null);
     setIsEditing(true);
+  };
+
+  const handleDirectAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      showToast('Faqat rasm formatidagi fayllarni yuklashingiz mumkin', 'error');
+      return;
+    }
+
+    setIsUploadingAvatar(true);
+    try {
+      const compressed = await compressBookImage(file, 400, 0.82);
+      updateProfile({ avatar: compressed });
+      if (isEditing) setEditAvatar(compressed);
+      showToast('Profil rasmi muvaffaqiyatli yuklandi ✓', 'success');
+    } catch {
+      showToast('Rasmni yuklashda xatolik yuz berdi', 'error');
+    } finally {
+      setIsUploadingAvatar(false);
+    }
   };
 
   const handleSaveEdit = (e: React.FormEvent) => {
@@ -81,6 +109,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
     updateProfile({
       name: editName.trim(),
       contact: editContact.trim(),
+      avatar: editAvatar || undefined,
     });
     setIsEditing(false);
     showToast('Profil maʼlumotlari saqlandi', 'success');
@@ -197,7 +226,17 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
         {!isEditing ? (
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
             <div className="flex items-center gap-4">
-              <div className="relative shrink-0">
+              {/* Hidden file input for direct avatar upload */}
+              <input
+                ref={avatarFileRef}
+                type="file"
+                accept="image/*"
+                onChange={handleDirectAvatarUpload}
+                className="hidden"
+                id="profile-avatar-direct-input"
+              />
+
+              <div className="relative shrink-0 group">
                 {user.avatar ? (
                   <img
                     src={user.avatar}
@@ -209,6 +248,18 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                     {user.name.charAt(0).toUpperCase()}
                   </div>
                 )}
+
+                {/* Interactive Camera Button on Avatar */}
+                <button
+                  type="button"
+                  onClick={() => avatarFileRef.current?.click()}
+                  disabled={isUploadingAvatar}
+                  title="Profil rasmini almashtirish"
+                  className="absolute inset-0 rounded-full bg-black/40 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-[1px]"
+                >
+                  <Camera className="w-5 h-5 drop-shadow-md" />
+                </button>
+
                 <div className="absolute -bottom-0.5 -right-0.5 p-1 rounded-full bg-amber-500 text-white shadow-xs">
                   <ShieldCheck className="w-3 h-3 stroke-[2.5]" />
                 </div>
@@ -238,6 +289,15 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                     <span>📍 {user.city || 'Toshkent'}</span>
                   </span>
                 </div>
+
+                <button
+                  type="button"
+                  onClick={() => avatarFileRef.current?.click()}
+                  className="mt-1 text-[11px] font-medium text-amber-700 dark:text-amber-400 hover:underline flex items-center gap-1"
+                >
+                  <Camera className="w-3 h-3" />
+                  <span>{user.avatar ? 'Rasmni yangilash' : '+ Profil rasmi qoʻshish'}</span>
+                </button>
               </div>
             </div>
 
@@ -278,6 +338,53 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
               >
                 <X className="w-4 h-4" />
               </button>
+            </div>
+
+            {/* Avatar section in edit mode */}
+            <div className="flex items-center gap-4 p-3 rounded-2xl bg-stone-50 dark:bg-zinc-800/60 border border-stone-200/80 dark:border-zinc-700">
+              <div className="relative shrink-0">
+                {editAvatar ? (
+                  <img
+                    src={editAvatar}
+                    alt="Profil"
+                    className="w-14 h-14 rounded-full object-cover border-2 border-stone-300 dark:border-zinc-700"
+                  />
+                ) : (
+                  <div className="w-14 h-14 rounded-full bg-stone-200 dark:bg-zinc-700 text-stone-600 dark:text-stone-300 font-bold text-lg flex items-center justify-center">
+                    {editName ? editName.charAt(0).toUpperCase() : <UserIcon className="w-6 h-6" />}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleDirectAvatarUpload}
+                  className="hidden"
+                  id="profile-edit-avatar-input"
+                />
+                <div className="flex items-center gap-2">
+                  <label
+                    htmlFor="profile-edit-avatar-input"
+                    className="cursor-pointer px-3 py-1.5 rounded-xl bg-white dark:bg-zinc-800 hover:bg-stone-100 dark:hover:bg-zinc-700 text-stone-800 dark:text-stone-200 text-xs font-semibold border border-stone-200 dark:border-zinc-700 shadow-2xs transition-colors"
+                  >
+                    {editAvatar ? "Rasmni almashtirish" : "+ Rasm yuklash"}
+                  </label>
+                  {editAvatar && (
+                    <button
+                      type="button"
+                      onClick={() => setEditAvatar(null)}
+                      className="text-xs text-red-600 hover:text-red-700 dark:text-red-400 font-medium transition-colors"
+                    >
+                      Oʻchirish
+                    </button>
+                  )}
+                </div>
+                <p className="text-[11px] text-stone-400 dark:text-zinc-500 mt-1">
+                  JPG yoki PNG formatda, kvadrat shakl tavsiya etiladi.
+                </p>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

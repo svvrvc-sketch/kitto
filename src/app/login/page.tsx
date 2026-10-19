@@ -1,31 +1,53 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { Logo } from '@/components/Logo';
-import { ShieldCheck, UserCheck, AlertCircle, ArrowLeft, Send } from 'lucide-react';
+import { ShieldCheck, UserCheck, AlertCircle, ArrowLeft, Camera, Check, Bot } from 'lucide-react';
 import Link from 'next/link';
+import { notifyTelegramLogin } from '@/lib/telegram';
+import { compressBookImage } from '@/utils/imageCompressor';
 
 function LoginFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTarget = searchParams.get('redirect') || '/';
 
-  const { isAuthenticated, user, loginWithGoogle, loginWithTelegram, loginWithProfile } = useAuth();
+  const { isAuthenticated, user, loginWithGoogle, loginWithProfile } = useAuth();
 
   const [name, setName] = useState('');
   const [contact, setContact] = useState('');
   const [email, setEmail] = useState('');
+  const [avatar, setAvatar] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [loadingGoogle, setLoadingGoogle] = useState(false);
-  const [loadingTelegram, setLoadingTelegram] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isAuthenticated && user) {
       router.replace(redirectTarget);
     }
   }, [isAuthenticated, user, redirectTarget, router]);
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setError('Faqat rasm formatidagi fayl yuklashingiz mumkin');
+      return;
+    }
+
+    try {
+      const compressed = await compressBookImage(file, 400, 0.82);
+      setAvatar(compressed);
+      setError('');
+    } catch {
+      setError('Rasmni yuklashda xatolik yuz berdi');
+    }
+  };
 
   const handleGoogleLogin = async () => {
     setLoadingGoogle(true);
@@ -36,12 +58,6 @@ function LoginFormContent() {
       setError('Google orqali kirishda xatolik yuz berdi. Iltimos, qayta urinib koʻring.');
       setLoadingGoogle(false);
     }
-  };
-
-  const handleTelegramLogin = () => {
-    setLoadingTelegram(true);
-    loginWithTelegram();
-    setLoadingTelegram(false);
   };
 
   const handleDirectSubmit = (e: React.FormEvent) => {
@@ -58,14 +74,29 @@ function LoginFormContent() {
       return;
     }
 
-    loginWithProfile({
-      name: cleanName,
-      contact: cleanContact,
-      email: email.trim() || undefined,
-      provider: 'direct',
-    });
+    setIsSubmitting(true);
 
-    router.replace(redirectTarget);
+    try {
+      loginWithProfile({
+        name: cleanName,
+        contact: cleanContact,
+        email: email.trim() || undefined,
+        avatar: avatar || undefined,
+        provider: 'direct',
+      });
+
+      notifyTelegramLogin({
+        name: cleanName,
+        contact: cleanContact,
+        email: email.trim() || undefined,
+        city: 'Toshkent',
+        provider: "Qo'lda kiritish",
+      });
+
+      router.replace(redirectTarget);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -88,21 +119,21 @@ function LoginFormContent() {
           <h1 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 dark:text-stone-100">
             Tizimga kirish
           </h1>
-          <p className="text-xs sm:text-sm text-stone-500 dark:text-zinc-400 mt-1.5">
+          <p className="text-xs sm:text-sm text-stone-500 dark:text-zinc-400 mt-1.5 leading-relaxed">
             Kitoblarni boshqarish va kitobxonlar bilan bogʻlanish uchun kiring
           </p>
         </div>
 
-        {/* Quick OAuth options */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
+        {/* Option 1: Full-Width Modern Google Login */}
+        <div className="mb-5">
           <button
             id="login-page-google-btn"
             type="button"
             onClick={handleGoogleLogin}
             disabled={loadingGoogle}
-            className="flex items-center justify-center gap-2 py-3 px-3 rounded-2xl bg-white dark:bg-zinc-800 hover:bg-stone-50 dark:hover:bg-zinc-700 text-stone-800 dark:text-stone-100 font-medium text-xs border border-stone-200/90 dark:border-zinc-700 shadow-sm transition-all active:scale-[0.98]"
+            className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-2xl bg-white dark:bg-zinc-800 hover:bg-stone-50 dark:hover:bg-zinc-700 text-stone-800 dark:text-stone-100 font-semibold text-xs tracking-wide border border-stone-200/90 dark:border-zinc-700 shadow-xs transition-all active:scale-[0.98] group"
           >
-            <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 shrink-0 transition-transform group-hover:scale-105" viewBox="0 0 24 24">
               <path
                 fill="#4285F4"
                 d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.15z"
@@ -120,23 +151,12 @@ function LoginFormContent() {
                 d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
               />
             </svg>
-            <span>{loadingGoogle ? 'Ulanmoqda...' : 'Google orqali'}</span>
-          </button>
-
-          <button
-            id="login-page-telegram-btn"
-            type="button"
-            onClick={handleTelegramLogin}
-            disabled={loadingTelegram}
-            className="flex items-center justify-center gap-2 py-3 px-3 rounded-2xl bg-stone-100 hover:bg-stone-200/80 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-stone-800 dark:text-stone-100 font-medium text-xs border border-stone-200/90 dark:border-zinc-700 shadow-sm transition-all active:scale-[0.98]"
-          >
-            <Send className="w-3.5 h-3.5 text-sky-600 fill-current shrink-0" />
-            <span>{loadingTelegram ? 'Ulanmoqda...' : 'Telegram orqali'}</span>
+            <span>{loadingGoogle ? 'Google tizimiga ulanmoqda...' : 'Google orqali tezkor kirish'}</span>
           </button>
         </div>
 
-        {/* Divider */}
-        <div className="relative my-6">
+        {/* Elegant Divider */}
+        <div className="relative my-5">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-stone-200 dark:border-zinc-800" />
           </div>
@@ -147,8 +167,62 @@ function LoginFormContent() {
           </div>
         </div>
 
-        {/* Form */}
+        {/* Option 2: Direct Form */}
         <form onSubmit={handleDirectSubmit} className="space-y-4">
+          {/* Avatar upload */}
+          <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-stone-50/80 dark:bg-zinc-800/50 border border-stone-200/60 dark:border-zinc-800">
+            <div className="relative shrink-0">
+              {avatar ? (
+                <img
+                  src={avatar}
+                  alt="Profil rasmi"
+                  className="w-12 h-12 rounded-full object-cover border-2 border-stone-300 dark:border-zinc-700 shadow-xs"
+                />
+              ) : (
+                <div className="w-12 h-12 rounded-full bg-stone-200 dark:bg-zinc-700 text-stone-500 dark:text-zinc-300 flex items-center justify-center font-bold text-sm">
+                  {name.trim() ? name.trim().charAt(0).toUpperCase() : <Camera className="w-5 h-5 stroke-[1.8]" />}
+                </div>
+              )}
+              {avatar && (
+                <span className="absolute -bottom-0.5 -right-0.5 p-0.5 rounded-full bg-emerald-500 text-white shadow-xs">
+                  <Check className="w-2.5 h-2.5 stroke-[3]" />
+                </span>
+              )}
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarChange}
+                className="hidden"
+                id="login-avatar-input"
+              />
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="px-2.5 py-1 rounded-lg bg-white dark:bg-zinc-800 hover:bg-stone-100 dark:hover:bg-zinc-700 text-stone-700 dark:text-stone-200 text-xs font-semibold border border-stone-200 dark:border-zinc-700 shadow-2xs transition-colors"
+                >
+                  {avatar ? "Rasmni o'zgartirish" : '+ Rasm qoʻshish'}
+                </button>
+                {avatar && (
+                  <button
+                    type="button"
+                    onClick={() => setAvatar(null)}
+                    className="text-[11px] text-stone-400 hover:text-red-600 transition-colors"
+                  >
+                    Oʻchirish
+                  </button>
+                )}
+              </div>
+              <p className="text-[10px] text-stone-400 dark:text-zinc-500 mt-0.5">
+                Profil rasmingiz boshqalarga koʻrinadi (ixtiyoriy)
+              </p>
+            </div>
+          </div>
+
           <div>
             <label className="block text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1.5">
               Ism va familiya *
@@ -209,17 +283,26 @@ function LoginFormContent() {
           <button
             id="login-submit-btn"
             type="submit"
-            className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 font-semibold text-sm tracking-wide shadow-tactile transition-all active:scale-[0.99] mt-2"
+            disabled={isSubmitting}
+            className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 font-semibold text-sm tracking-wide shadow-tactile transition-all active:scale-[0.99] disabled:opacity-50 mt-2"
           >
             <UserCheck className="w-4 h-4 stroke-[2.2]" />
-            <span>Davom etish</span>
+            <span>{isSubmitting ? 'Saqlanmoqda...' : 'Davom etish'}</span>
           </button>
         </form>
 
-        {/* Security Note */}
-        <div className="mt-6 pt-4 border-t border-stone-100 dark:border-zinc-800 flex items-center justify-center gap-1.5 text-[11px] text-stone-400 dark:text-zinc-500">
-          <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-          <span>Xavfsiz va shifrlangan maʼlumotlar muhiti</span>
+        {/* Telegram Bot Notice & Security Note */}
+        <div className="mt-6 pt-4 border-t border-stone-100 dark:border-zinc-800 space-y-1.5 text-center">
+          <div className="inline-flex items-center justify-center gap-1.5 text-[11px] text-stone-500 dark:text-zinc-400">
+            <Bot className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400 shrink-0" />
+            <span>
+              Xabarnomalar boti: <a href="https://t.me/kittouzbot" target="_blank" rel="noopener noreferrer" className="font-semibold text-sky-700 dark:text-sky-300 hover:underline">@kittouzbot</a>
+            </span>
+          </div>
+          <div className="flex items-center justify-center gap-1.5 text-[11px] text-stone-400 dark:text-zinc-500">
+            <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <span>Xavfsiz va shifrlangan maʼlumotlar muhiti</span>
+          </div>
         </div>
       </div>
     </div>
