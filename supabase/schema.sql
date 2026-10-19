@@ -18,6 +18,8 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   favorite_genres TEXT[] DEFAULT '{}',
   wishlist_books TEXT[] DEFAULT '{}',
   avatar TEXT,
+  avatar_url TEXT,
+  role TEXT NOT NULL DEFAULT 'user',
   provider TEXT DEFAULT 'direct',
   telegram_username TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -26,6 +28,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 -- Profiles Indexes
 CREATE INDEX IF NOT EXISTS idx_profiles_contact ON public.profiles(contact);
 CREATE INDEX IF NOT EXISTS idx_profiles_city ON public.profiles(city);
+CREATE INDEX IF NOT EXISTS idx_profiles_role ON public.profiles(role);
 
 -- ------------------------------------------------------------------------------
 -- 3. BOOKS TABLE (Listings)

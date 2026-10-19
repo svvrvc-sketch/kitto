@@ -8,6 +8,8 @@ export interface UserProfile {
   wishlistBooks?: string[];        // Books the user is looking for in exchange
   createdAt: string;
   avatar?: string;
+  avatar_url?: string;             // Schema cache compatibility
+  role?: 'admin' | 'user';         // Role Based Access Control
   provider?: 'google' | 'telegram' | 'direct' | 'guest';
   telegramUsername?: string;
 }
@@ -17,12 +19,15 @@ export type User = UserProfile;
 export interface AuthContextType {
   user: UserProfile | null;
   isAuthenticated: boolean;
+  isAdmin: boolean;
   loginWithProfile: (profile: {
     name: string;
     contact: string;
     email?: string;
     city?: string;
     avatar?: string;
+    avatar_url?: string;
+    role?: 'admin' | 'user';
     provider?: 'google' | 'telegram' | 'direct' | 'guest';
     telegramUsername?: string;
   }) => void;

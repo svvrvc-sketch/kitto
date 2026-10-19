@@ -99,6 +99,7 @@ export function mapBookToRow(book: Book): Record<string, any> {
 }
 
 export function mapRowToProfile(row: any): UserProfile {
+  const avatarVal = row.avatar || row.avatar_url || undefined;
   return {
     id: String(row.id),
     name: row.name,
@@ -107,7 +108,9 @@ export function mapRowToProfile(row: any): UserProfile {
     city: row.city || 'Toshkent',
     favoriteGenres: row.favorite_genres || [],
     wishlistBooks: row.wishlist_books || [],
-    avatar: row.avatar || undefined,
+    avatar: avatarVal,
+    avatar_url: avatarVal,
+    role: (row.role === 'admin' ? 'admin' : 'user') as 'admin' | 'user',
     provider: row.provider || 'direct',
     telegramUsername: row.telegram_username || undefined,
     createdAt: row.created_at || new Date().toISOString(),
@@ -115,6 +118,7 @@ export function mapRowToProfile(row: any): UserProfile {
 }
 
 export function mapProfileToRow(profile: UserProfile): Record<string, any> {
+  const avatarVal = profile.avatar || profile.avatar_url || null;
   return {
     id: profile.id,
     name: profile.name,
@@ -123,7 +127,9 @@ export function mapProfileToRow(profile: UserProfile): Record<string, any> {
     city: profile.city || 'Toshkent',
     favorite_genres: profile.favoriteGenres || [],
     wishlist_books: profile.wishlistBooks || [],
-    avatar: profile.avatar || null,
+    avatar: avatarVal,
+    avatar_url: avatarVal,
+    role: profile.role || 'user',
     provider: profile.provider || 'direct',
     telegram_username: profile.telegramUsername || null,
     created_at: profile.createdAt || new Date().toISOString(),
@@ -173,15 +179,50 @@ export function mapChatToRow(chat: ChatThread): Record<string, any> {
 }
 
 // ==============================================================================
-// 2. BOOKS SERVICE
+// 2. BOOKS SERVICE (Optimized SWR & In-Memory Cache)
 // ==============================================================================
+
+let inMemoryBooksCache: Book[] | null = null;
+let lastBooksFetchTimestamp = 0;
+const BOOKS_CACHE_TTL = 30000; // 30 seconds fresh memory cache
 
 export const booksService = {
   /**
-   * Fetches books from Supabase (or fallback to localStorage).
-   * Automatically updates localStorage cache on successful cloud response.
+   * Clears in-memory books cache when needed.
    */
-  async getBooks(): Promise<Book[]> {
+  clearCache(): void {
+    inMemoryBooksCache = null;
+    lastBooksFetchTimestamp = 0;
+  },
+
+  /**
+   * Fetches books from Supabase with instant memory/local cache (SWR).
+   */
+  async getBooks(forceRefresh = false): Promise<Book[]> {
+    const now = Date.now();
+    if (!forceRefresh && inMemoryBooksCache && now - lastBooksFetchTimestamp < BOOKS_CACHE_TTL) {
+      return inMemoryBooksCache;
+    }
+
+    // Read local cache for instant initial paint
+    let localBooks: Book[] = [];
+    if (typeof window !== 'undefined') {
+      try {
+        const stored =
+          localStorage.getItem(STORAGE_BOOKS_KEY) ||
+          localStorage.getItem('bookswap_books');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) {
+            localBooks = parsed.map(mapRowToBook);
+            if (!inMemoryBooksCache) inMemoryBooksCache = localBooks;
+          }
+        }
+      } catch (e) {
+        console.error('Error reading books from localStorage:', e);
+      }
+    }
+
     if (isSupabaseConfigured) {
       try {
         const { data, error } = await supabase
@@ -191,6 +232,9 @@ export const booksService = {
 
         if (!error && Array.isArray(data)) {
           const mappedBooks = data.map(mapRowToBook);
+          inMemoryBooksCache = mappedBooks;
+          lastBooksFetchTimestamp = Date.now();
+
           // Sync to offline cache
           try {
             if (typeof window !== 'undefined') {
@@ -209,35 +253,22 @@ export const booksService = {
       }
     }
 
-    // Fallback to localStorage
-    if (typeof window !== 'undefined') {
-      try {
-        const stored =
-          localStorage.getItem(STORAGE_BOOKS_KEY) ||
-          localStorage.getItem('bookswap_books');
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed)) {
-            return parsed.map(mapRowToBook);
-          }
-        }
-      } catch (e) {
-        console.error('Error reading books from localStorage:', e);
-      }
-    }
-    return [];
+    return inMemoryBooksCache || localBooks;
   },
 
   /**
    * Adds a new book listing to Supabase and caches to localStorage.
    */
   async addBook(book: Book): Promise<Book> {
-    // 1. Immediately cache to local storage
+    // 1. Immediately cache to local storage & memory
+    booksService.clearCache();
     if (typeof window !== 'undefined') {
       try {
         const cached = await booksService.getBooks();
         const updated = [book, ...cached.filter((b) => b.id !== book.id)];
         localStorage.setItem(STORAGE_BOOKS_KEY, JSON.stringify(updated));
+        inMemoryBooksCache = updated;
+        lastBooksFetchTimestamp = Date.now();
       } catch (e) {
         console.error('Local cache error:', e);
       }
@@ -267,7 +298,8 @@ export const booksService = {
     status: BookStatus,
     loanInfo?: BookLoanInfo
   ): Promise<void> {
-    // 1. Update localStorage
+    // 1. Update localStorage & memory
+    booksService.clearCache();
     if (typeof window !== 'undefined') {
       try {
         const cached = await booksService.getBooks();
@@ -282,6 +314,8 @@ export const booksService = {
             : b
         );
         localStorage.setItem(STORAGE_BOOKS_KEY, JSON.stringify(updated));
+        inMemoryBooksCache = updated;
+        lastBooksFetchTimestamp = Date.now();
       } catch (e) {
         console.error('Local cache error:', e);
       }
@@ -360,12 +394,15 @@ export const booksService = {
    * Deletes a book listing from Supabase and localStorage.
    */
   async deleteBook(bookId: string): Promise<void> {
-    // 1. Delete from local cache
+    // 1. Delete from local cache & memory
+    booksService.clearCache();
     if (typeof window !== 'undefined') {
       try {
         const cached = await booksService.getBooks();
         const updated = cached.filter((b) => b.id !== bookId);
         localStorage.setItem(STORAGE_BOOKS_KEY, JSON.stringify(updated));
+        inMemoryBooksCache = updated;
+        lastBooksFetchTimestamp = Date.now();
       } catch (e) {
         console.error('Local cache error:', e);
       }
@@ -475,14 +512,47 @@ export const profilesService = {
     if (isSupabaseConfigured) {
       try {
         const row = mapProfileToRow(profile);
-        const { error } = await supabase
+        
+        // Attempt 1: Full object with avatar and avatar_url
+        let { error } = await supabase
           .from('profiles')
           .upsert(row, { onConflict: 'id' });
+
+        // If schema cache lacks 'avatar' column, fallback without 'avatar' (using avatar_url)
+        if (error && error.message && error.message.includes("'avatar'")) {
+          const fallbackRow = { ...row };
+          delete fallbackRow.avatar;
+          const retryResult = await supabase
+            .from('profiles')
+            .upsert(fallbackRow, { onConflict: 'id' });
+          error = retryResult.error;
+        }
+
+        // If schema cache lacks 'avatar_url' column, fallback without 'avatar_url' (using avatar)
+        if (error && error.message && error.message.includes("'avatar_url'")) {
+          const fallbackRow = { ...row };
+          delete fallbackRow.avatar_url;
+          const retryResult = await supabase
+            .from('profiles')
+            .upsert(fallbackRow, { onConflict: 'id' });
+          error = retryResult.error;
+        }
+
+        // If schema cache lacks 'role' column, fallback without 'role'
+        if (error && error.message && error.message.includes("'role'")) {
+          const fallbackRow = { ...row };
+          delete fallbackRow.role;
+          const retryResult = await supabase
+            .from('profiles')
+            .upsert(fallbackRow, { onConflict: 'id' });
+          error = retryResult.error;
+        }
+
         if (error) {
-          console.error('Supabase upsertProfile error:', error.message);
+          console.warn('Supabase upsertProfile notice:', error.message);
         }
       } catch (err) {
-        console.error('Network error saving profile to Supabase:', err);
+        console.warn('Network notice saving profile to Supabase:', err);
       }
     }
   },

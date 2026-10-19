@@ -57,6 +57,14 @@ body {
   overscroll-behavior-y: none;
 }
 
+/* Telegram WebApp Adaptive Layout & Safe-Area Inset */
+html.is-telegram-webapp body {
+  padding-top: max(8px, env(safe-area-inset-top, 0px));
+}
+html.is-telegram-webapp header {
+  border-top: none;
+}
+
 /* Tactile physical book spine shadow effect */
 .book-spine-effect {
   position: relative;

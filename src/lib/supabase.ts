@@ -2,6 +2,7 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const rawKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const rawServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
 // Clean potential quotes, whitespace, or markdown link wrapping
 export const supabaseUrl = rawUrl
@@ -11,6 +12,7 @@ export const supabaseUrl = rawUrl
   .replace(/["']/g, '');
 
 export const supabaseAnonKey = rawKey.trim().replace(/["']/g, '');
+export const supabaseServiceRoleKey = rawServiceKey.trim().replace(/["']/g, '');
 
 /**
  * Validates whether Supabase credentials are configured with real values
@@ -24,10 +26,20 @@ export const isSupabaseConfigured: boolean = Boolean(
   supabaseAnonKey.length > 15
 );
 
+// Graceful environment warning if keys are missing
+if (!isSupabaseConfigured && typeof window !== 'undefined') {
+  console.warn(
+    '[Kitto Supabase] DIQQAT: NEXT_PUBLIC_SUPABASE_URL yoki NEXT_PUBLIC_SUPABASE_ANON_KEY toʻliq sozlanmagan. Ilova mahalliy offline rejimida ishlamoqda. Iltimos, .env.local faylini tekshiring.'
+  );
+} else if (!isSupabaseConfigured && typeof window === 'undefined') {
+  console.warn(
+    '[Kitto Supabase Server] Ogohlantirish: Serverda Supabase kalitlari topilmadi. Mock mijoz ishga tushiriladi.'
+  );
+}
+
 /**
  * Production-ready Supabase Client with graceful fallback.
- * If credentials are not configured (e.g. during local prototyping or initial Vercel build),
- * a dummy proxy/mock client is returned so execution never throws unhandled errors.
+ * Uses PKCE auth flow for secure browser OAuth (Google etc.) and automatic session persistence.
  */
 function createSupabaseClient(): SupabaseClient {
   if (isSupabaseConfigured) {
@@ -36,6 +48,7 @@ function createSupabaseClient(): SupabaseClient {
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: true,
+        flowType: 'pkce',
       },
       realtime: {
         params: {
@@ -46,7 +59,6 @@ function createSupabaseClient(): SupabaseClient {
   }
 
   // Safe Mock Fallback during dev or builds when env vars are absent
-  // Use a fallback dummy client to prevent crashes during SSR or build time
   const fallbackUrl = 'https://placeholder.supabase.co';
   const fallbackKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.mock';
   return createClient(fallbackUrl, fallbackKey, {
@@ -58,3 +70,20 @@ function createSupabaseClient(): SupabaseClient {
 }
 
 export const supabase: SupabaseClient = createSupabaseClient();
+
+/**
+ * Server-side Admin Supabase Client (Service Role)
+ * Used in server routes or middleware for RBAC checks without RLS restrictions.
+ */
+export function getServiceSupabase(): SupabaseClient | null {
+  const serviceKey = supabaseServiceRoleKey || supabaseAnonKey;
+  if (!isSupabaseConfigured || !serviceKey) {
+    return null;
+  }
+  return createClient(supabaseUrl, serviceKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  });
+}

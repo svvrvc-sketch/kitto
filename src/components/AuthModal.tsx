@@ -66,10 +66,14 @@ export const AuthModal: React.FC = () => {
 
   const handleGoogleClick = async () => {
     setLoadingGoogle(true);
-    const userEnteredName = name.trim() || 'Kitobxon';
-    const userEnteredContact = contact.trim() || email.trim() || '+998 90 123 45 67';
-    await loginWithGoogle(userEnteredContact, userEnteredName);
-    setLoadingGoogle(false);
+    setError('');
+    try {
+      await loginWithGoogle();
+    } catch {
+      setError('Google orqali kirishda xatolik yuz berdi');
+    } finally {
+      setLoadingGoogle(false);
+    }
   };
 
   const handleTelegramClick = () => {

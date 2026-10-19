@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { UserProfile, AuthContextType } from '@/types/auth';
 import { Book } from '@/types/book';
 import { profilesService, booksService, STORAGE_USER_KEY } from '@/services/db';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -13,29 +15,137 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalReason, setAuthModalReason] = useState<string | null>(null);
 
-  // Strict SSR mount guard: default null (Guest mode), zero fake auto-login
-  useEffect(() => {
+  const clearUserStorage = () => {
+    try {
+      localStorage.removeItem(STORAGE_USER_KEY);
+      localStorage.removeItem('bookswap_user');
+      // Clear cookie used for middleware RBAC if present
+      document.cookie = 'kitto_user_id=; path=/; max-age=0';
+      document.cookie = 'kitto_user_role=; path=/; max-age=0';
+    } catch {
+      // ignore
+    }
+  };
+
+  const persistUserStorage = (u: UserProfile) => {
+    try {
+      localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(u));
+      localStorage.setItem('bookswap_user', JSON.stringify(u));
+      // Set secure cookie for middleware check
+      document.cookie = `kitto_user_id=${encodeURIComponent(u.id)}; path=/; max-age=2592000; SameSite=Lax`;
+      document.cookie = `kitto_user_role=${encodeURIComponent(u.role || 'user')}; path=/; max-age=2592000; SameSite=Lax`;
+    } catch (e) {
+      console.warn('Storage save notice:', e);
+    }
+  };
+
+  const syncSupabaseUser = useCallback(async (authUser: { id: string; email?: string; phone?: string; user_metadata?: Record<string, any> }) => {
+    try {
+      const existing = await profilesService.getProfile(authUser.id);
+      const fullName =
+        existing?.name ||
+        authUser.user_metadata?.full_name ||
+        authUser.user_metadata?.name ||
+        authUser.email?.split('@')[0] ||
+        'Kitobxon';
+      const avatarUrl =
+        authUser.user_metadata?.avatar_url ||
+        authUser.user_metadata?.picture ||
+        existing?.avatar ||
+        `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(fullName)}&backgroundColor=141413,27272a,3f3f46`;
+      const contactVal =
+        existing?.contact ||
+        authUser.phone ||
+        authUser.email ||
+        '+998 90 000 00 00';
+
+      const resolvedProfile: UserProfile = {
+        id: authUser.id,
+        name: fullName,
+        contact: contactVal,
+        email: authUser.email || existing?.email,
+        city: existing?.city || 'Toshkent',
+        favoriteGenres: existing?.favoriteGenres || [],
+        wishlistBooks: existing?.wishlistBooks || [],
+        avatar: avatarUrl,
+        avatar_url: avatarUrl,
+        role: existing?.role || 'user',
+        provider: 'google',
+        createdAt: existing?.createdAt || new Date().toISOString(),
+      };
+
+      setUser(resolvedProfile);
+      persistUserStorage(resolvedProfile);
+
+      // Async upsert to ensure cloud profile is up to date
+      profilesService.upsertProfile(resolvedProfile).catch(() => {});
+    } catch (e) {
+      console.error('Error syncing Supabase user:', e);
+    }
+  }, []);
+
+  const loadFromLocalStorage = useCallback(() => {
     try {
       const stored = localStorage.getItem(STORAGE_USER_KEY) || localStorage.getItem('bookswap_user');
       if (stored) {
         const parsed = JSON.parse(stored);
         if (parsed && typeof parsed === 'object' && parsed.id && parsed.name) {
           setUser(parsed);
-          // Asynchronously sync fresh profile from cloud
+          // Sync fresh profile from cloud
           profilesService.getProfile(parsed.id).then((fresh) => {
             if (fresh) {
               setUser(fresh);
+              persistUserStorage(fresh);
             }
-          }).catch((err) => {
-            console.warn('Could not sync fresh profile from cloud:', err);
-          });
+          }).catch(() => {});
         }
       }
-    } catch (e) {
-      console.error('Error loading auth from storage:', e);
+    } catch {
+      // zero fake auto-login
     }
-    setIsHydrated(true);
   }, []);
+
+  // SSR mount guard and Supabase Auth session listener
+  useEffect(() => {
+    let isMounted = true;
+
+    if (isSupabaseConfigured) {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (!isMounted) return;
+        if (session?.user) {
+          syncSupabaseUser(session.user);
+        } else {
+          loadFromLocalStorage();
+        }
+        setIsHydrated(true);
+      }).catch(() => {
+        if (isMounted) {
+          loadFromLocalStorage();
+          setIsHydrated(true);
+        }
+      });
+
+      const { data: authListener } = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          if (!isMounted) return;
+          if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session?.user) {
+            syncSupabaseUser(session.user);
+          } else if (event === 'SIGNED_OUT') {
+            setUser(null);
+            clearUserStorage();
+          }
+        }
+      );
+
+      return () => {
+        isMounted = false;
+        authListener?.subscription?.unsubscribe();
+      };
+    } else {
+      loadFromLocalStorage();
+      setIsHydrated(true);
+    }
+  }, [syncSupabaseUser, loadFromLocalStorage]);
 
   const loginWithProfile = (profile: {
     name: string;
@@ -43,6 +153,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     email?: string;
     city?: string;
     avatar?: string;
+    avatar_url?: string;
+    role?: 'admin' | 'user';
     provider?: 'google' | 'telegram' | 'direct' | 'guest';
     telegramUsername?: string;
   }) => {
@@ -55,21 +167,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       ? cleanContact.replace(/^@/, '')
       : undefined;
 
+    const avatarUrl =
+      profile.avatar ||
+      profile.avatar_url ||
+      `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(cleanName)}&backgroundColor=141413,27272a,3f3f46`;
+
     const newUser: UserProfile = {
       id: `usr_${Date.now()}`,
       name: cleanName,
       contact: cleanContact,
       email: cleanEmail,
       city: profile.city?.trim() || 'Toshkent',
-      avatar:
-        profile.avatar ||
-        `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(cleanName)}&backgroundColor=141413,27272a,3f3f46`,
+      avatar: avatarUrl,
+      avatar_url: avatarUrl,
+      role: profile.role || 'user',
       provider: profile.provider || 'direct',
       telegramUsername: cleanTg,
       createdAt: new Date().toISOString(),
     };
 
     setUser(newUser);
+    persistUserStorage(newUser);
+
     profilesService.upsertProfile(newUser).catch((err) => {
       console.warn('Could not sync user profile to cloud:', err);
     });
@@ -80,80 +199,104 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const updateProfile = (updates: Partial<UserProfile>) => {
     setUser((prev) => {
       if (!prev) return null;
+      const avatarVal = updates.avatar || updates.avatar_url || prev.avatar;
       const updated: UserProfile = {
         ...prev,
         ...updates,
+        avatar: avatarVal,
+        avatar_url: avatarVal,
         name: updates.name ? updates.name.trim() : prev.name,
         contact: updates.contact ? updates.contact.trim() : prev.contact,
         city: updates.city ? updates.city.trim() : prev.city,
       };
-      if (updates.name && !updates.avatar) {
-        updated.avatar = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(updated.name)}&backgroundColor=141413,27272a,3f3f46`;
+
+      if (updates.name && !updates.avatar && !updates.avatar_url) {
+        const generated = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(updated.name)}&backgroundColor=141413,27272a,3f3f46`;
+        updated.avatar = generated;
+        updated.avatar_url = generated;
       }
-      
-      // Save locally and to Supabase
+
       profilesService.upsertProfile(updated).catch((err) => {
         console.warn('Could not update profile on cloud:', err);
       });
 
-      try {
-        localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(updated));
-        localStorage.setItem('bookswap_user', JSON.stringify(updated));
+      persistUserStorage(updated);
 
-        // Sync ownerFavoriteGenres, ownerWishlist, ownerName, ownerContact to user's books in storage & cloud
-        const syncBooks = (key: string) => {
-          const raw = localStorage.getItem(key);
-          if (raw) {
-            try {
-              const books = JSON.parse(raw);
-              if (Array.isArray(books)) {
-                let changed = false;
-                const newBooks = books.map((b: Book) => {
-                  if (b.ownerId === updated.id) {
-                    changed = true;
-                    // Trigger cloud book update
-                    booksService.updateBook(b.id, {
-                      ownerName: updated.name,
-                      ownerContact: updated.contact,
-                      ownerFavoriteGenres: updated.favoriteGenres,
-                      ownerWishlist: updated.wishlistBooks,
-                    }).catch(() => {});
+      // Sync user's books in storage & cloud
+      const syncBooks = (key: string) => {
+        const raw = localStorage.getItem(key);
+        if (raw) {
+          try {
+            const books = JSON.parse(raw);
+            if (Array.isArray(books)) {
+              let changed = false;
+              const newBooks = books.map((b: Book) => {
+                if (b.ownerId === updated.id) {
+                  changed = true;
+                  booksService.updateBook(b.id, {
+                    ownerName: updated.name,
+                    ownerContact: updated.contact,
+                    ownerFavoriteGenres: updated.favoriteGenres,
+                    ownerWishlist: updated.wishlistBooks,
+                  }).catch(() => {});
 
-                    return {
-                      ...b,
-                      ownerName: updated.name,
-                      ownerContact: updated.contact,
-                      ownerFavoriteGenres: updated.favoriteGenres,
-                      ownerWishlist: updated.wishlistBooks,
-                    };
-                  }
-                  return b;
-                });
-                if (changed) {
-                  localStorage.setItem(key, JSON.stringify(newBooks));
+                  return {
+                    ...b,
+                    ownerName: updated.name,
+                    ownerContact: updated.contact,
+                    ownerFavoriteGenres: updated.favoriteGenres,
+                    ownerWishlist: updated.wishlistBooks,
+                  };
                 }
+                return b;
+              });
+              if (changed) {
+                localStorage.setItem(key, JSON.stringify(newBooks));
               }
-            } catch {
-              // ignore
             }
+          } catch {
+            // ignore
           }
-        };
-        syncBooks('kitto_books');
-        syncBooks('bookswap_books');
-      } catch (e) {
-        console.error('Failed to update user profile in localStorage:', e);
-      }
+        }
+      };
+      syncBooks('kitto_books');
+      syncBooks('bookswap_books');
+
       return updated;
     });
   };
 
   const loginWithGoogle = async (customEmail?: string, customName?: string) => {
-    const name = customName?.trim() || 'Foydalanuvchi';
-    const email = customEmail?.trim() || '';
+    if (isSupabaseConfigured && typeof window !== 'undefined') {
+      try {
+        const redirectTo = `${window.location.origin}/auth/callback`;
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo,
+            queryParams: {
+              access_type: 'offline',
+              prompt: 'consent',
+            },
+          },
+        });
+        if (error) {
+          console.warn('Supabase signInWithOAuth error, using direct profile:', error.message);
+        } else {
+          // Browser is redirecting to Google OAuth
+          return;
+        }
+      } catch (e) {
+        console.warn('Google OAuth initiation failed:', e);
+      }
+    }
 
+    // Direct fallback if offline/mock
+    const name = customName?.trim() || 'Google Foydalanuvchisi';
+    const email = customEmail?.trim() || 'user@gmail.com';
     loginWithProfile({
       name,
-      contact: email || '+998 90 123 45 67',
+      contact: email,
       email,
       provider: 'google',
     });
@@ -179,6 +322,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       contact,
       telegramUsername: username || undefined,
       avatar: photoUrl || undefined,
+      avatar_url: photoUrl || undefined,
       provider: 'telegram',
     });
   };
@@ -195,13 +339,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   };
 
-  const logout = () => {
+  const logout = async () => {
     setUser(null);
-    try {
-      localStorage.removeItem(STORAGE_USER_KEY);
-      localStorage.removeItem('bookswap_user');
-    } catch (e) {
-      console.error('Failed to clear user from storage:', e);
+    clearUserStorage();
+    if (isSupabaseConfigured) {
+      try {
+        await supabase.auth.signOut();
+      } catch (e) {
+        console.warn('Supabase signOut error:', e);
+      }
     }
   };
 
@@ -215,11 +361,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setAuthModalReason(null);
   };
 
+  const isAdmin = user?.role === 'admin';
+
   return (
     <AuthContext.Provider
       value={{
         user,
         isAuthenticated: isHydrated && !!user,
+        isAdmin,
         loginWithProfile,
         updateProfile,
         loginWithGoogle,

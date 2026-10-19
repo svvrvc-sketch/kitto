@@ -11,6 +11,8 @@ export interface TelegramWebApp {
   ready: () => void;
   expand: () => void;
   close: () => void;
+  enableClosingConfirmation?: () => void;
+  initData: string;
   colorScheme: 'light' | 'dark';
   themeParams: {
     bg_color?: string;

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Book, AppTab, FeedFilterType, BookStatus } from '@/types/book';
 import { Header } from '@/components/Header';
 import { BookCard } from '@/components/BookCard';
@@ -15,10 +15,12 @@ import { ProfileTab } from '@/components/ProfileTab';
 import { MessagesTab } from '@/components/MessagesTab';
 import { UserProfileModal } from '@/components/UserProfileModal';
 import { GeolocationPrompt } from '@/components/GeolocationPrompt';
+import { RegionRestrictionModal } from '@/components/RegionRestrictionModal';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { useChat } from '@/context/ChatContext';
-import { calculateDistanceKm } from '@/lib/geo-utils';
+import { calculateDistanceKm, isLocationOutsideTashkent } from '@/lib/geo-utils';
+import { initTelegramApp } from '@/lib/telegram';
 import { booksService, STORAGE_SAVED_KEY, STORAGE_BOOKS_KEY, mapRowToBook } from '@/services/db';
 import { BookGridSkeleton } from '@/components/BookCardSkeleton';
 import {
@@ -27,6 +29,7 @@ import {
   Clock,
   ArrowLeftRight,
   Gift,
+  MapPinOff,
 } from 'lucide-react';
 
 const SESSION_GEO_COORDS_KEY = 'kitto_user_coords';
@@ -35,7 +38,7 @@ const STORAGE_GEO_DISMISSED_KEY = 'kitto_geo_prompt_dismissed';
 const TASHKENT_CENTER = { lat: 41.311081, lng: 69.240562 };
 
 export default function HomePage() {
-  const { user, openAuthModal, isAuthenticated } = useAuth();
+  const { user, openAuthModal } = useAuth();
   const { showToast } = useToast();
   const { startConversation, totalUnreadCount } = useChat();
 
@@ -63,6 +66,12 @@ export default function HomePage() {
   const [isCityModalOpen, setIsCityModalOpen] = useState(false);
   const [selectedProfileUserId, setSelectedProfileUserId] = useState<string | null>(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isRegionBlockedModalOpen, setIsRegionBlockedModalOpen] = useState(false);
+
+  // Regional check: whether user is detected outside Tashkent
+  const isOutsideTashkent = useMemo(() => {
+    return isLocationOutsideTashkent(userCoordinates);
+  }, [userCoordinates]);
 
   // Dark mode state
   const [darkMode, setDarkMode] = useState(false);
@@ -222,15 +231,13 @@ export default function HomePage() {
     }
   };
 
-  // Telegram WebApp theme check
+  // Strictly guarded Telegram WebApp SDK initialization
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
-      const tg = window.Telegram.WebApp;
-      tg.ready();
-      if (tg.colorScheme === 'dark') {
-        setDarkMode(true);
-      }
-    } else if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    const isTg = initTelegramApp((isDark) => {
+      setDarkMode(isDark);
+    });
+
+    if (!isTg && typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       setDarkMode(true);
     }
   }, []);
@@ -244,7 +251,7 @@ export default function HomePage() {
   }, [darkMode]);
 
   // Toggle saved book with Guest protection
-  const handleToggleSave = (bookId: string, e?: React.MouseEvent) => {
+  const handleToggleSave = useCallback((bookId: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
 
     if (!user) {
@@ -263,7 +270,7 @@ export default function HomePage() {
       }
       return next;
     });
-  };
+  }, [user, openAuthModal, showToast]);
 
   // Add new book
   const handleAddBook = (newBook: Book) => {
@@ -401,10 +408,10 @@ export default function HomePage() {
   };
 
   // Open book details
-  const handleOpenDetail = (book: Book) => {
+  const handleOpenDetail = useCallback((book: Book) => {
     setSelectedBook(book);
     setIsDetailModalOpen(true);
-  };
+  }, []);
 
   // Start in-app chat with book owner
   const handleStartChatFromDetail = (book: Book) => {
@@ -415,6 +422,22 @@ export default function HomePage() {
     startConversation(book);
     setCurrentTab('messages');
   };
+
+  // Guarded handler for opening Add Book modal: blocks action if outside Tashkent
+  const handleOpenAddBookModal = useCallback(() => {
+    if (isOutsideTashkent) {
+      setIsRegionBlockedModalOpen(true);
+      showToast("Eʼlon joylash hozircha faqat Toshkent shahrida mavjud", 'info');
+      return;
+    }
+
+    if (!user) {
+      openAuthModal("Kitob joylash uchun tizimga kiring");
+      return;
+    }
+
+    setIsAddModalOpen(true);
+  }, [isOutsideTashkent, user, openAuthModal, showToast]);
 
   // Handle Geolocation permission
   const handleAllowGeo = (coords: { lat: number; lng: number }) => {
@@ -526,6 +549,24 @@ export default function HomePage() {
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 pt-5 pb-24 sm:pb-12">
+        {/* Outside Tashkent Notice Banner */}
+        {isOutsideTashkent && (
+          <div className="mb-5 p-3 sm:p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-900/60 flex items-center justify-between gap-3 text-xs text-amber-900 dark:text-amber-200 shadow-sm animate-in fade-in duration-200">
+            <div className="flex items-center gap-2.5">
+              <MapPinOff className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+              <span>
+                Joylashuvingiz Toshkentdan tashqarida aniqlandi. Siz kitoblarni koʻrishingiz mumkin, ammo eʼlon joylash faqat Toshkentda ochiq.
+              </span>
+            </div>
+            <button
+              onClick={() => setIsCityModalOpen(true)}
+              className="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs whitespace-nowrap shadow-xs transition-all active:scale-95 shrink-0"
+            >
+              Viloyatimga ovoz berish
+            </button>
+          </div>
+        )}
+
         {/* Profile Tab View (Shaxsiy Kabinet) */}
         {currentTab === 'profile' ? (
           <ProfileTab
@@ -537,13 +578,7 @@ export default function HomePage() {
             myBooks={myListings}
             onActivateBook={handleActivateBook}
             onOpenBookDetail={handleOpenDetail}
-            onOpenAddModal={() => {
-              if (!isAuthenticated) {
-                openAuthModal("Kitob joylash uchun tizimga kiring");
-              } else {
-                setIsAddModalOpen(true);
-              }
-            }}
+            onOpenAddModal={handleOpenAddBookModal}
           />
         ) : currentTab === 'messages' ? (
           /* Messages Tab View */
@@ -565,7 +600,7 @@ export default function HomePage() {
                   <h1 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 dark:text-stone-100">
                     {currentTab === 'home' && 'Kitoblar lentasi'}
                     {currentTab === 'saved' && 'Saqlangan kitoblar'}
-                    {currentTab === 'my_listings' && 'Eʼlonlar'}
+                    {currentTab === 'my_listings' && 'Eʼlonlarim'}
                   </h1>
                   <p className="text-xs sm:text-sm text-stone-500 dark:text-zinc-400 mt-1">
                     {currentTab === 'home' &&
@@ -704,13 +739,7 @@ export default function HomePage() {
                   setSearchQuery('');
                   setFeedFilter('all');
                 }}
-                onOpenAddModal={() => {
-                  if (!user) {
-                    openAuthModal("Kitob joylash uchun tizimga kiring");
-                  } else {
-                    setIsAddModalOpen(true);
-                  }
-                }}
+                onOpenAddModal={handleOpenAddBookModal}
                 onGoToFeed={() => setCurrentTab('home')}
                 onOpenAuthModal={() =>
                   openAuthModal("Shaxsiy eʼlonlaringizni koʻrish uchun tizimga kiring")
@@ -723,15 +752,14 @@ export default function HomePage() {
         )}
       </main>
 
-      {/* Floating Action Button (+ Kitob qo'shish) */}
+      {/* Floating Action Button (+ Kitob joylash) - Hidden on empty states to prevent duplication */}
       <FloatingActionButton
-        onClick={() => {
-          if (!user) {
-            openAuthModal("Kitob joylash uchun tizimga kiring");
-          } else {
-            setIsAddModalOpen(true);
-          }
-        }}
+        visible={
+          filteredBooks.length > 0 &&
+          books.length > 0 &&
+          (currentTab === 'home' || currentTab === 'my_listings')
+        }
+        onClick={handleOpenAddBookModal}
       />
 
       {/* Bottom Navigation for Mobile */}
@@ -785,6 +813,14 @@ export default function HomePage() {
       <CitySelectorModal
         isOpen={isCityModalOpen}
         onClose={() => setIsCityModalOpen(false)}
+      />
+
+      {/* Region Restriction Modal (Outside Tashkent Guard) */}
+      <RegionRestrictionModal
+        isOpen={isRegionBlockedModalOpen}
+        onClose={() => setIsRegionBlockedModalOpen(false)}
+        onOpenVoting={() => setIsCityModalOpen(true)}
+        userCoordinates={userCoordinates}
       />
     </div>
   );

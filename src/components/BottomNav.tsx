@@ -114,7 +114,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
               <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#141413] dark:bg-[#F8F7F4]" />
             )}
           </div>
-          <span className="text-[9px] tracking-tight mt-1 truncate">E&#39;lonlar</span>
+          <span className="text-[9px] tracking-tight mt-1 truncate">E&#39;lonlarim</span>
         </button>
 
         {/* 5. Kabinet ('profile') */}

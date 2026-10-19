@@ -22,6 +22,25 @@ export function calculateDistanceKm(
   return R * c;
 }
 
+export const TASHKENT_CENTER_COORDS = { lat: 41.311081, lng: 69.240562 };
+export const TASHKENT_MAX_RADIUS_KM = 45; // Covers Tashkent city districts & immediate borders
+
+/**
+ * Checks whether user coordinates are detected to be outside Tashkent city limits.
+ */
+export function isLocationOutsideTashkent(coords?: { lat: number; lng: number } | null): boolean {
+  if (!coords || typeof coords.lat !== 'number' || typeof coords.lng !== 'number') {
+    return false;
+  }
+  const dist = calculateDistanceKm(
+    coords.lat,
+    coords.lng,
+    TASHKENT_CENTER_COORDS.lat,
+    TASHKENT_CENTER_COORDS.lng
+  );
+  return dist > TASHKENT_MAX_RADIUS_KM;
+}
+
 export function getDistanceFromUserKm(
   userLat: number,
   userLng: number,
