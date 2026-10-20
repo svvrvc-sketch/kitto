@@ -53,7 +53,7 @@ export async function POST(req: Request) {
       setAdminChatId(chatId);
     }
 
-    // 1. Handle Admin Stats Request: "/stats" or "📊 Sayt statistikasi"
+    // 1. Handle Admin Stats Request: "/stats" or "Sayt statistikasi"
     if (text === '/stats' || text.includes('Statistika') || text.includes('statistika')) {
       const stats = await getLiveSiteStats();
       await sendMessage(chatId, stats.formattedText, getAdminKeyboard());
@@ -63,10 +63,10 @@ export async function POST(req: Request) {
     // 2. Handle Support / Help Command: "/support", "/help", or "Support"
     if (text === '/support' || text === '/help' || text.includes('Support') || text.includes('support') || text.includes('Yordam')) {
       const supportText =
-        `ℹ️ <b>Kitto.uz — Qoʻllab-quvvatlash xizmati</b>\n\n` +
+        `<b>Kitto.uz — Qoʻllab-quvvatlash xizmati</b>\n\n` +
         `Qandaydir savol va takliflar boʻlsa, biz bilan bogʻlaning:\n\n` +
-        `📞 <b>Telefon:</b> <code>${SUPPORT_PHONE}</code>\n` +
-        `✈️ <b>Telegram:</b> @${SUPPORT_TELEGRAM}\n\n` +
+        `<b>Telefon:</b> <code>${SUPPORT_PHONE}</code>\n` +
+        `<b>Telegram:</b> @${SUPPORT_TELEGRAM}\n\n` +
         `<i>Biz har doim yordam berishga tayyormiz!</i>`;
 
       await sendMessage(
@@ -77,12 +77,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true });
     }
 
-    // 3. Handle Website Link: "🌐 Saytni ochish" or "/site"
+    // 3. Handle Website Link: "Saytni ochish" or "/site"
     if (text.includes('Saytni ochish') || text === '/site' || text.toLowerCase() === 'sayt') {
       const siteText =
-        `🌐 <b>Kitto.uz Rasmiy Sayti:</b>\n\n` +
+        `<b>Kitto.uz Rasmiy Sayti:</b>\n\n` +
         `Kitob almashish va mutolaa maydoni:\n` +
-        `👉 https://kitto-fakv.vercel.app\n\n` +
+        `https://kitto-fakv.vercel.app\n\n` +
         `<i>Kitoblar dunyosiga xush kelibsiz!</i>`;
       await sendMessage(chatId, siteText, isAdmin ? getAdminKeyboard() : undefined);
       return NextResponse.json({ ok: true });
@@ -96,11 +96,11 @@ export async function POST(req: Request) {
       // Admin Welcome
       if (isAdmin) {
         const adminGreeting =
-          `👑 <b>Assalomu alaykum, Admin (@${ADMIN_USERNAME})!</b>\n\n` +
+          `<b>Assalomu alaykum, Admin (@${ADMIN_USERNAME})!</b>\n\n` +
           `Siz Kitto.uz platformasi boshqaruvchisiz.\n` +
           `Sizning chat identifikatoringiz tizimga ulandi.\n\n` +
           `Har bir yangi roʻyxatdan oʻtgan foydalanuvchi haqidagi xabarnomalar toʻgʻridan-toʻgʻri shu yerga yuboriladi!\n\n` +
-          `Sayt statistikasini koʻrish uchun pastdagi <b>📊 Sayt statistikasi</b> tugmasini bosing.`;
+          `Sayt statistikasini koʻrish uchun pastdagi <b>Sayt statistikasi</b> tugmasini bosing.`;
 
         await sendMessage(chatId, adminGreeting, getAdminKeyboard());
         return NextResponse.json({ ok: true });
@@ -123,17 +123,17 @@ export async function POST(req: Request) {
       let responseText = '';
       if (codeToSend) {
         responseText =
-          `📚 <b>Kitto.uz — Tasdiqlash kodi</b>\n\n` +
+          `<b>Kitto.uz — Tasdiqlash kodi</b>\n\n` +
           `Assalomu alaykum, <b>${escapeHtml(fromUser?.first_name || 'kitobxon')}</b>!\n\n` +
           `Sizning saytga kirish tasdiqlash kodingiz:\n\n` +
-          `👉 <b><code>${codeToSend}</code></b>\n\n` +
+          `<b><code>${codeToSend}</code></b>\n\n` +
           `<i>Ushbu 6 xonali kodni Kitto saytidagi oynaga kiriting va hisobingizga kiring.</i>`;
       } else {
         responseText =
-          `📚 <b>Kitto.uz platformasi botiga xush kelibsiz!</b>\n\n` +
+          `<b>Kitto.uz platformasi botiga xush kelibsiz!</b>\n\n` +
           `Saytda roʻyxatdan oʻtayotganingizda tasdiqlash kodi shu yerga keladi.\n\n` +
-          `🌐 <b>Sayt:</b> https://kitto-fakv.vercel.app\n` +
-          `📞 <b>Support:</b> @${SUPPORT_TELEGRAM}`;
+          `<b>Sayt:</b> https://kitto-fakv.vercel.app\n` +
+          `<b>Support:</b> @${SUPPORT_TELEGRAM}`;
       }
 
       await sendMessage(chatId, responseText);
@@ -144,7 +144,7 @@ export async function POST(req: Request) {
     if (isAdmin) {
       await sendMessage(
         chatId,
-        `👑 <b>Kitto Boshqaruv Paneli</b>\n\nQuyidagi tugmalardan birini tanlang:`,
+        `<b>Kitto Boshqaruv Paneli</b>\n\nQuyidagi tugmalardan birini tanlang:`,
         getAdminKeyboard()
       );
       return NextResponse.json({ ok: true });
@@ -160,8 +160,8 @@ export async function POST(req: Request) {
 function getAdminKeyboard() {
   return {
     keyboard: [
-      [{ text: '📊 Sayt statistikasi' }],
-      [{ text: 'ℹ️ Support maʼlumotlari' }, { text: '🌐 Saytni ochish' }],
+      [{ text: 'Sayt statistikasi' }],
+      [{ text: 'Support maʼlumotlari' }, { text: 'Saytni ochish' }],
     ],
     resize_keyboard: true,
     persistent: true,

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { X, MapPinOff, Vote, ArrowRight, ShieldAlert } from 'lucide-react';
+import { X, MapPin, MapPinOff, Vote, ArrowRight, ShieldAlert } from 'lucide-react';
 import { calculateDistanceKm, TASHKENT_CENTER_COORDS } from '@/lib/geo-utils';
 
 interface RegionRestrictionModalProps {
@@ -65,7 +65,8 @@ export const RegionRestrictionModal: React.FC<RegionRestrictionModalProps> = ({
           </h3>
           {distanceKm && (
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 dark:bg-zinc-800 text-stone-600 dark:text-stone-300 text-xs font-semibold mt-2">
-              <span>📍 Joylashuvingiz Toshkentdan {distanceKm} km uzoqlikda</span>
+              <MapPin className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+              <span>Joylashuvingiz Toshkentdan {distanceKm} km uzoqlikda</span>
             </div>
           )}
           <p className="text-xs sm:text-sm text-stone-500 dark:text-zinc-400 font-sans leading-relaxed mt-3">

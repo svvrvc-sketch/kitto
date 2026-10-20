@@ -14,7 +14,7 @@ const SELF_DEV_RECOMMENDATIONS: AiRecommendation[] = [
     author: 'Daniel Kahneman',
     category: 'Psixologiya',
     reason: 'Qaror qabul qilish mexanizmlari va tafakkur xatolarini ochib beradi',
-    badge: '🎯 Mos keladi',
+    badge: 'Mos keladi',
   },
   {
     id: 'sd-2',
@@ -22,7 +22,7 @@ const SELF_DEV_RECOMMENDATIONS: AiRecommendation[] = [
     author: 'Kal Nyuport',
     category: 'Samaradorlik',
     reason: 'Odatlarni chuqur konsentratsiya va natijaga aylantirish uchun',
-    badge: '🔥 Bestseller',
+    badge: 'Bestseller',
   },
   {
     id: 'sd-3',
@@ -30,7 +30,7 @@ const SELF_DEV_RECOMMENDATIONS: AiRecommendation[] = [
     author: 'Stiven Kovi',
     category: 'Liderlik',
     reason: 'Shaxsiy va kasbiy rivojlanishning oltin klassikasi',
-    badge: '⭐ Tavsiya',
+    badge: 'Tavsiya',
   },
   {
     id: 'sd-4',
@@ -38,7 +38,7 @@ const SELF_DEV_RECOMMENDATIONS: AiRecommendation[] = [
     author: 'Richard Taler',
     category: 'Iqtisodiyot',
     reason: 'Inson psixologiyasi va atrof-muhit taʼsirini tushunish uchun',
-    badge: '💡 Yangicha qarash',
+    badge: 'Yangicha qarash',
   },
   {
     id: 'sd-5',
@@ -46,7 +46,7 @@ const SELF_DEV_RECOMMENDATIONS: AiRecommendation[] = [
     author: 'Robert Maurer',
     category: 'Shaxsiy rivojlanish',
     reason: 'Ogʻriqsiz va doimiy oʻsish uchun yapon falsafasi',
-    badge: '🌱 Oson odatlar',
+    badge: 'Oson odatlar',
   },
 ];
 
@@ -57,7 +57,7 @@ const IT_RECOMMENDATIONS: AiRecommendation[] = [
     author: 'Robert C. Martin',
     category: 'IT & Arxitektura',
     reason: 'Clean Code kitobining mantiqiy davomi — tizimli dastur tuzilmasi',
-    badge: '🎯 Professional',
+    badge: 'Professional',
   },
   {
     id: 'it-2',
@@ -65,7 +65,7 @@ const IT_RECOMMENDATIONS: AiRecommendation[] = [
     author: 'Martin Kleppmann',
     category: 'Tizimlar & Backend',
     reason: 'Katta yuklamali maʼlumotlar va taqsimlangan tizimlar standarti',
-    badge: '🔥 IT Must-Read',
+    badge: 'IT Must-Read',
   },
   {
     id: 'it-3',
@@ -73,7 +73,7 @@ const IT_RECOMMENDATIONS: AiRecommendation[] = [
     author: 'Aditya Bhargava',
     category: 'Algoritmlar',
     reason: 'Vizual misollar orqali murakkab algoritmlarni sodda tushunish',
-    badge: '⭐ Ommabop',
+    badge: 'Ommabop',
   },
   {
     id: 'it-4',
@@ -81,7 +81,7 @@ const IT_RECOMMENDATIONS: AiRecommendation[] = [
     author: 'Martin Fowler',
     category: 'Kod sifati',
     reason: 'Kodni buzmasdan tozalash va unumdorligini oshirish amaliyoti',
-    badge: '💡 Amaliy',
+    badge: 'Amaliy',
   },
   {
     id: 'it-5',
@@ -89,7 +89,7 @@ const IT_RECOMMENDATIONS: AiRecommendation[] = [
     author: 'David Thomas, Andrew Hunt',
     category: 'Dasturlash falsafasi',
     reason: 'Dasturchilikdan usta hunarmand darajasiga oʻtish sirlari',
-    badge: '🚀 Mumtoz',
+    badge: 'Mumtoz',
   },
 ];
 
@@ -100,7 +100,7 @@ const UZBEK_LIT_RECOMMENDATIONS: AiRecommendation[] = [
     author: 'Abdulla Qodiriy',
     category: 'Oʻzbek adabiyoti',
     reason: 'Oʻtkan kunlar muallifidan yana bir tengsiz tarixiy roman',
-    badge: '🎯 Mumtoz durdona',
+    badge: 'Mumtoz durdona',
   },
   {
     id: 'uz-2',
@@ -108,7 +108,7 @@ const UZBEK_LIT_RECOMMENDATIONS: AiRecommendation[] = [
     author: 'Abdulhamid Choʻlpon',
     category: 'Jadid adabiyoti',
     reason: 'Oʻzbek nasrining choʻqqisi, xalq hayoti va erkinlik nafasi',
-    badge: '⭐ Shah asar',
+    badge: 'Shah asar',
   },
   {
     id: 'uz-3',
@@ -116,7 +116,7 @@ const UZBEK_LIT_RECOMMENDATIONS: AiRecommendation[] = [
     author: 'Pirimqul Qodirov',
     category: 'Tarixiy roman',
     reason: 'Zahiriddin Muhammad Boburning shonli va fojiali hayot yoʻli',
-    badge: '👑 Tarixiy',
+    badge: 'Tarixiy',
   },
   {
     id: 'uz-4',
@@ -124,7 +124,7 @@ const UZBEK_LIT_RECOMMENDATIONS: AiRecommendation[] = [
     author: 'Xudoyberdi Toʻxtaboyev',
     category: 'Sarguzasht',
     reason: 'Hozirjavoblik, samimiyat va maroqli sarguzashtlar kitobi',
-    badge: '✨ Sevimli',
+    badge: 'Sevimli',
   },
   {
     id: 'uz-5',
@@ -132,7 +132,7 @@ const UZBEK_LIT_RECOMMENDATIONS: AiRecommendation[] = [
     author: 'Said Ahmad',
     category: 'Klassika',
     reason: 'Urush va undan keyingi oʻzbek xalqining matonati',
-    badge: '📖 Chuqur maʼno',
+    badge: 'Chuqur maʼno',
   },
 ];
 
@@ -143,7 +143,7 @@ const WORLD_LIT_RECOMMENDATIONS: AiRecommendation[] = [
     author: 'Jorj Oruell',
     category: 'Antiutopiya',
     reason: '1984 romanining muallifidan eng mashhur satirik ertak-roman',
-    badge: '🎯 100% Mos',
+    badge: '100% Mos',
   },
   {
     id: 'wl-2',
@@ -151,7 +151,7 @@ const WORLD_LIT_RECOMMENDATIONS: AiRecommendation[] = [
     author: 'Rey Bredberi',
     category: 'Fantastika',
     reason: 'Kitoblar taqiqlangan dunyoda tafakkur uchun kurash',
-    badge: '🔥 Bestseller',
+    badge: 'Bestseller',
   },
   {
     id: 'wl-3',
@@ -159,7 +159,7 @@ const WORLD_LIT_RECOMMENDATIONS: AiRecommendation[] = [
     author: 'Oldos Xaksli',
     category: 'Klassika',
     reason: 'Texnologiya va sunʼiy baxt ustiga qurilgan jamiyat fojiasi',
-    badge: '⭐ Falsafiy',
+    badge: 'Falsafiy',
   },
   {
     id: 'wl-4',
@@ -167,7 +167,7 @@ const WORLD_LIT_RECOMMENDATIONS: AiRecommendation[] = [
     author: 'Paulo Koelo',
     category: 'Falsafiy qissa',
     reason: 'Orzular ortidan borish va inson oʻz taqdirini yaratishi haqida',
-    badge: '✨ Ilhomlantiruvchi',
+    badge: 'Ilhomlantiruvchi',
   },
   {
     id: 'wl-5',
@@ -175,7 +175,7 @@ const WORLD_LIT_RECOMMENDATIONS: AiRecommendation[] = [
     author: 'Alber Kamyu',
     category: 'Ekzistensializm',
     reason: 'Nobel mukofoti sovrindoridan inson ruhiyatining chuqur fojiasi',
-    badge: '💡 Dunyoqarash',
+    badge: 'Dunyoqarash',
   },
 ];
 
@@ -186,7 +186,7 @@ const BUSINESS_RECOMMENDATIONS: AiRecommendation[] = [
     author: 'Piter Til',
     category: 'Startap & Biznes',
     reason: 'Kelajakni yaratuvchi yangi loyihalar va monopoliya falsafasi',
-    badge: '🚀 Startap',
+    badge: 'Startap',
   },
   {
     id: 'biz-2',
@@ -194,7 +194,7 @@ const BUSINESS_RECOMMENDATIONS: AiRecommendation[] = [
     author: 'Morgan Hausel',
     category: 'Moliya psixologiyasi',
     reason: 'Boylik siri matematikada emas, inson xulq-atvorida ekanligi haqida',
-    badge: '🔥 Top Tavsiya',
+    badge: 'Top Tavsiya',
   },
   {
     id: 'biz-3',
@@ -202,7 +202,7 @@ const BUSINESS_RECOMMENDATIONS: AiRecommendation[] = [
     author: 'Jorj Kleyson',
     category: 'Moliyaviy savodxonlik',
     reason: 'Tejamkorlik va kapital toʻplashning asrlar sinovidan oʻtgan qoidalari',
-    badge: '💰 Mumtoz',
+    badge: 'Mumtoz',
   },
   {
     id: 'biz-4',
@@ -210,7 +210,7 @@ const BUSINESS_RECOMMENDATIONS: AiRecommendation[] = [
     author: 'Benjamin Grem',
     category: 'Investitsiya',
     reason: 'Uorren Baffetning sevimli stoik investitsiya qoʻllanmasi',
-    badge: '⭐ Fundamental',
+    badge: 'Fundamental',
   },
   {
     id: 'biz-5',
@@ -218,7 +218,7 @@ const BUSINESS_RECOMMENDATIONS: AiRecommendation[] = [
     author: 'Uolter Ayzekson',
     category: 'Biografiya',
     reason: 'Texnologiya va dizaynni birlashtirgan daho hayot yoʻli',
-    badge: '🍎 Biografiya',
+    badge: 'Biografiya',
   },
 ];
 
@@ -229,7 +229,7 @@ const GENERAL_POPULAR: AiRecommendation[] = [
     author: 'Jeyms Klir',
     category: 'Shaxsiy rivojlanish',
     reason: 'Oʻzbekistonda eng koʻp soʻraladigan va oʻqiladigan kitob',
-    badge: '🔥 Top Almashinuv',
+    badge: 'Top Almashinuv',
   },
   {
     id: 'gen-2',
@@ -237,7 +237,7 @@ const GENERAL_POPULAR: AiRecommendation[] = [
     author: 'Daniel Kahneman',
     category: 'Psixologiya',
     reason: 'Har qanday kitobxon uchun yuqori qiymatga ega aql charxi',
-    badge: '🧠 Intellektual',
+    badge: 'Intellektual',
   },
   {
     id: 'gen-3',
@@ -245,7 +245,7 @@ const GENERAL_POPULAR: AiRecommendation[] = [
     author: 'Jorj Oruell',
     category: 'Klassika',
     reason: 'Dunyo miqyosidagi doimiy dolzarb asar',
-    badge: '⭐ Bestseller',
+    badge: 'Bestseller',
   },
   {
     id: 'gen-4',
@@ -253,7 +253,7 @@ const GENERAL_POPULAR: AiRecommendation[] = [
     author: 'Abdulla Qodiriy',
     category: 'Milliy adabiyot',
     reason: 'Oʻzbek xalqining eng qadrli badiiy yodgorligi',
-    badge: '💎 Durdona',
+    badge: 'Durdona',
   },
   {
     id: 'gen-5',
@@ -261,7 +261,7 @@ const GENERAL_POPULAR: AiRecommendation[] = [
     author: 'Piter Til',
     category: 'Biznes',
     reason: 'Tadbirkorlik va yangilik yaratish boʻyicha eng yaxshi qoʻllanma',
-    badge: '🚀 Istiqbolli',
+    badge: 'Istiqbolli',
   },
 ];
 

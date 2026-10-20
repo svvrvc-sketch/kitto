@@ -77,7 +77,7 @@ export const GeolocationPrompt: React.FC<GeolocationPromptProps> = ({
           </div>
           <div className="flex items-center gap-2">
             <Check className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0 stroke-[2.5]" />
-            <span>📍 Masofa hisoblanadi (masalan: 1.4 km uzoqlikda)</span>
+            <span>Masofa hisoblanadi (masalan: 1.4 km uzoqlikda)</span>
           </div>
         </div>
 

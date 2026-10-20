@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, MapPin, Check, Sparkles, TrendingUp, CheckCircle2, Lock } from 'lucide-react';
 import { useToast } from '@/context/ToastContext';
+import { useAuth } from '@/context/AuthContext';
 import { votesService } from '@/services/db';
 
 interface RegionWaitlist {
@@ -43,6 +44,7 @@ export const CitySelectorModal: React.FC<CitySelectorModalProps> = ({
   onSelectCity,
   isOutsideTashkent = false,
 }) => {
+  const { user, updateProfile } = useAuth();
   const { showToast } = useToast();
   const [votes, setVotes] = useState<Record<string, number>>({});
   const [votedRegionId, setVotedRegionId] = useState<string | null>(null);
@@ -103,10 +105,20 @@ export const CitySelectorModal: React.FC<CitySelectorModalProps> = ({
   const handleVote = (regionId: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
 
+    const regObj = REGIONS.find((r) => r.id === regionId);
+    if (regObj) {
+      if (user && updateProfile) {
+        updateProfile({ city: regObj.name });
+      }
+      if (onSelectCity) {
+        onSelectCity(regObj.name);
+      }
+    }
+
     // STRICT SINGLE-VOTE LOGIC:
     if (votedRegionId) {
       if (votedRegionId === regionId) {
-        showToast("Ovozingiz allaqachon ushbu hududga berilgan ✓", 'info');
+        showToast("Ovozingiz allaqachon ushbu hududga berilgan", 'info');
       } else {
         showToast("Siz allaqachon o'z hududingizga ovoz bergansiz.", 'info');
       }
@@ -130,6 +142,9 @@ export const CitySelectorModal: React.FC<CitySelectorModalProps> = ({
   };
 
   const handleSelectActiveCity = () => {
+    if (user && updateProfile) {
+      updateProfile({ city: 'Toshkent shahri' });
+    }
     if (onSelectCity) onSelectCity('Toshkent');
     showToast('Toshkent shahri tanlandi', 'info');
     onClose();

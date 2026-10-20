@@ -17,6 +17,7 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import { LogoIcon } from './Logo';
+import { UZBEKISTAN_REGIONS } from '@/lib/regions';
 
 export const AuthModal: React.FC = () => {
   const {
@@ -34,7 +35,7 @@ export const AuthModal: React.FC = () => {
   const [phone, setPhone] = useState('');
   const [telegramUsername, setTelegramUsername] = useState('');
   const [email, setEmail] = useState('');
-  const [city] = useState('Toshkent');
+  const [city, setCity] = useState('Toshkent shahri');
   const [avatar, setAvatar] = useState<string | null>(null);
 
   const [verificationCode, setVerificationCode] = useState('');
@@ -409,6 +410,25 @@ export const AuthModal: React.FC = () => {
                 />
               </div>
 
+              {/* Viloyat / Hudud */}
+              <div>
+                <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">
+                  Viloyat / Hududingiz
+                </label>
+                <select
+                  id="auth-city-select"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 dark:border-zinc-800 text-xs font-medium bg-stone-50 dark:bg-zinc-900 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-[#141413] dark:focus:ring-stone-400 transition-all"
+                >
+                  {UZBEKISTAN_REGIONS.map((r) => (
+                    <option key={r.id} value={r.name}>
+                      {r.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               {error && (
                 <div className="text-[11px] text-red-600 dark:text-red-400 flex items-center gap-1 pt-0.5">
                   <AlertCircle className="w-3.5 h-3.5 shrink-0" />
@@ -447,7 +467,8 @@ export const AuthModal: React.FC = () => {
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs shadow-sm transition-all active:scale-95 w-full"
               >
-                <span>🤖 @kittouzbot dan kodni olish</span>
+                <Bot className="w-4 h-4" />
+                <span>@kittouzbot dan kodni olish</span>
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
             </div>

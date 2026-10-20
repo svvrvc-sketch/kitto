@@ -15,6 +15,7 @@ import {
   Compass,
 } from 'lucide-react';
 import { formatBookCondition } from '@/lib/book-constants';
+import { normalizeRegionName } from '@/lib/regions';
 
 interface UserProfileModalProps {
   userId: string | null;
@@ -209,7 +210,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-stone-600 dark:text-stone-300">
                 <span className="inline-flex items-center gap-1 font-semibold text-stone-800 dark:text-stone-200">
                   <MapPin className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
-                  <span>📍 {userCity || 'Toshkent'}</span>
+                  <span>{normalizeRegionName(userCity)}</span>
                 </span>
                 {userContact && (
                   <span className="text-stone-500 dark:text-zinc-400 truncate">

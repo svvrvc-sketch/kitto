@@ -17,6 +17,7 @@ import {
   RefreshCw,
   UploadCloud,
   CheckCircle2,
+  Check,
   Loader2,
   ImageIcon,
 } from 'lucide-react';
@@ -111,7 +112,7 @@ export const AddBookModal: React.FC<AddBookModalProps> = ({
         delete next.cover;
         return next;
       });
-      showToast("Rasm yuklandi va optimallashtirildi ✓", 'success');
+      showToast("Rasm yuklandi va optimallashtirildi", 'success');
     } catch (err) {
       console.error('Image compression error:', err);
       const errMsg = "Rasm yuklashda xatolik yuz berdi. Boshqa rasm tanlab ko'ring.";
@@ -216,7 +217,7 @@ export const AddBookModal: React.FC<AddBookModalProps> = ({
       ownerId: user.id,
       ownerName: user.name || 'Kitobxon',
       ownerContact: user.contact,
-      city: 'Toshkent',
+      city: user?.city || 'Toshkent shahri',
       location,
       swapTerm,
       status: 'active',
@@ -358,8 +359,9 @@ export const AddBookModal: React.FC<AddBookModalProps> = ({
                     className="w-full h-full object-cover"
                   />
                   {/* Corner Badge */}
-                  <span className="absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#141413]/90 text-[#F8F7F4] backdrop-blur-md shadow-xs border border-white/10">
-                    ✓ Haqiqiy rasm yuklandi
+                  <span className="absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#141413]/90 text-[#F8F7F4] backdrop-blur-md shadow-xs border border-white/10 flex items-center gap-1">
+                    <Check className="w-3 h-3 text-emerald-400 stroke-[2.5]" />
+                    <span>Haqiqiy rasm yuklandi</span>
                   </span>
                 </div>
 

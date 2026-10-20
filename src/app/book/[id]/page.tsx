@@ -96,7 +96,9 @@ export default async function BookSharePage({ params }: PageProps) {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-4xl">📖</div>
+                <div className="w-full h-full flex items-center justify-center text-stone-400">
+                  <BookOpen className="w-10 h-10" />
+                </div>
               )}
             </div>
 
@@ -139,8 +141,8 @@ export default async function BookSharePage({ params }: PageProps) {
           </>
         ) : (
           <div>
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 flex items-center justify-center mx-auto mb-3 text-2xl">
-              📖
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 flex items-center justify-center mx-auto mb-3">
+              <BookOpen className="w-6 h-6" />
             </div>
             <h2 className="font-serif text-lg font-bold mb-1.5 text-stone-900 dark:text-stone-100">Kitob e&#39;loni</h2>
             <p className="text-xs text-stone-500 dark:text-zinc-400 mb-5 max-w-xs mx-auto">

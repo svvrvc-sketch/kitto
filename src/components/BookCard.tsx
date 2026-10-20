@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Book } from '@/types/book';
-import { Bookmark, CheckCircle2, Trash2, RefreshCw, MapPin, BookOpen, Camera, Clock, ShieldCheck, QrCode, ArrowLeftRight } from 'lucide-react';
+import { Bookmark, CheckCircle2, Trash2, RefreshCw, MapPin, BookOpen, Camera, Clock, ShieldCheck, QrCode, ArrowLeftRight, Gift } from 'lucide-react';
 import { calculateDistanceKm, formatDistance } from '@/lib/geo-utils';
 import { formatBookCondition } from '@/lib/book-constants';
 
@@ -76,9 +76,13 @@ export const BookCard: React.FC<BookCardProps> = ({
   const isSwapped = book.status === 'swapped' || Boolean(book.isCompleted);
 
   const isTemporary = book.swapTerm?.type === 'temporary';
+  const isGift = book.swapTerm?.type === 'gift' || book.type === 'gift';
   const isTemporarilyGiven = book.status === 'temporarily_given';
 
   const getActionLabel = () => {
+    if (isGift) {
+      return isSwapped ? 'Mavjud' : 'Topshirildi';
+    }
     if (isTemporary) {
       return isTemporarilyGiven ? 'Faollashtirish' : "O'qilmoqda";
     }
@@ -242,7 +246,7 @@ export const BookCard: React.FC<BookCardProps> = ({
           <div className="absolute inset-0 bg-stone-950/45 backdrop-blur-[2px] flex items-center justify-center z-10 pointer-events-none">
             <span className="px-3 py-1 rounded-full bg-stone-100 text-stone-600 border border-stone-200 dark:bg-zinc-900 dark:text-zinc-400 dark:border-zinc-800 text-xs font-serif font-semibold tracking-wide shadow-md flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-stone-500 dark:text-zinc-400" />
-              Almashilgan
+              {isGift ? 'Topshirildi' : 'Almashilgan'}
             </span>
           </div>
         ) : null}
@@ -274,7 +278,8 @@ export const BookCard: React.FC<BookCardProps> = ({
         {distanceKm !== null && (
           <div className="absolute bottom-2.5 left-2.5 z-20 pointer-events-none">
             <span className="inline-flex items-center gap-1 border border-black/20 dark:border-white/10 bg-[#141413]/85 text-[#F8F7F4] dark:bg-zinc-800/90 dark:text-stone-100 text-[9px] font-semibold px-2 py-0.5 rounded-md backdrop-blur-sm shadow-xs">
-              <span>📍 {formatDistance(distanceKm)} uzoqlikda</span>
+              <MapPin className="w-2.5 h-2.5 text-amber-500 shrink-0" />
+              <span>{formatDistance(distanceKm)} uzoqlikda</span>
             </span>
           </div>
         )}
@@ -345,19 +350,49 @@ export const BookCard: React.FC<BookCardProps> = ({
             <span className="text-[10px] sm:text-[11px] font-semibold text-amber-800 dark:text-amber-300 truncate">
               {book.swapTerm?.durationLabel || 'Almashuv'}
             </span>
-            <button
-              type="button"
-              id={`book-swap-btn-${book.id}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                onOpenSwapModal(book);
-              }}
-              className="py-1 px-2.5 rounded-xl bg-[#141413] hover:bg-black dark:bg-stone-200 dark:hover:bg-white text-white dark:text-stone-900 text-[10px] sm:text-[11px] font-semibold flex items-center gap-1 shadow-xs transition-all active:scale-95 shrink-0"
-              title="Kitob almashish taklifini yuborish"
-            >
-              <ArrowLeftRight className="w-3 h-3 text-amber-500" />
-              <span>Almashish</span>
-            </button>
+            {isGift ? (
+              <button
+                type="button"
+                id={`book-gift-btn-${book.id}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClick(book);
+                }}
+                className="py-1 px-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] sm:text-[11px] font-semibold flex items-center gap-1 shadow-xs transition-all active:scale-95 shrink-0"
+                title="Kitobni bepul qabul qilish"
+              >
+                <Gift className="w-3 h-3 text-white" />
+                <span>Kitobni olish</span>
+              </button>
+            ) : isTemporary ? (
+              <button
+                type="button"
+                id={`book-borrow-btn-${book.id}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClick(book);
+                }}
+                className="py-1 px-2.5 rounded-xl bg-[#141413] hover:bg-black dark:bg-stone-200 dark:hover:bg-white text-white dark:text-stone-900 text-[10px] sm:text-[11px] font-semibold flex items-center gap-1 shadow-xs transition-all active:scale-95 shrink-0"
+                title="Vaqtincha o'qishga olish"
+              >
+                <Clock className="w-3 h-3 text-amber-500" />
+                <span>O&#39;qishga olish</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                id={`book-swap-btn-${book.id}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenSwapModal(book);
+                }}
+                className="py-1 px-2.5 rounded-xl bg-[#141413] hover:bg-black dark:bg-stone-200 dark:hover:bg-white text-white dark:text-stone-900 text-[10px] sm:text-[11px] font-semibold flex items-center gap-1 shadow-xs transition-all active:scale-95 shrink-0"
+                title="Kitob almashish taklifini yuborish"
+              >
+                <ArrowLeftRight className="w-3 h-3 text-amber-500" />
+                <span>Almashish</span>
+              </button>
+            )}
           </div>
         )}
 

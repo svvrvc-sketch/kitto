@@ -18,8 +18,8 @@ const TG_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
 // Admin Keyboard
 const ADMIN_KEYBOARD = {
   keyboard: [
-    [{ text: '📊 Sayt statistikasi' }],
-    [{ text: 'ℹ️ Support maʼlumotlari' }, { text: '🌐 Saytni ochish' }],
+    [{ text: 'Sayt statistikasi' }],
+    [{ text: 'Support maʼlumotlari' }, { text: 'Saytni ochish' }],
   ],
   resize_keyboard: true,
   persistent: true,
@@ -84,14 +84,14 @@ async function getLiveStats() {
   });
 
   return (
-    `📊 <b>KITTO.UZ — SAYT STATISTIKASI</b>\n\n` +
-    `👥 <b>Jami foydalanuvchilar:</b> ${usersCount} nafar\n` +
-    `📚 <b>Jami kitoblar:</b> ${booksCount} ta\n` +
-    `   • 🟢 <b>Faol eʼlonlar:</b> ${activeBooks} ta\n` +
-    `   • 🔄 <b>Almashilgan:</b> ${swappedBooks} ta\n` +
-    `   • ⏳ <b>Vaqtincha mutolaada:</b> ${temporaryBooks} ta\n\n` +
-    `📍 <b>Viloyatlar boʻyicha ovozlar:</b> ${votesCount} ta\n` +
-    `⏰ <b>Yangilangan:</b> ${now}\n\n` +
+    `<b>KITTO.UZ — SAYT STATISTIKASI</b>\n\n` +
+    `<b>Jami foydalanuvchilar:</b> ${usersCount} nafar\n` +
+    `<b>Jami kitoblar:</b> ${booksCount} ta\n` +
+    `  • <b>Faol eʼlonlar:</b> ${activeBooks} ta\n` +
+    `  • <b>Almashilgan:</b> ${swappedBooks} ta\n` +
+    `  • <b>Vaqtincha mutolaada:</b> ${temporaryBooks} ta\n\n` +
+    `<b>Viloyatlar boʻyicha ovozlar:</b> ${votesCount} ta\n` +
+    `<b>Yangilangan:</b> ${now}\n\n` +
     `<i>Boshqaruv: @${ADMIN_USERNAME}</i>`
   );
 }
@@ -139,10 +139,10 @@ async function processUpdate(update) {
   // 2. Support Info
   if (text === '/support' || text === '/help' || text.includes('Support') || text.includes('Yordam')) {
     const supportText =
-      `ℹ️ <b>Kitto.uz — Qoʻllab-quvvatlash xizmati</b>\n\n` +
+      `<b>Kitto.uz — Qoʻllab-quvvatlash xizmati</b>\n\n` +
       `Qandaydir savol va takliflar boʻlsa, biz bilan bogʻlaning:\n\n` +
-      `📞 <b>Telefon:</b> <code>${SUPPORT_PHONE}</code>\n` +
-      `✈️ <b>Telegram:</b> @${SUPPORT_TELEGRAM}\n\n` +
+      `<b>Telefon:</b> <code>${SUPPORT_PHONE}</code>\n` +
+      `<b>Telegram:</b> @${SUPPORT_TELEGRAM}\n\n` +
       `<i>Biz har doim yordam berishga tayyormiz!</i>`;
     await sendMessage(chatId, supportText, isAdmin ? ADMIN_KEYBOARD : undefined);
     return;
@@ -151,12 +151,12 @@ async function processUpdate(update) {
   // 3. Open Website
   if (text.includes('Saytni ochish') || text === '/site' || text.toLowerCase() === 'sayt') {
     const siteText =
-      `🌐 <b>Kitto.uz Rasmiy Sayti:</b>\n\n` +
+      `<b>Kitto.uz Rasmiy Sayti:</b>\n\n` +
       `Kitob almashish va mutolaa maydoni:\n` +
-      `👉 ${SITE_URL}\n\n` +
+      `${SITE_URL}\n\n` +
       `<i>Kitoblar olamiga xush kelibsiz!</i>`;
     await sendMessage(chatId, siteText, {
-      inline_keyboard: [[{ text: '🌐 Saytga oʻtish', url: SITE_URL }]],
+      inline_keyboard: [[{ text: 'Saytga oʻtish', url: SITE_URL }]],
     });
     return;
   }
@@ -170,10 +170,10 @@ async function processUpdate(update) {
     if (payload && (/^\d{6}$/.test(payload) || payload.startsWith('code_'))) {
       const code = payload.replace('code_', '');
       const codeText =
-        `📚 <b>Kitto.uz — Tasdiqlash kodi</b>\n\n` +
+        `<b>Kitto.uz — Tasdiqlash kodi</b>\n\n` +
         `Assalomu alaykum, <b>${escapeHtml(firstName)}</b>!\n\n` +
         `Sizning saytga kirish tasdiqlash kodingiz:\n\n` +
-        `👉 <b><code>${code}</code></b>\n\n` +
+        `<b><code>${code}</code></b>\n\n` +
         `<i>Ushbu 6 xonali kodni Kitto saytidagi oynaga kiriting va hisobingizga kiring.</i>`;
       await sendMessage(chatId, codeText);
       return;
@@ -181,11 +181,11 @@ async function processUpdate(update) {
 
     if (isAdmin) {
       const adminGreeting =
-        `👑 <b>Assalomu alaykum, Admin Parviz (@${ADMIN_USERNAME})!</b>\n\n` +
+        `<b>Assalomu alaykum, Admin Parviz (@${ADMIN_USERNAME})!</b>\n\n` +
         `Siz Kitto.uz platformasi boshqaruvchisiz.\n` +
         `Terminal boti faol ishlamoqda va Telegramingizga ulandi.\n\n` +
         `Yangi foydalanuvchilar va sayt statistikasi toʻgʻridan-toʻgʻri shu yerda aks etadi.\n\n` +
-        `Statistikani koʻrish uchun pastdagi <b>📊 Sayt statistikasi</b> tugmasini bosing:`;
+        `Statistikani koʻrish uchun pastdagi <b>Sayt statistikasi</b> tugmasini bosing:`;
 
       await sendMessage(chatId, adminGreeting, ADMIN_KEYBOARD);
       return;
@@ -193,11 +193,11 @@ async function processUpdate(update) {
 
     // Normal User Welcome
     const welcome =
-      `📚 <b>Kitto.uz platformasi botiga xush kelibsiz!</b>\n\n` +
+      `<b>Kitto.uz platformasi botiga xush kelibsiz!</b>\n\n` +
       `Assalomu alaykum, <b>${escapeHtml(firstName)}</b>!\n\n` +
       `Ushbu bot orqali saytga kirish tasdiqlash kodlari va kitoblaringizga kelgan yangi takliflar haqida bildirishnomalar olasiz.\n\n` +
-      `🌐 <b>Sayt:</b> ${SITE_URL}\n` +
-      `📞 <b>Support:</b> @${SUPPORT_TELEGRAM}`;
+      `<b>Sayt:</b> ${SITE_URL}\n` +
+      `<b>Support:</b> @${SUPPORT_TELEGRAM}`;
 
     await sendMessage(chatId, welcome);
     return;
@@ -207,13 +207,13 @@ async function processUpdate(update) {
   if (isAdmin) {
     await sendMessage(
       chatId,
-      `👑 <b>Kitto Boshqaruv Paneli</b>\n\nQuyidagi tugmalardan birini tanlang:`,
+      `<b>Kitto Boshqaruv Paneli</b>\n\nQuyidagi tugmalardan birini tanlang:`,
       ADMIN_KEYBOARD
     );
   } else {
     await sendMessage(
       chatId,
-      `📚 <b>Kitto.uz boti</b>\n\nSaytni ochish uchun: ${SITE_URL}\nQoʻllab-quvvatlash: @${SUPPORT_TELEGRAM}`
+      `<b>Kitto.uz boti</b>\n\nSaytni ochish uchun: ${SITE_URL}\nQoʻllab-quvvatlash: @${SUPPORT_TELEGRAM}`
     );
   }
 }

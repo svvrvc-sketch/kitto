@@ -599,7 +599,7 @@ export const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
         <div className="absolute top-3 left-3 z-20 pointer-events-none">
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#141413]/85 dark:bg-stone-100/90 text-white dark:text-[#141413] text-[10px] font-semibold backdrop-blur-md shadow-sm border border-white/10 dark:border-black/10">
             <MapPin className="w-3 h-3 text-amber-400 dark:text-amber-600" />
-            <span>{readOnly ? 'Uchrashuv nuqtasi' : 'Nuqta belgilandi ✓'}</span>
+            <span>{readOnly ? 'Uchrashuv nuqtasi' : 'Nuqta belgilandi'}</span>
           </div>
         </div>
       </div>

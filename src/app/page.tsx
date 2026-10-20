@@ -23,6 +23,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { useChat } from '@/context/ChatContext';
 import { calculateDistanceKm, isLocationOutsideTashkent } from '@/lib/geo-utils';
+import { isRegionTashkent } from '@/lib/regions';
 import { initTelegramApp } from '@/lib/telegram';
 import { booksService, STORAGE_SAVED_KEY, STORAGE_BOOKS_KEY, mapRowToBook } from '@/services/db';
 import { BookGridSkeleton } from '@/components/BookCardSkeleton';
@@ -33,6 +34,7 @@ import {
   ArrowLeftRight,
   Gift,
   MapPinOff,
+  BookOpen,
 } from 'lucide-react';
 
 const SESSION_GEO_COORDS_KEY = 'kitto_user_coords';
@@ -81,8 +83,11 @@ export default function HomePage() {
 
   // Regional check: whether user is detected outside Tashkent
   const isOutsideTashkent = useMemo(() => {
+    if (user?.city && !isRegionTashkent(user.city)) {
+      return true;
+    }
     return isLocationOutsideTashkent(userCoordinates);
-  }, [userCoordinates]);
+  }, [userCoordinates, user?.city]);
 
   // Live Autocomplete Suggestions
   const autocompleteSuggestions = useMemo(() => {
@@ -106,6 +111,16 @@ export default function HomePage() {
   }, []);
 
   const handleOpenSwapModal = useCallback((targetBook: Book) => {
+    // If book is a gift, do not demand a reciprocal book swap
+    if (targetBook.swapTerm?.type === 'gift' || targetBook.type === 'gift') {
+      if (!user) {
+        openAuthModal("Kitobni bepul qabul qilish uchun tizimga kiring");
+        return;
+      }
+      startConversation(targetBook);
+      setCurrentTab('messages');
+      return;
+    }
     if (!user) {
       openAuthModal("Kitob almashish taklifini yuborish uchun tizimga kiring");
       return;
@@ -116,7 +131,7 @@ export default function HomePage() {
     }
     setSwapModalTargetBook(targetBook);
     setIsSwapModalOpen(true);
-  }, [user, openAuthModal, openPhonePrompt, hasValidPhone]);
+  }, [user, openAuthModal, openPhonePrompt, hasValidPhone, startConversation]);
 
   // Dark mode state
   const [darkMode, setDarkMode] = useState(false);
@@ -354,7 +369,7 @@ export default function HomePage() {
       setPendingSwapTargetBook(null);
       setSwapModalTargetBook(target);
       setIsSwapModalOpen(true);
-      showToast(`"${newBook.title}" eʼlon qilindi! Endi almashuv taklifini tasdiqlashingiz mumkin ✓`, 'success');
+      showToast(`"${newBook.title}" eʼlon qilindi! Endi almashuv taklifini tasdiqlashingiz mumkin`, 'success');
       return;
     }
 
@@ -477,7 +492,7 @@ export default function HomePage() {
       );
     }
 
-    showToast("Kitob faollashtirildi va ro'yxatga qaytarildi ✓", 'success');
+    showToast("Kitob faollashtirildi va ro'yxatga qaytarildi", 'success');
   };
 
   // Open public reader profile
@@ -616,7 +631,7 @@ export default function HomePage() {
         onSkip={handleSkipGeo}
       />
 
-      {/* Main Header with 📍 Toshkent location trigger */}
+      {/* Main Header with Toshkent location trigger */}
       <Header
         darkMode={darkMode}
         onToggleTheme={() => setDarkMode(!darkMode)}
@@ -762,7 +777,9 @@ export default function HomePage() {
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center text-xs">📖</div>
+                            <div className="w-full h-full flex items-center justify-center text-stone-400">
+                              <BookOpen className="w-4 h-4" />
+                            </div>
                           )}
                         </div>
                         <div className="min-w-0 flex-1 text-left">
@@ -775,10 +792,10 @@ export default function HomePage() {
                         </div>
                         <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-stone-100 dark:bg-zinc-800 text-stone-600 dark:text-stone-300 shrink-0">
                           {suggestion.swapTerm?.type === 'gift'
-                            ? '🎁 Sovgʻa'
+                            ? 'Sovgʻa'
                             : suggestion.swapTerm?.type === 'temporary'
-                            ? '⏳ Vaqtincha'
-                            : '🟢 Almashuv'}
+                            ? 'Vaqtincha'
+                            : 'Almashuv'}
                         </span>
                       </div>
                     ))}

@@ -26,10 +26,10 @@ export async function POST(req: Request) {
     const dealUrl = threadId ? `${siteUrl}/?chat=${encodeURIComponent(threadId)}` : siteUrl;
 
     const pushText =
-      `📬 <b>Kitto.uz — Yangi taklif / Xabar!</b>\n\n` +
+      `<b>Kitto.uz — Yangi taklif / Xabar</b>\n\n` +
       `Hurmatli <b>${escapeHtml(recipientName)}</b>, sizning <b>"${escapeHtml(bookTitle)}"</b> kitobingizga <b>${escapeHtml(senderName)}</b> almashish taklifini / xabar yubordi!\n\n` +
-      (messageSnippet ? `💬 <i>"${escapeHtml(messageSnippet.slice(0, 150))}"</i>\n\n` : '') +
-      `👉 <a href="${dealUrl}">Taklifni koʻrish va javob berish</a>\n\n` +
+      (messageSnippet ? `<i>"${escapeHtml(messageSnippet.slice(0, 150))}"</i>\n\n` : '') +
+      `<a href="${dealUrl}">Taklifni koʻrish va javob berish</a>\n\n` +
       `<i>Kitto platformasi bildirishnomasi</i>`;
 
     const targetChatIds = new Set<string | number>();
@@ -38,21 +38,21 @@ export async function POST(req: Request) {
     if (recipientId && supabaseUrl && supabaseAnonKey && supabaseUrl.startsWith('http')) {
       try {
         const client = createClient(supabaseUrl, supabaseAnonKey, { auth: { persistSession: false } });
-        const { data: profile } = await client
+        const { data } = await client
           .from('profiles')
           .select('telegram_chat_id, telegram_username, contact')
           .eq('id', recipientId)
           .maybeSingle();
 
-        if (profile?.telegram_chat_id) {
-          targetChatIds.add(profile.telegram_chat_id);
+        if (data?.telegram_chat_id) {
+          targetChatIds.add(data.telegram_chat_id);
         } else {
-          if (profile?.telegram_username) {
-            const registered = getUserChatId(normalizeUsername(profile.telegram_username));
+          if (data?.telegram_username) {
+            const registered = getUserChatId(normalizeUsername(data.telegram_username));
             if (registered) targetChatIds.add(registered);
           }
-          if (profile?.contact) {
-            const registeredPhone = getUserChatId(normalizePhone(profile.contact));
+          if (data?.contact) {
+            const registeredPhone = getUserChatId(normalizePhone(data.contact));
             if (registeredPhone) targetChatIds.add(registeredPhone);
           }
         }
@@ -85,7 +85,7 @@ export async function POST(req: Request) {
             parse_mode: 'HTML',
             reply_markup: {
               inline_keyboard: [
-                [{ text: '📖 Saytda koʻrish', url: dealUrl }],
+                [{ text: 'Saytda koʻrish', url: dealUrl }],
               ],
             },
           }),

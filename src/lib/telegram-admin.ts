@@ -116,14 +116,14 @@ export async function getLiveSiteStats(): Promise<{
   });
 
   const formattedText =
-    `📊 <b>KITTO.UZ — SAYT STATISTIKASI</b>\n\n` +
-    `👥 <b>Jami foydalanuvchilar:</b> ${usersCount} nafar\n` +
-    `📚 <b>Jami kitoblar:</b> ${booksCount} ta\n` +
-    `   • 🟢 <b>Faol eʼlonlar:</b> ${activeBooksCount} ta\n` +
-    `   • 🔄 <b>Almashilgan:</b> ${swappedBooksCount} ta\n` +
-    `   • ⏳ <b>Vaqtincha oʻqishga:</b> ${temporaryBooksCount} ta\n\n` +
-    `📍 <b>Viloyatlar boʻyicha ovozlar:</b> ${votesCount} ta\n` +
-    `⏰ <b>Yangilangan:</b> ${formattedTime}\n\n` +
+    `<b>KITTO.UZ — SAYT STATISTIKASI</b>\n\n` +
+    `<b>Jami foydalanuvchilar:</b> ${usersCount} nafar\n` +
+    `<b>Jami kitoblar:</b> ${booksCount} ta\n` +
+    `  • <b>Faol eʼlonlar:</b> ${activeBooksCount} ta\n` +
+    `  • <b>Almashilgan:</b> ${swappedBooksCount} ta\n` +
+    `  • <b>Vaqtincha oʻqishga:</b> ${temporaryBooksCount} ta\n\n` +
+    `<b>Viloyatlar boʻyicha ovozlar:</b> ${votesCount} ta\n` +
+    `<b>Yangilangan:</b> ${formattedTime}\n\n` +
     `<i>Boshqaruv: @${ADMIN_USERNAME}</i>`;
 
   return {
@@ -186,16 +186,18 @@ export async function notifyAdminNewUser(user: {
     ? user.contact
     : 'Kiritilmagan';
 
+  const userCity = user.city ? user.city.trim() : 'Toshkent shahri';
+
   const text =
-    `🎉 <b>YANGI FOYDALANUVCHI ROʻYXATDAN OʻTDI!</b>\n\n` +
-    `👤 <b>Ism:</b> ${escapeHtml(user.name)}\n` +
-    `📞 <b>Telefon:</b> <code>${escapeHtml(user.contact)}</code>\n` +
-    `✈️ <b>Telegram:</b> ${escapeHtml(cleanTg)}\n` +
-    (user.email ? `📧 <b>Email:</b> ${escapeHtml(user.email)}\n` : '') +
-    `📍 <b>Hudud:</b> ${escapeHtml(user.city || 'Toshkent')}\n` +
-    `🌐 <b>Usul:</b> ${escapeHtml(user.provider || 'Telegram kod')}\n` +
-    `⏰ <b>Vaqt:</b> ${formattedTime}\n` +
-    (user.id ? `🆔 <b>ID:</b> <code>${escapeHtml(user.id)}</code>\n` : '') +
+    `<b>YANGI FOYDALANUVCHI ROʻYXATDAN OʻTDI</b>\n\n` +
+    `<b>Ism:</b> ${escapeHtml(user.name)}\n` +
+    `<b>Telefon:</b> <code>${escapeHtml(user.contact)}</code>\n` +
+    `<b>Telegram:</b> ${escapeHtml(cleanTg)}\n` +
+    (user.email ? `<b>Email:</b> ${escapeHtml(user.email)}\n` : '') +
+    `<b>Hudud:</b> ${escapeHtml(userCity)}\n` +
+    `<b>Usul:</b> ${escapeHtml(user.provider || 'Telegram kod')}\n` +
+    `<b>Vaqt:</b> ${formattedTime}\n` +
+    (user.id ? `<b>ID:</b> <code>${escapeHtml(user.id)}</code>\n` : '') +
     `\n<i>Kitto.uz avtomatik xabarnomasi</i>`;
 
   // Collect target recipients: explicit admin chat + discovered chats

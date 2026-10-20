@@ -51,6 +51,13 @@ export const Header: React.FC<HeaderProps> = ({
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const userCityDisplay = user?.city
+    ? user.city.includes('Toshkent')
+      ? 'Toshkent'
+      : user.city.replace(' viloyati', '').replace(' Respublikasi', '')
+    : 'Toshkent';
+  const isCityActive = !user?.city || user.city.includes('Toshkent');
+
   const handleLogout = () => {
     logout();
     setShowProfileMenu(false);
@@ -150,11 +157,11 @@ export const Header: React.FC<HeaderProps> = ({
                 id="city-selector-btn"
                 onClick={onOpenCitySelector}
                 className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl border border-stone-200/90 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 hover:bg-stone-50 dark:hover:bg-zinc-800 text-[11px] sm:text-xs font-semibold text-stone-800 dark:text-stone-200 transition-all shadow-xs shrink-0"
-                title="Hudud: Toshkent shahri (Faol)"
+                title={`Hudud: ${user?.city || 'Toshkent shahri'}`}
               >
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                <span className={`w-2 h-2 rounded-full ${isCityActive ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'} shrink-0`} />
                 <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-stone-700 dark:text-stone-300 shrink-0" />
-                <span className="truncate max-w-[70px] sm:max-w-none">Toshkent</span>
+                <span className="truncate max-w-[70px] sm:max-w-none">{userCityDisplay}</span>
               </button>
             )}
 

@@ -707,8 +707,9 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({
                       )}
                     </div>
 
-                    <div className="text-[11px] text-amber-700 dark:text-amber-400 font-medium truncate">
-                      📚 {thread.bookTitle}
+                    <div className="text-[11px] text-amber-700 dark:text-amber-400 font-medium truncate flex items-center gap-1">
+                      <BookOpen className="w-3 h-3 shrink-0" />
+                      <span className="truncate">{thread.bookTitle}</span>
                     </div>
 
                     <p className="text-[11px] text-stone-500 dark:text-zinc-400 truncate mt-0.5">

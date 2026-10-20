@@ -130,10 +130,10 @@ export async function sendTelegramDirectCode(
 ): Promise<boolean> {
   try {
     const text =
-      `📚 <b>Kitto.uz — Kirish kodi</b>\n\n` +
+      `<b>Kitto.uz — Kirish kodi</b>\n\n` +
       `Assalomu alaykum${userName ? `, ${userName}` : ''}!\n` +
       `Sizning tasdiqlash kodingiz:\n\n` +
-      `👉 <b><code>${code}</code></b>\n\n` +
+      `<b><code>${code}</code></b>\n\n` +
       `<i>Ushbu kodni saytga kiriting. Kod 5 daqiqa davomida amal qiladi.</i>`;
 
     const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {

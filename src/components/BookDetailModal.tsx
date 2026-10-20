@@ -23,6 +23,7 @@ import {
   Copy,
   MessageCircle,
   ArrowLeftRight,
+  Gift,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
@@ -67,6 +68,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
   const [imageError, setImageError] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [isPhotoZoomed, setIsPhotoZoomed] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [effectiveUserCoords, setEffectiveUserCoords] = useState<{
     lat: number;
     lng: number;
@@ -147,17 +149,19 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
       : 'Doimiy almashish');
 
   const isTemporary = termType === 'temporary';
+  const isGift = termType === 'gift';
   const isTemporarilyGiven = book.status === 'temporarily_given';
   const isInactive = isSwapped || isTemporarilyGiven;
 
   const getActionLabel = () => {
+    if (isGift) {
+      return isSwapped ? 'Mavjud deb belgilash' : 'Topshirildi';
+    }
     if (isTemporary) {
       return isTemporarilyGiven ? 'Faollashtirish' : "O'qilmoqda";
     }
     return isSwapped ? 'Almashishga tayyor' : 'Band qilish';
   };
-
-  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   const getShareUrl = () => {
     if (typeof window !== 'undefined') {
@@ -169,7 +173,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
   const getShareText = () => {
     const swapLabel = book.swapTerm?.durationLabel || durationLabel;
     const shareUrl = getShareUrl();
-    return `📚 "${book.title}" (${book.author}) — ${swapLabel}. Kitto.uz orqali koʻring: ${shareUrl}`;
+    return `"${book.title}" (${book.author}) — ${swapLabel}. Kitto.uz orqali ko'ring: ${shareUrl}`;
   };
 
   const handleShare = () => {
@@ -249,7 +253,9 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
           <div className="mb-4 p-3 rounded-xl bg-stone-100 text-stone-600 border border-stone-200 dark:bg-zinc-900 dark:text-zinc-400 dark:border-zinc-800 flex items-center justify-between text-xs">
             <span className="flex items-center gap-1.5 font-semibold text-stone-700 dark:text-stone-300">
               <CheckCircle className="w-4 h-4 text-stone-500 dark:text-zinc-400" />
-              Ushbu kitob band qilingan yoki almashilgan
+              {isGift
+                ? 'Ushbu kitob egasi tomonidan hadya qilib topshirilgan'
+                : 'Ushbu kitob band qilingan yoki almashilgan'}
             </span>
           </div>
         )}
@@ -431,8 +437,9 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
             </div>
 
             {distanceKm !== null && (
-              <span className="shrink-0 px-2 py-0.5 rounded-md bg-stone-200/80 dark:bg-zinc-800 text-[10px] font-semibold text-stone-700 dark:text-stone-300">
-                📍 Sizdan {formatDistance(distanceKm)}
+              <span className="shrink-0 px-2 py-0.5 rounded-md bg-stone-200/80 dark:bg-zinc-800 text-[10px] font-semibold text-stone-700 dark:text-stone-300 inline-flex items-center gap-1">
+                <MapPin className="w-3 h-3 text-amber-600 dark:text-amber-400 shrink-0" />
+                <span>Sizdan {formatDistance(distanceKm)}</span>
               </span>
             )}
           </div>
@@ -581,23 +588,59 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
         <div className="mt-6 pt-2">
           {!isOwner ? (
             <div className="flex flex-col sm:flex-row gap-2.5">
-              <button
-                id="modal-swap-request-btn"
-                type="button"
-                onClick={() => {
-                  if (!user) {
-                    openAuthModal("Kitob almashish va e'lon joylash uchun profilingizga kiring");
-                    return;
-                  }
-                  if (onOpenSwapModal) {
-                    onOpenSwapModal(book);
-                  }
-                }}
-                className="flex-1 flex items-center justify-center gap-2 py-3.5 px-5 rounded-2xl bg-[#141413] hover:bg-black dark:bg-stone-100 dark:hover:bg-white text-white dark:text-stone-900 font-semibold text-xs sm:text-sm shadow-tactile transition-all active:scale-[0.99]"
-              >
-                <ArrowLeftRight className="w-4 h-4 text-amber-500" />
-                <span>Kitob almashish</span>
-              </button>
+              {isGift ? (
+                <button
+                  id="modal-claim-gift-btn"
+                  type="button"
+                  onClick={() => {
+                    if (!user) {
+                      openAuthModal("Kitobni bepul qabul qilish uchun profilingizga kiring");
+                      return;
+                    }
+                    handleMessageClick();
+                  }}
+                  className="flex-1 flex items-center justify-center gap-2 py-3.5 px-5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs sm:text-sm shadow-tactile transition-all active:scale-[0.99]"
+                >
+                  <Gift className="w-4 h-4 text-white" />
+                  <span>Kitobni bepul olish</span>
+                </button>
+              ) : isTemporary ? (
+                <button
+                  id="modal-borrow-request-btn"
+                  type="button"
+                  onClick={() => {
+                    if (!user) {
+                      openAuthModal("Vaqtincha o'qishga olish uchun profilingizga kiring");
+                      return;
+                    }
+                    if (onOpenSwapModal) {
+                      onOpenSwapModal(book);
+                    }
+                  }}
+                  className="flex-1 flex items-center justify-center gap-2 py-3.5 px-5 rounded-2xl bg-[#141413] hover:bg-black dark:bg-stone-100 dark:hover:bg-white text-white dark:text-stone-900 font-semibold text-xs sm:text-sm shadow-tactile transition-all active:scale-[0.99]"
+                >
+                  <Clock className="w-4 h-4 text-amber-500" />
+                  <span>O&#39;qishga so&#39;rash</span>
+                </button>
+              ) : (
+                <button
+                  id="modal-swap-request-btn"
+                  type="button"
+                  onClick={() => {
+                    if (!user) {
+                      openAuthModal("Kitob almashish uchun profilingizga kiring");
+                      return;
+                    }
+                    if (onOpenSwapModal) {
+                      onOpenSwapModal(book);
+                    }
+                  }}
+                  className="flex-1 flex items-center justify-center gap-2 py-3.5 px-5 rounded-2xl bg-[#141413] hover:bg-black dark:bg-stone-100 dark:hover:bg-white text-white dark:text-stone-900 font-semibold text-xs sm:text-sm shadow-tactile transition-all active:scale-[0.99]"
+                >
+                  <ArrowLeftRight className="w-4 h-4 text-amber-500" />
+                  <span>Kitob almashish</span>
+                </button>
+              )}
 
               <button
                 id="modal-send-message-btn"
@@ -640,8 +683,8 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
             <div className="w-full flex items-center justify-between pb-3 text-stone-200">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-semibold px-2.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1.5">
-                  <Camera className="w-3.5 h-3.5 text-amber-400" />
-                  <span>✓ Haqiqiy fotosurat</span>
+                  <Check className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Haqiqiy fotosurat</span>
                 </span>
                 <span className="text-xs text-stone-300 font-serif truncate max-w-[180px] sm:max-w-md">
                   {book.title} — {book.author}
@@ -706,7 +749,9 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
                 {book.coverUrl ? (
                   <img src={book.coverUrl} alt={book.title} className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-xs">📖</div>
+                  <div className="w-full h-full flex items-center justify-center text-stone-400">
+                    <BookOpen className="w-4 h-4" />
+                  </div>
                 )}
               </div>
               <div className="min-w-0 flex-1">
@@ -726,7 +771,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
             <div className="space-y-2">
               {/* Telegram 1-Click Share */}
               <a
-                href={`https://t.me/share/url?url=${encodeURIComponent(getShareUrl())}&text=${encodeURIComponent(`📚 "${book.title}" (${book.author}) — Kitto.uz orqali kitob almashing!`)}`}
+                href={`https://t.me/share/url?url=${encodeURIComponent(getShareUrl())}&text=${encodeURIComponent(`"${book.title}" (${book.author}) — Kitto.uz orqali kitob almashing!`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-sky-500 hover:bg-sky-600 active:scale-[0.98] text-white font-bold text-xs shadow-tactile transition-all"
@@ -737,7 +782,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
 
               {/* WhatsApp 1-Click Share */}
               <a
-                href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`📚 "${book.title}" (${book.author}) — Kitto.uz orqali ko'rish: ${getShareUrl()}`)}`}
+                href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`"${book.title}" (${book.author}) — Kitto.uz orqali ko'rish: ${getShareUrl()}`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-semibold text-xs shadow-xs transition-all"

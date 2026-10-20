@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { compressBookImage } from '@/utils/imageCompressor';
 import { isValidUzbekPhone, formatUzbekPhone } from '@/utils/phone';
+import { UZBEKISTAN_REGIONS, normalizeRegionName } from '@/lib/regions';
 import {
   User as UserIcon,
   BookMarked,
@@ -76,6 +77,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState('');
   const [editContact, setEditContact] = useState('');
+  const [editCity, setEditCity] = useState('Toshkent shahri');
   const [editTelegram, setEditTelegram] = useState('');
   const [editAvatar, setEditAvatar] = useState<string | null>(null);
   const [wishlistInput, setWishlistInput] = useState('');
@@ -86,6 +88,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
     if (!user) return;
     setEditName(user.name || '');
     setEditContact(user.contact && !user.contact.includes('@') ? user.contact : '');
+    setEditCity(user.city ? normalizeRegionName(user.city) : 'Toshkent shahri');
     setEditTelegram(user.telegramUsername || '');
     setEditAvatar(user.avatar || null);
     setIsEditing(true);
@@ -105,7 +108,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
       const compressed = await compressBookImage(file, 400, 0.82);
       updateProfile({ avatar: compressed });
       if (isEditing) setEditAvatar(compressed);
-      showToast('Profil rasmi muvaffaqiyatli yuklandi ✓', 'success');
+      showToast('Profil rasmi muvaffaqiyatli yuklandi', 'success');
     } catch {
       showToast('Rasmni yuklashda xatolik yuz berdi', 'error');
     } finally {
@@ -126,11 +129,12 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
     updateProfile({
       name: editName.trim(),
       contact: formatUzbekPhone(editContact.trim()),
+      city: editCity,
       telegramUsername: editTelegram.trim() ? editTelegram.trim().replace(/^@/, '') : undefined,
       avatar: editAvatar || undefined,
     });
     setIsEditing(false);
-    showToast('Profil maʼlumotlari saqlandi ✓', 'success');
+    showToast('Profil maʼlumotlari saqlandi', 'success');
   };
 
   const handleLogout = () => {
@@ -294,20 +298,21 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   </div>
 
                   {(user.isTrusted || (user.trustScore && user.trustScore >= 3)) && (
-                    <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-white text-[11px] font-bold shadow-xs">
-                      <span>🛡️ Ishonchli kitobxon</span>
+                    <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-white text-[11px] font-bold shadow-xs">
+                      <ShieldCheck className="w-3.5 h-3.5 text-white" />
+                      <span>Ishonchli kitobxon</span>
                     </span>
                   )}
                 </div>
 
                 <div className="flex flex-wrap items-center gap-y-1 gap-x-3 mt-1.5 text-xs">
-                  <span className="font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-1">
-                    <span>📞</span>
+                  <span className="font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
+                    <Phone className="w-3.5 h-3.5 text-stone-400" />
                     <span>{user.contact}</span>
                   </span>
                   {user.telegramUsername && (
-                    <span className="font-medium text-sky-700 dark:text-sky-400 flex items-center gap-1">
-                      <span>✈️</span>
+                    <span className="font-medium text-sky-700 dark:text-sky-400 flex items-center gap-1.5">
+                      <Send className="w-3.5 h-3.5 text-sky-500" />
                       <span>@{user.telegramUsername.replace(/^@/, '')}</span>
                     </span>
                   )}
@@ -318,7 +323,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   )}
                   <span className="flex items-center gap-1 font-medium text-stone-500 dark:text-zinc-400">
                     <MapPin className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
-                    <span>📍 {user.city || 'Toshkent'}</span>
+                    <span>{user.city ? normalizeRegionName(user.city) : 'Toshkent shahri'}</span>
                   </span>
                 </div>
 
@@ -461,6 +466,24 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   />
                 </div>
               </div>
+
+              <div>
+                <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">
+                  Hudud (viloyat / shahar) *
+                </label>
+                <select
+                  id="profile-city-select"
+                  value={editCity}
+                  onChange={(e) => setEditCity(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-stone-200 dark:border-zinc-800 text-xs bg-stone-50 dark:bg-zinc-900 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-[#141413] dark:focus:ring-stone-400"
+                >
+                  {UZBEKISTAN_REGIONS.map((r) => (
+                    <option key={r.id} value={r.name}>
+                      {r.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             <div className="flex items-center justify-end gap-2 pt-1">
@@ -515,7 +538,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 }`}
               >
                 {genre}
-                {isSelected && <span className="ml-1.5 text-[10px]">✓</span>}
+                {isSelected && <Check className="w-3 h-3 ml-1.5 inline-block stroke-[2.5]" />}
               </button>
             );
           })}
@@ -625,8 +648,8 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-xs">
-                          📖
+                        <div className="w-full h-full flex items-center justify-center text-stone-400">
+                          <BookOpen className="w-4 h-4" />
                         </div>
                       )}
                     </div>
@@ -679,7 +702,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                       type="button"
                       onClick={() => {
                         // Trigger reminder notification
-                        showToast(`✈️ Telegram bot orqali kitobxon eslatildi!`, 'info');
+                        showToast('Telegram bot orqali kitobxon eslatildi', 'info');
                         fetch('/api/telegram-chat-notify', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },

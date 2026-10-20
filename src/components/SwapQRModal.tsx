@@ -117,10 +117,10 @@ export const SwapQRModal: React.FC<SwapQRModalProps> = ({
         let targetStatus: 'temporarily_given' | 'swapped' | 'active' = 'swapped';
         if (mode === 'handover') {
           targetStatus = book?.swapTerm?.type === 'temporary' ? 'temporarily_given' : 'swapped';
-          showToast(`🎉 Kitob topshirildi! Profilingizga +1 ishonch bali qoʻshildi (Jami: ${newTrust})`, 'success');
+          showToast(`Kitob topshirildi! Profilingizga +1 ishonch bali qoʻshildi (Jami: ${newTrust})`, 'success');
         } else {
           targetStatus = 'active';
-          showToast(`🎉 Kitob toza va oʻz vaqtida qabul qilindi! +1 ishonch bali qoʻshildi (Jami: ${newTrust})`, 'success');
+          showToast(`Kitob toza va oʻz vaqtida qabul qilindi! +1 ishonch bali qoʻshildi (Jami: ${newTrust})`, 'success');
         }
 
         // Haptic feedback
@@ -291,7 +291,7 @@ export const SwapQRModal: React.FC<SwapQRModalProps> = ({
           const imageData = ctx.getImageData(0, 0, img.width, img.height);
           const code = jsQR(imageData.data, imageData.width, imageData.height);
           if (code && code.data) {
-            showToast('QR-kod aniqlandi ✓', 'success');
+            showToast('QR-kod aniqlandi', 'success');
             handleDecodedString(code.data);
           } else {
             showToast('Rasmdan QR-kod topilmadi. Boshqa rasm tanlang yoki kodni yozing.', 'error');
@@ -314,7 +314,7 @@ export const SwapQRModal: React.FC<SwapQRModalProps> = ({
     if (!clean) return;
 
     if (clean === shortCode || clean.replace(/\D/g, '') === shortCode.replace(/\D/g, '')) {
-      showToast('Tasdiqlash kodi toʻgʻri! ✓', 'success');
+      showToast('Tasdiqlash kodi toʻgʻri!', 'success');
       handleDecodedString(shortCode);
     } else {
       showToast('Notoʻgʻri tasdiqlash kodi. Qaytadan tekshirib koʻring.', 'error');
@@ -357,7 +357,7 @@ export const SwapQRModal: React.FC<SwapQRModalProps> = ({
   const handleCopyCode = () => {
     navigator.clipboard?.writeText(shortCode);
     setCopied(true);
-    showToast('Tasdiqlash kodi nusxalandi ✓', 'info');
+    showToast('Tasdiqlash kodi nusxalandi', 'info');
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -516,9 +516,9 @@ export const SwapQRModal: React.FC<SwapQRModalProps> = ({
               <span>
                 {mode === 'handover'
                   ? isTemporary
-                    ? 'Kitob topshirildi deb tasdiqlash ✓'
-                    : 'Kitob almashildi deb tasdiqlash ✓'
-                  : 'Kitob toza qaytarildi deb tasdiqlash ✓'}
+                    ? 'Kitob topshirildi deb tasdiqlash'
+                    : 'Kitob almashildi deb tasdiqlash'
+                  : 'Kitob toza qaytarildi deb tasdiqlash'}
               </span>
             </button>
           </div>
@@ -559,7 +559,7 @@ export const SwapQRModal: React.FC<SwapQRModalProps> = ({
                     <CheckCircle2 className="w-10 h-10" />
                   </div>
                   <h4 className="font-serif font-bold text-base text-white">QR-kod tasdiqlandi!</h4>
-                  <p className="text-xs text-emerald-200 mt-0.5">Almashuv muvaffaqiyatli yakunlandi ✓</p>
+                  <p className="text-xs text-emerald-200 mt-0.5">Almashuv muvaffaqiyatli yakunlandi</p>
                 </div>
               )}
 

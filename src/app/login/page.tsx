@@ -17,6 +17,7 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import Link from 'next/link';
+import { UZBEKISTAN_REGIONS } from '@/lib/regions';
 
 function LoginFormContent() {
   const router = useRouter();
@@ -30,6 +31,7 @@ function LoginFormContent() {
   const [phone, setPhone] = useState('');
   const [telegramUsername, setTelegramUsername] = useState('');
   const [email, setEmail] = useState('');
+  const [city, setCity] = useState('Toshkent shahri');
   const [avatar, setAvatar] = useState<string | null>(null);
 
   const [verificationCode, setVerificationCode] = useState('');
@@ -161,6 +163,7 @@ function LoginFormContent() {
         contact: phone.trim(),
         telegramUsername: telegramUsername.trim() ? telegramUsername.trim().replace(/^@/, '') : undefined,
         email: email.trim() || undefined,
+        city,
         avatar: avatar || undefined,
         provider: 'direct',
       });
@@ -372,6 +375,25 @@ function LoginFormContent() {
                 />
               </div>
 
+              {/* Viloyat / Hudud */}
+              <div>
+                <label className="block text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1.5">
+                  Viloyat / Hududingiz
+                </label>
+                <select
+                  id="login-city-select"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  className="w-full px-4 py-3 rounded-2xl border border-stone-200 dark:border-zinc-800 text-sm font-medium bg-stone-50 dark:bg-zinc-900 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-[#141413] dark:focus:ring-stone-400 transition-all"
+                >
+                  {UZBEKISTAN_REGIONS.map((r) => (
+                    <option key={r.id} value={r.name}>
+                      {r.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               {error && (
                 <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-900/60 flex items-center gap-2 text-xs text-red-700 dark:text-red-300">
                   <AlertCircle className="w-4 h-4 shrink-0" />
@@ -408,7 +430,8 @@ function LoginFormContent() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs shadow-sm transition-all active:scale-95 w-full"
               >
-                <span>🤖 @kittouzbot dan kodni olish</span>
+                <Bot className="w-4 h-4" />
+                <span>@kittouzbot dan kodni olish</span>
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
             </div>

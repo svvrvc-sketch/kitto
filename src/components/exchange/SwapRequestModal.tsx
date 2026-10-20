@@ -72,16 +72,18 @@ export const SwapRequestModal: React.FC<SwapRequestModalProps> = ({
   const targetOwnerBooks = useMemo(() => {
     if (!targetBook || !targetBook.ownerId) return [];
     const ownerId = targetBook.ownerId;
-    // Filter active books belonging to the target book's owner
+    // Filter active exchange books belonging to the target book's owner (exclude gifts)
     const list = safeAllBooks.filter(
       (b) =>
         b &&
         b.ownerId === ownerId &&
+        b.swapTerm?.type !== 'gift' &&
+        b.type !== 'gift' &&
         (b.status === 'active' || (b.status as string) === 'available' || !b.status)
     );
 
-    // Ensure the clicked targetBook is always in the list
-    if (targetBook && !list.some((b) => b && b.id === targetBook.id)) {
+    // Ensure the clicked targetBook is in the list if not gift
+    if (targetBook && targetBook.swapTerm?.type !== 'gift' && targetBook.type !== 'gift' && !list.some((b) => b && b.id === targetBook.id)) {
       list.unshift(targetBook);
     }
     return list;
