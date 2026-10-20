@@ -6,6 +6,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { ToastProvider } from "@/context/ToastContext";
 import { ChatProvider } from "@/context/ChatContext";
 import { AuthModal } from "@/components/AuthModal";
+import { PhonePromptModal } from "@/components/PhonePromptModal";
 
 const serifFont = Playfair_Display({
   subsets: ["latin"],
@@ -23,21 +24,22 @@ const sansFont = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   metadataBase: new URL('https://kitto.uz'),
   title: {
-    default: 'Kitto — Kitob almashish va ulashish platformasi | kitto.uz',
+    default: 'Kitto — Toshkentda kitob almashish platformasi',
     template: '%s | Kitto.uz',
   },
   description:
-    "Toshkent bo'ylab kitobxonlar bilan kitoblarni vaqtincha o'qishga almashing, doimiy almashtiring yoki bepul ulashing. Xaritadan eng yaqin kitobni toping.",
+    "Toshkentda kitobxonlar bilan kitob almashing. Xaritadan eng yaqin kitobni toping.",
   keywords: ['kitto', 'kitto.uz', 'kitob almashish', 'kitob ulashish', 'Toshkent kitoblar', 'mutolaa'],
   openGraph: {
-    title: 'Kitto — Yaqiningizdagi kitobxonlar bilan kitob almashing',
-    description: "Javoningizdagi kitoblarni ulashing va o'zingizga yaqin joydan yangi kitoblar toping.",
+    title: 'Kitto — Toshkentda kitob almashish platformasi',
+    description: "Toshkentda kitobxonlar bilan kitob almashing. Xaritadan eng yaqin kitobni toping.",
     url: 'https://kitto.uz',
     siteName: 'Kitto.uz',
     locale: 'uz_UZ',
     type: 'website',
   },
 };
+
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -70,6 +72,7 @@ export default function RootLayout({
             <ChatProvider>
               {children}
               <AuthModal />
+              <PhonePromptModal />
             </ChatProvider>
           </AuthProvider>
         </ToastProvider>

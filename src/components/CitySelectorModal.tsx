@@ -156,7 +156,7 @@ export const CitySelectorModal: React.FC<CitySelectorModalProps> = ({
             </h2>
             <p className="text-xs text-stone-500 dark:text-zinc-400 mt-1 max-w-sm leading-relaxed">
               {isOutsideTashkent
-                ? "Kitto hozirda Toshkent shahrida faol ishlamoqda. O'z hududingizga ovoz bering — 100 ta ovoz to'planganda Kitto sizning viloyatingizda ham ishga tushadi."
+                ? "Siz katalogdagi kitoblarni ko'rishingiz mumkin. Tez orada viloyatingizda ham ishga tushishimiz uchun ovoz bering."
                 : "Kitto platformasi Toshkent shahrida toʻliq faoliyat yuritmoqda. Barcha kitobxonlik va eʼlon almashish xizmatlari ochiq!"}
             </p>
           </div>
@@ -278,7 +278,7 @@ export const CitySelectorModal: React.FC<CitySelectorModalProps> = ({
                         {hasVotedForThis ? (
                           <span className="px-3 py-1.5 rounded-xl bg-amber-500 text-white text-xs font-semibold flex items-center gap-1 shadow-xs">
                             <CheckCircle2 className="w-3.5 h-3.5" />
-                            <span>Ovozingiz berildi ✓</span>
+                            <span>Ovozingiz qabul qilindi</span>
                           </span>
                         ) : isLocked ? (
                           <button

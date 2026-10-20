@@ -152,7 +152,7 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({
           type: 'permanent',
           durationLabel: activeThread.bookSwapLabel,
         },
-        status: 'borrowed',
+        status: 'swapped',
         createdAt: new Date().toISOString(),
       } as Book);
 
@@ -181,13 +181,13 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({
           Xabarlar
         </h2>
         <p className="text-xs sm:text-sm text-stone-500 dark:text-zinc-400 mt-2 leading-relaxed">
-          Kitob egalari bilan uchrashuv nuqtasi va mutolaa muddatini bevosita ilova ichida kelishish uchun tizimga kiring.
+          Kitob egalariga almashish taklifini yuborish va suhbatlashish uchun profilingizga kiring.
         </p>
         <div className="mt-6">
           <button
             id="chat-login-prompt-btn"
             onClick={() =>
-              openAuthModal('Xabarlarni koʻrish va suhbatlashish uchun tizimga kiring')
+              openAuthModal("Kitob almashish va e'lon joylash uchun profilingizga kiring")
             }
             className="w-full py-3.5 px-6 rounded-2xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 text-xs font-semibold shadow-tactile transition-all active:scale-[0.99]"
           >
@@ -326,6 +326,13 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({
                       proposal={msg.proposal}
                       messageId={msg.id}
                       senderId={msg.senderId}
+                      senderName={
+                        msg.senderName ||
+                        (msg.senderId === activeThread.initiatorId
+                          ? activeThread.initiatorName
+                          : activeThread.ownerName) ||
+                        'Kitobxon'
+                      }
                       currentUserId={currentUserId}
                       targetOwnerId={
                         msg.proposal.target_owner_id ||
@@ -530,7 +537,7 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({
                         className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#141413] hover:bg-black text-white text-xs font-medium shadow-xs"
                       >
                         <Plus className="w-3.5 h-3.5" />
-                        <span>Kitob qoʻshish</span>
+                        <span>+ Kitob joylash</span>
                       </button>
                     )}
                   </div>
@@ -644,14 +651,17 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({
           ) : userThreads.length === 0 ? (
             <div className="py-12 px-4 text-center">
               <MessageSquare className="w-8 h-8 opacity-40 mx-auto mb-2 text-stone-400 dark:text-zinc-500" />
-              <p className="text-xs text-stone-500 dark:text-zinc-400">
-                Hozircha xabarlar mavjud emas
+              <h4 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100 mb-1">
+                Hozircha xabarlar yo&#39;q
+              </h4>
+              <p className="text-xs text-stone-500 dark:text-zinc-400 max-w-xs mx-auto leading-relaxed">
+                Kitob egalariga almashish taklifini yuborganingizda suhbatlar shu yerda paydo bo&#39;ladi.
               </p>
               {onGoToFeed && (
                 <button
                   type="button"
                   onClick={onGoToFeed}
-                  className="mt-3 px-3 py-1.5 rounded-xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 text-xs font-semibold shadow-xs"
+                  className="mt-3 px-3.5 py-2 rounded-xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 text-xs font-semibold shadow-xs"
                 >
                   Kitoblarni ko&#39;rish
                 </button>

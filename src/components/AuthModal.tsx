@@ -217,11 +217,11 @@ export const AuthModal: React.FC = () => {
             <LogoIcon size={44} />
           </div>
           <h3 className="font-serif text-2xl font-bold text-stone-900 dark:text-stone-100 tracking-tight">
-            {step === 'form' ? 'Kitto platformasiga kirish' : 'Kodni tasdiqlash'}
+            {step === 'form' ? 'Tizimga kirish' : 'Kodni tasdiqlash'}
           </h3>
           <p className="text-xs text-stone-500 dark:text-zinc-400 mt-1 max-w-xs mx-auto leading-relaxed">
             {step === 'form'
-              ? 'Telefon raqamingiz orqali @kittouzbot dan tasdiqlash kodi oling.'
+              ? "Kitob almashish va e'lon joylash uchun profilingizga kiring"
               : `${phone} raqamiga Telegram bot orqali tasdiqlash kodi yuborildi.`}
           </p>
         </div>
@@ -351,10 +351,10 @@ export const AuthModal: React.FC = () => {
                 />
               </div>
 
-              {/* Telefon raqami (Majburiy) */}
+              {/* Telefon raqami */}
               <div>
                 <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">
-                  Telefon raqam (majburiy) *
+                  Telefon raqamingiz *
                 </label>
                 <input
                   id="auth-phone-input"
@@ -368,6 +368,9 @@ export const AuthModal: React.FC = () => {
                   placeholder="+998 90 123 45 67"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 dark:border-zinc-800 text-sm bg-stone-50 dark:bg-zinc-900 text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-[#141413] dark:focus:ring-stone-400 transition-all"
                 />
+                <p className="text-[10px] text-stone-400 dark:text-zinc-500 mt-1">
+                  Tasdiqlash kodi @kittouzbot orqali yuboriladi
+                </p>
               </div>
 
               {/* Telegram Username (Ixtiyoriy, raqam pastida) */}
@@ -474,8 +477,8 @@ export const AuthModal: React.FC = () => {
                     setVerificationCode(val);
                     if (error) setError('');
                   }}
-                  placeholder="• • • • • •"
-                  className="w-full text-center tracking-[0.3em] font-mono text-xl py-3 rounded-2xl border-2 border-stone-300 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-900 text-stone-900 dark:text-stone-100 placeholder-stone-300 focus:outline-none focus:border-[#141413] dark:focus:border-stone-300 transition-all font-bold"
+                  placeholder="6 xonali kodni kiriting"
+                  className="w-full text-center font-mono text-base py-3 rounded-2xl border-2 border-stone-300 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-900 text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-zinc-500 focus:outline-none focus:border-[#141413] dark:focus:border-stone-300 transition-all font-bold tracking-widest"
                 />
                 <KeyRound className="w-4 h-4 text-stone-400 absolute right-4 top-4 pointer-events-none" />
               </div>

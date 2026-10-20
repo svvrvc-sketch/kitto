@@ -51,7 +51,7 @@ export const AddBookModal: React.FC<AddBookModalProps> = ({
   onClose,
   onAddBook,
 }) => {
-  const { user } = useAuth();
+  const { user, openAuthModal, openPhonePrompt, hasValidPhone } = useAuth();
   const { showToast } = useToast();
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
@@ -161,6 +161,16 @@ export const AddBookModal: React.FC<AddBookModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!user) {
+      openAuthModal("Kitob eʼlonini joylash uchun tizimga kiring");
+      return;
+    }
+
+    if (!user.contact || user.contact.includes('@') || !hasValidPhone) {
+      openPhonePrompt("Kitob eʼlonini joylashtirish uchun telefon raqamingizni kiritish majburiy!");
+      return;
+    }
+
     const newErrors: Record<string, string> = {};
     if (!coverUrl) {
       newErrors.cover = "Iltimos, kitobning rasmini galereyadan yuklang.";
@@ -203,9 +213,9 @@ export const AddBookModal: React.FC<AddBookModalProps> = ({
       condition,
       description: description.trim() || undefined,
       coverUrl,
-      ownerId: user?.id || 'anonymous_user',
-      ownerName: user?.name || 'Kitobxon',
-      ownerContact: user?.contact || '+998 90 123 45 67',
+      ownerId: user.id,
+      ownerName: user.name || 'Kitobxon',
+      ownerContact: user.contact,
       city: 'Toshkent',
       location,
       swapTerm,
@@ -468,9 +478,9 @@ export const AddBookModal: React.FC<AddBookModalProps> = ({
                   onChange={(e) => setCondition(e.target.value as 'yangi' | 'yaxshi' | 'oʻqilgan')}
                   className="w-full px-3 py-2.5 rounded-xl border border-stone-200 dark:border-zinc-800 text-xs bg-stone-50 dark:bg-zinc-900 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-[#141413] dark:focus:ring-stone-400 dark:focus:border-stone-400"
                 >
-                  <option value="yangi" className="bg-white dark:bg-zinc-900 text-stone-900 dark:text-stone-100">Yangi (ochilmagan)</option>
-                  <option value="yaxshi" className="bg-white dark:bg-zinc-900 text-stone-900 dark:text-stone-100">Yaxshi (saqlangan)</option>
-                  <option value="oʻqilgan" className="bg-white dark:bg-zinc-900 text-stone-900 dark:text-stone-100">Oʻqilgan (ishlatilgan)</option>
+                  <option value="yangi" className="bg-white dark:bg-zinc-900 text-stone-900 dark:text-stone-100">Yangi</option>
+                  <option value="yaxshi" className="bg-white dark:bg-zinc-900 text-stone-900 dark:text-stone-100">A&apos;lo holatda</option>
+                  <option value="oʻqilgan" className="bg-white dark:bg-zinc-900 text-stone-900 dark:text-stone-100">O&apos;qilgan (yaxshi)</option>
                 </select>
               </div>
             </div>
@@ -483,7 +493,7 @@ export const AddBookModal: React.FC<AddBookModalProps> = ({
                 Kitobni qanday shartda berasiz?
               </label>
               <div className="grid grid-cols-1 gap-2 pt-1">
-                {/* 1. Vaqtinchalik o'qishga */}
+                {/* 1. Vaqtincha o'qishga */}
                 <button
                   type="button"
                   id="swap-term-temporary-btn"
@@ -497,11 +507,11 @@ export const AddBookModal: React.FC<AddBookModalProps> = ({
                   <div className="flex items-center gap-2">
                     <Clock className={`w-4 h-4 ${swapType === 'temporary' ? 'text-amber-600 dark:text-amber-400' : 'text-stone-400 dark:text-zinc-500'}`} />
                     <span className="font-semibold text-xs text-stone-900 dark:text-stone-100">
-                      Vaqtinchalik o&#39;qishga
+                      Vaqtincha o&apos;qishga
                     </span>
                   </div>
                   <p className="text-[11px] text-stone-500 dark:text-zinc-400 mt-0.5 ml-6">
-                    Belgilangan muddatda o&#39;qib, qaytarib berish sharti bilan
+                    Belgilangan muddatda o&apos;qib, qaytarib berish sharti bilan
                   </p>
                 </button>
 
@@ -523,11 +533,11 @@ export const AddBookModal: React.FC<AddBookModalProps> = ({
                     </span>
                   </div>
                   <p className="text-[11px] text-stone-500 dark:text-zinc-400 mt-0.5 ml-6">
-                    Boshqa kitobga butunlay almashtirish
+                    Boshqa kitobga doimiy almashtirish
                   </p>
                 </button>
 
-                {/* 3. Bepul sovg'a */}
+                {/* 3. Hadya qilinadi */}
                 <button
                   type="button"
                   id="swap-term-gift-btn"
@@ -541,15 +551,16 @@ export const AddBookModal: React.FC<AddBookModalProps> = ({
                   <div className="flex items-center gap-2">
                     <Gift className={`w-4 h-4 ${swapType === 'gift' ? 'text-amber-600 dark:text-amber-400' : 'text-stone-400 dark:text-zinc-500'}`} />
                     <span className="font-semibold text-xs text-stone-900 dark:text-stone-100">
-                      Bepul sovg&#39;a
+                      Hadya qilinadi
                     </span>
                   </div>
                   <p className="text-[11px] text-stone-500 dark:text-zinc-400 mt-0.5 ml-6">
-                    Qaytarish shartisiz, xolis hadya
+                    Qaytarish shartisiz, bepul hadya
                   </p>
                 </button>
               </div>
             </div>
+
 
             {/* Conditional Duration Selector (when swapType === 'temporary') */}
             {swapType === 'temporary' && (
@@ -606,7 +617,7 @@ export const AddBookModal: React.FC<AddBookModalProps> = ({
           {/* Optional Book Description */}
           <div>
             <label className="block text-xs font-semibold text-stone-800 dark:text-stone-200 mb-1">
-              Kitob haqida qoʻshimcha maʼlumot (ixtiyoriy)
+              Kitob haqida qo&#39;shimcha ma&#39;lumot (ixtiyoriy)
             </label>
             <textarea
               rows={2}
@@ -625,9 +636,10 @@ export const AddBookModal: React.FC<AddBookModalProps> = ({
               className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 font-semibold text-xs tracking-wide shadow-tactile transition-all active:scale-[0.99]"
             >
               <Sparkles className="w-4 h-4 stroke-[2.2]" />
-              <span>Eʼlonni joylash</span>
+              <span>E&#39;lon joylash</span>
             </button>
           </div>
+
         </form>
       </div>
     </div>

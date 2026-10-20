@@ -43,4 +43,10 @@ export interface AuthContextType {
   authModalReason: string | null;
   openAuthModal: (reason?: string) => void;
   closeAuthModal: () => void;
+  hasValidPhone: boolean;
+  isPhonePromptOpen: boolean;
+  phonePromptReason: string | null;
+  openPhonePrompt: (reason?: string) => void;
+  closePhonePrompt: () => void;
+  savePhoneNumber: (phone: string) => Promise<void>;
 }

@@ -5,6 +5,7 @@ import { Book } from '@/types/book';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { compressBookImage } from '@/utils/imageCompressor';
+import { isValidUzbekPhone, formatUzbekPhone } from '@/utils/phone';
 import {
   User as UserIcon,
   BookMarked,
@@ -83,8 +84,8 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
 
   const handleStartEdit = () => {
     if (!user) return;
-    setEditName(user.name);
-    setEditContact(user.contact);
+    setEditName(user.name || '');
+    setEditContact(user.contact && !user.contact.includes('@') ? user.contact : '');
     setEditTelegram(user.telegramUsername || '');
     setEditAvatar(user.avatar || null);
     setIsEditing(true);
@@ -118,14 +119,18 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
       showToast('Ism va telefon raqamini kiriting', 'error');
       return;
     }
+    if (editContact.includes('@') || !isValidUzbekPhone(editContact.trim())) {
+      showToast('Iltimos, amaldagi Oʻzbekiston telefon raqamini kiriting (+998...)', 'error');
+      return;
+    }
     updateProfile({
       name: editName.trim(),
-      contact: editContact.trim(),
+      contact: formatUzbekPhone(editContact.trim()),
       telegramUsername: editTelegram.trim() ? editTelegram.trim().replace(/^@/, '') : undefined,
       avatar: editAvatar || undefined,
     });
     setIsEditing(false);
-    showToast('Profil maʼlumotlari saqlandi', 'success');
+    showToast('Profil maʼlumotlari saqlandi ✓', 'success');
   };
 
   const handleLogout = () => {
@@ -227,10 +232,10 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
       {/* Editorial Title */}
       <div>
         <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-stone-900 dark:text-stone-100 tracking-tight flex items-center gap-2.5">
-          <span>Shaxsiy Kabinet</span>
+          <span>Kabinet</span>
         </h1>
         <p className="text-xs sm:text-sm text-stone-500 dark:text-zinc-400 mt-1">
-          Foydalanuvchi maʼlumotlari, sevimli yoʻnalishlar va joylangan kitoblar
+          Shaxsiy ma&#39;lumotlar, qiziqqan janrlar va e&#39;lonlaringiz
         </p>
       </div>
 
@@ -356,7 +361,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
           <form onSubmit={handleSaveEdit} className="space-y-4 animate-in fade-in duration-150">
             <div className="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-zinc-800">
               <span className="text-xs font-bold text-stone-900 dark:text-stone-100">
-                Profilni tahrirlash
+                Shaxsiy ma&#39;lumotlar
               </span>
               <button
                 type="button"
@@ -478,13 +483,13 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
         )}
       </div>
 
-      {/* Section 1: Sevimli yo'nalishlar */}
+      {/* Section 1: Qiziqqan janrlarim */}
       <div className="p-6 rounded-3xl bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 shadow-editorial space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Compass className="w-4 h-4 text-amber-600 dark:text-amber-400" />
             <h3 className="font-serif font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100">
-              Sevimli yo&#39;nalishlar
+              Qiziqqan janrlarim
             </h3>
           </div>
           <span className="text-[11px] text-stone-400 dark:text-zinc-500">
@@ -492,7 +497,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
           </span>
         </div>
         <p className="text-xs text-stone-500 dark:text-zinc-400">
-          Qiziqishlaringiz boshqa kitobxonlarga sizning profilingizda koʻrinadi.
+          Sizga mos kitoblarni tavsiya qilishimiz uchun tanlang
         </p>
 
         <div className="flex flex-wrap gap-2 pt-1">
@@ -517,13 +522,13 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
         </div>
       </div>
 
-      {/* Section 2: Qidirilayotgan kitoblar (Wishlist for Barter) */}
+      {/* Section 2: Qidirayotgan kitoblarim */}
       <div className="p-6 rounded-3xl bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 shadow-editorial space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-amber-600 dark:text-amber-400" />
             <h3 className="font-serif font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100">
-              Qidirilayotgan kitoblar
+              Qidirayotgan kitoblarim
             </h3>
           </div>
           <span className="text-[11px] text-stone-400 dark:text-zinc-500">
@@ -531,7 +536,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
           </span>
         </div>
         <p className="text-xs text-stone-500 dark:text-zinc-400">
-          Almashish uchun qidirilayotgan kitoblar ro&#39;yxati
+          O&#39;qishni xohlagan kitoblaringiz ro&#39;yxati
         </p>
 
         {/* Input + Add button */}

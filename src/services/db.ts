@@ -36,7 +36,7 @@ export function mapRowToBook(row: any): Book {
       ownerContact: '+998 90 000 00 00',
       city: 'Toshkent',
       location: TASHKENT_DEFAULT_LOCATION,
-      swapTerm: { type: 'permanent', durationLabel: 'Doimiy almashuv' },
+      swapTerm: { type: 'permanent', durationLabel: 'Doimiy almashish' },
       status: 'active',
       createdAt: new Date().toISOString(),
     };
@@ -51,10 +51,11 @@ export function mapRowToBook(row: any): Book {
     row.swap_term?.durationLabel ||
     row.swapTerm?.durationLabel ||
     (swapTermType === 'gift'
-      ? "Bepul sovg'a"
+      ? 'Hadya qilinadi'
       : swapTermType === 'temporary'
-      ? "2 haftaga o'qishga"
-      : 'Doimiy almashuv');
+      ? "Vaqtincha o'qishga"
+      : 'Doimiy almashish');
+
 
   const rawLoc = typeof row.location === 'object' && row.location !== null ? row.location : {};
   const location = {
@@ -81,7 +82,12 @@ export function mapRowToBook(row: any): Book {
     coverUrl: row.cover_url || row.coverUrl || undefined,
     ownerId: String(row.owner_id || row.ownerId || 'owner'),
     ownerName: String(row.owner_name || row.ownerName || 'Kitobxon'),
-    ownerContact: String(row.owner_contact || row.ownerContact || '+998 90 123 45 67'),
+    ownerContact:
+      row.owner_contact && !String(row.owner_contact).includes('@')
+        ? String(row.owner_contact)
+        : row.ownerContact && !String(row.ownerContact).includes('@')
+        ? String(row.ownerContact)
+        : '',
     city: String(row.city || 'Toshkent'),
     location,
     swapTerm: {
@@ -143,10 +149,11 @@ export function mapBookToRow(book: Book): Record<string, any> {
 
 export function mapRowToProfile(row: any): UserProfile {
   const avatarVal = row.avatar || row.avatar_url || undefined;
+  const rawContact = row.contact ? String(row.contact) : '';
   return {
     id: String(row.id),
     name: row.name,
-    contact: row.contact,
+    contact: rawContact && !rawContact.includes('@') ? rawContact : '',
     email: row.email || undefined,
     city: row.city || 'Toshkent',
     favoriteGenres: row.favorite_genres || [],
@@ -161,13 +168,20 @@ export function mapRowToProfile(row: any): UserProfile {
 }
 
 export function mapProfileToRow(profile: UserProfile): Record<string, any> {
+  const avatarVal = profile.avatar || profile.avatar_url || null;
   return {
     id: profile.id,
     name: profile.name,
     contact: profile.contact,
+    email: profile.email || null,
     city: profile.city || 'Toshkent',
     favorite_genres: profile.favoriteGenres || [],
     wishlist_books: profile.wishlistBooks || [],
+    avatar: avatarVal,
+    avatar_url: avatarVal,
+    role: profile.role || 'user',
+    provider: profile.provider || 'direct',
+    telegram_username: profile.telegramUsername || null,
     created_at: profile.createdAt || new Date().toISOString(),
   };
 }
@@ -303,11 +317,14 @@ export const booksService = {
                 if (unsynced.length > 0) {
                   for (const ub of unsynced) {
                     const row = mapBookToRow(ub);
-                    supabase.from('books').insert(row).then(({ error: syncErr }) => {
-                      if (!syncErr) {
-                        console.log('[Kitto] Auto-synced previous book to cloud:', ub.title);
-                      }
-                    }).catch(() => {});
+                    supabase.from('books').insert(row).then(
+                      ({ error: syncErr }) => {
+                        if (!syncErr) {
+                          console.log('[Kitto] Auto-synced previous book to cloud:', ub.title);
+                        }
+                      },
+                      () => {}
+                    );
                   }
                 }
               }
@@ -564,7 +581,7 @@ export const profilesService = {
           .from('profiles')
           .select('*')
           .eq('id', userId)
-          .single();
+          .maybeSingle();
 
         if (!error && data) {
           return mapRowToProfile(data);
@@ -867,7 +884,7 @@ export const votesService = {
             .from('regional_votes')
             .select('votes_count')
             .eq('region_id', regionId)
-            .single();
+            .maybeSingle();
 
           const countToSet = ((selectData?.votes_count as number) || 0) + 1;
           await supabase

@@ -17,6 +17,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useChat } from '@/context/ChatContext';
 import { useToast } from '@/context/ToastContext';
 import { exchangeTransactionsService } from '@/services/db';
+import { formatBookCondition } from '@/lib/book-constants';
 
 interface SwapRequestModalProps {
   isOpen: boolean;
@@ -35,7 +36,7 @@ export const SwapRequestModal: React.FC<SwapRequestModalProps> = ({
   onOpenAddModal,
   onSwapSubmitted,
 }) => {
-  const { user, openAuthModal } = useAuth();
+  const { user, openAuthModal, openPhonePrompt, hasValidPhone } = useAuth();
   const { startConversation, sendExchangeProposal } = useChat();
   const { showToast } = useToast();
 
@@ -116,6 +117,11 @@ export const SwapRequestModal: React.FC<SwapRequestModalProps> = ({
       return;
     }
 
+    if (!user.contact || user.contact.includes('@') || !hasValidPhone) {
+      openPhonePrompt('Kitob almashish taklifini yuborish uchun telefon raqamingizni kiritish majburiy!');
+      return;
+    }
+
     if (!selectedTargetBook) {
       showToast('Iltimos, almashmoqchi boʻlgan kitobni tanlang', 'info');
       return;
@@ -174,7 +180,8 @@ export const SwapRequestModal: React.FC<SwapRequestModalProps> = ({
         threadId,
         offeredBookMeta,
         requestedBookMeta,
-        selectedTargetBook.ownerId
+        selectedTargetBook.ownerId,
+        transactionId
       );
 
       // 4. Dispatch Telegram Notification to the owner with both book titles explicitly stated
@@ -214,12 +221,12 @@ export const SwapRequestModal: React.FC<SwapRequestModalProps> = ({
 
   const getSwapTermLabel = (book: Book) => {
     if (book.swapTerm?.type === 'temporary') {
-      return book.swapTerm.durationLabel || "2 haftaga o'qishga";
+      return book.swapTerm.durationLabel || "Vaqtincha o'qishga";
     }
     if (book.swapTerm?.type === 'gift') {
-      return "Bepul sovg'a";
+      return "Hadya qilinadi";
     }
-    return 'Doimiy almashuv';
+    return "Doimiy almashish";
   };
 
   return (
@@ -239,10 +246,10 @@ export const SwapRequestModal: React.FC<SwapRequestModalProps> = ({
             </div>
             <div>
               <h2 className="font-serif font-bold text-base sm:text-lg text-stone-900 dark:text-stone-100 leading-tight">
-                Kitob almashish taklifi
+                Almashish uchun kitobingizni tanlang
               </h2>
               <p className="text-[11px] text-stone-500 dark:text-zinc-400">
-                Egasi: <span className="font-medium text-stone-800 dark:text-stone-200">{targetBook.ownerName}</span>
+                Ro&#39;yxatingizdagi qaysi kitobni taklif qilasiz?
               </p>
             </div>
           </div>
@@ -319,8 +326,8 @@ export const SwapRequestModal: React.FC<SwapRequestModalProps> = ({
                       <span className="truncate max-w-[90px] font-medium text-amber-800 dark:text-amber-300">
                         {getSwapTermLabel(book)}
                       </span>
-                      <span className="capitalize font-semibold text-[9px] px-1.5 py-0.5 rounded bg-stone-100 dark:bg-zinc-700 text-stone-600 dark:text-stone-300">
-                        {book.condition || 'Yaxshi'}
+                      <span className="font-semibold text-[9px] px-1.5 py-0.5 rounded bg-stone-100 dark:bg-zinc-700 text-stone-600 dark:text-stone-300">
+                        {formatBookCondition(book.condition)}
                       </span>
                     </div>
                   </div>
@@ -347,10 +354,10 @@ export const SwapRequestModal: React.FC<SwapRequestModalProps> = ({
                   <AlertCircle className="w-6 h-6 stroke-[1.8]" />
                 </div>
                 <h4 className="font-serif font-bold text-sm text-amber-950 dark:text-amber-200">
-                  Almashish uchun avval oʻz kitobingizni qoʻshishingiz kerak
+                  Almashish uchun avval o&apos;z kitobingizni joylashingiz kerak
                 </h4>
                 <p className="text-xs text-amber-800/80 dark:text-amber-300/80 mt-1 max-w-sm mx-auto leading-relaxed">
-                  Boshqa kitobxonlar bilan teng almashish uchun profilingizda kamida bitta faol kitob eʼloni boʻlishi lozim.
+                  Boshqa kitobxonlar bilan teng almashish uchun profilingizda kamida bitta faol e&apos;lon bo&apos;lishi lozim.
                 </p>
                 {onOpenAddModal && (
                   <button
@@ -362,7 +369,7 @@ export const SwapRequestModal: React.FC<SwapRequestModalProps> = ({
                     className="mt-3.5 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#141413] hover:bg-black text-white text-xs font-semibold shadow-xs transition-all active:scale-95"
                   >
                     <Plus className="w-3.5 h-3.5" />
-                    <span>+ Kitob qoʻshish</span>
+                    <span>+ Kitob joylash</span>
                   </button>
                 )}
               </div>
@@ -414,8 +421,8 @@ export const SwapRequestModal: React.FC<SwapRequestModalProps> = ({
                         <span className="truncate max-w-[90px] font-medium text-stone-700 dark:text-stone-300">
                           {book.category}
                         </span>
-                        <span className="capitalize font-semibold text-[9px] px-1.5 py-0.5 rounded bg-stone-100 dark:bg-zinc-700 text-stone-600 dark:text-stone-300">
-                          {book.condition || 'Yaxshi'}
+                        <span className="font-semibold text-[9px] px-1.5 py-0.5 rounded bg-stone-100 dark:bg-zinc-700 text-stone-600 dark:text-stone-300">
+                          {formatBookCondition(book.condition)}
                         </span>
                       </div>
                     </div>
@@ -423,11 +430,21 @@ export const SwapRequestModal: React.FC<SwapRequestModalProps> = ({
                 })}
               </div>
             )}
+
           </div>
         </div>
 
         {/* SECTION 3: SMART OFFER SUMMARY CARD & SUBMIT */}
         <div className="p-4 sm:p-5 border-t border-stone-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/90 backdrop-blur-md shrink-0 space-y-3">
+          {selectedTargetBook && (
+            <div className="p-2.5 rounded-xl bg-amber-500/10 dark:bg-amber-950/40 border border-amber-500/25 text-[11px] text-amber-900 dark:text-amber-200 flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+              <span>
+                Diqqat: E&#39;lon egasi kitobni <b>{getSwapTermLabel(selectedTargetBook)}</b> bermoqchi. Shartga rozimisiz yoki o&#39;z taklifingizni yuborasizmi?
+              </span>
+            </div>
+          )}
+
           {selectedMyBook && selectedTargetBook && (
             <div className="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-zinc-800 border border-stone-200 dark:border-zinc-700 shadow-xs relative">
               <div className="text-[10px] font-semibold text-stone-500 dark:text-zinc-400 uppercase tracking-wider mb-2 text-center">

@@ -64,7 +64,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
               <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#141413] dark:bg-[#F8F7F4]" />
             )}
           </div>
-          <span className="text-[9px] tracking-tight mt-1 truncate">Saqlangan</span>
+          <span className="text-[9px] tracking-tight mt-1 truncate">Saqlanganlar</span>
         </button>
 
         {/* 3. Xabarlar ('messages') */}

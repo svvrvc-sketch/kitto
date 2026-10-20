@@ -219,3 +219,23 @@ html.is-telegram-webapp header {
   transform: scale(0.98);
 }
 
+/* Radar scanner laser animation for QR camera viewfinder */
+@keyframes qrScanLaser {
+  0% {
+    top: 5%;
+    opacity: 0.8;
+  }
+  50% {
+    top: 92%;
+    opacity: 1;
+  }
+  100% {
+    top: 5%;
+    opacity: 0.8;
+  }
+}
+
+.animate-scan {
+  animation: qrScanLaser 2.2s ease-in-out infinite;
+}
+

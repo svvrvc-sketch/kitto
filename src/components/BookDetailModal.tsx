@@ -28,6 +28,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { YandexMapPicker } from './YandexMapPicker';
 import { calculateDistanceKm, formatDistance } from '@/lib/geo-utils';
+import { formatBookCondition } from '@/lib/book-constants';
 
 interface BookDetailModalProps {
   book: Book | null;
@@ -140,10 +141,10 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
   const durationLabel =
     book.swapTerm?.durationLabel ||
     (termType === 'gift'
-      ? "🎁 Bepul sovg'a"
+      ? 'Hadya qilinadi'
       : termType === 'temporary'
-      ? "⏳ 2 haftaga o'qishga"
-      : "🔄 Doimiy almashuv");
+      ? "Vaqtincha o'qishga"
+      : 'Doimiy almashish');
 
   const isTemporary = termType === 'temporary';
   const isTemporarilyGiven = book.status === 'temporarily_given';
@@ -151,9 +152,9 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
 
   const getActionLabel = () => {
     if (isTemporary) {
-      return isTemporarilyGiven ? 'Faollashtirish' : 'Vaqtincha berilgan';
+      return isTemporarilyGiven ? 'Faollashtirish' : "O'qilmoqda";
     }
-    return isSwapped ? 'Faol qilish' : 'Almashildi';
+    return isSwapped ? 'Almashishga tayyor' : 'Band qilish';
   };
 
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -238,7 +239,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
           <div className="mb-4 p-3 rounded-xl bg-amber-50 text-amber-900 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900/50 flex items-center justify-between text-xs">
             <span className="flex items-center gap-1.5 font-semibold">
               <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-              Ushbu kitob vaqtincha mutolaaga berilgan
+              Ushbu kitob hozir mutolaada
             </span>
           </div>
         )}
@@ -248,7 +249,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
           <div className="mb-4 p-3 rounded-xl bg-stone-100 text-stone-600 border border-stone-200 dark:bg-zinc-900 dark:text-zinc-400 dark:border-zinc-800 flex items-center justify-between text-xs">
             <span className="flex items-center gap-1.5 font-semibold text-stone-700 dark:text-stone-300">
               <CheckCircle className="w-4 h-4 text-stone-500 dark:text-zinc-400" />
-              Ushbu kitob muvaffaqiyatli topshirilgan / almashilgan
+              Ushbu kitob band qilingan yoki almashilgan
             </span>
           </div>
         )}
@@ -258,21 +259,22 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
           <div className="flex items-center gap-2">
             {termType === 'temporary' ? (
               <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-900 border border-amber-200 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/50 text-[10px] font-semibold px-2.5 py-0.5 rounded-md backdrop-blur-sm">
-                <span>{durationLabel.startsWith('⏳') ? durationLabel : `⏳ ${durationLabel}`}</span>
+                <span>Vaqtincha o&apos;qishga</span>
               </span>
             ) : termType === 'gift' ? (
-              <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-900 border border-amber-200 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/50 text-[10px] font-semibold px-2.5 py-0.5 rounded-md backdrop-blur-sm">
-                <span>{durationLabel.startsWith('🎁') ? durationLabel : `🎁 ${durationLabel}`}</span>
+              <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-900 border border-emerald-200 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/50 text-[10px] font-semibold px-2.5 py-0.5 rounded-md backdrop-blur-sm">
+                <span>Hadya qilinadi</span>
               </span>
             ) : (
               <span className="inline-flex items-center gap-1 bg-[#141413] text-[#F8F7F4] dark:bg-zinc-800 dark:text-stone-100 border border-black/10 dark:border-zinc-700 text-[10px] font-semibold px-2.5 py-0.5 rounded-md backdrop-blur-sm">
-                <span>{durationLabel.startsWith('🔄') ? durationLabel : `🔄 ${durationLabel}`}</span>
+                <span>Doimiy almashish</span>
               </span>
             )}
-            <span className="inline-block border border-stone-200/60 dark:border-zinc-700 bg-stone-50/80 dark:bg-zinc-800/80 text-stone-600 dark:text-stone-300 text-[10px] uppercase tracking-wider font-medium px-2 py-0.5 rounded-md backdrop-blur-sm">
-              {book.condition || 'Yaxshi'}
+            <span className="inline-block border border-stone-200/60 dark:border-zinc-700 bg-stone-50/80 dark:bg-zinc-800/80 text-stone-600 dark:text-stone-300 text-[10px] font-medium px-2 py-0.5 rounded-md backdrop-blur-sm">
+              {formatBookCondition(book.condition)}
             </span>
           </div>
+
 
           <div className="flex items-center gap-1.5">
             <button
@@ -407,7 +409,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
                     )}
                   </div>
                   <div className="text-[11px] text-stone-500 dark:text-zinc-400">
-                    {book.ownerContact || 'Toshkent'}
+                    {!book.ownerContact || book.ownerContact.includes('@') ? 'Toshkent shahri' : book.ownerContact}
                   </div>
                 </div>
               </div>
@@ -469,18 +471,18 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
         {/* Swap terms & Return condition note */}
         <div className="mt-3.5 p-3.5 rounded-2xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/70 dark:border-amber-900/40">
           <div className="text-[10px] font-semibold uppercase tracking-wider text-amber-900 dark:text-amber-300 flex items-center justify-between">
-            <span>Kelishuv shartlari</span>
+            <span>Kelishuv sharti</span>
             <span className="text-[10px] font-semibold">
-              {durationLabel}
+              {termType === 'gift' ? 'Hadya qilinadi' : termType === 'temporary' ? "Vaqtincha o'qishga" : 'Doimiy almashish'}
             </span>
           </div>
 
           <p className="text-xs text-stone-700 dark:text-stone-300 mt-1 leading-snug">
             {termType === 'gift'
-              ? 'Ushbu kitob kitobxonga bepul sovgʻa sifatida taqdim etiladi.'
+              ? 'Ushbu kitob bepul hadya qilinadi.'
               : termType === 'temporary'
-              ? `Belgilangan muddatda (${durationLabel}) oʻqib boʻlgach, kitobni egasiga butun holatda qaytarish lozim.`
-              : 'Kitob boshqa bir kitobga butunlay almashtiriladi, qaytarish talab etilmaydi.'}
+              ? "Belgilangan muddatda o'qib bo'lgach, kitobni egasiga butun holatda qaytarish lozim."
+              : 'Kitob boshqa bir kitobga doimiy almashtiriladi, qaytarish talab etilmaydi.'}
           </p>
 
           {book.swapTerm?.returnConditionNote && (
@@ -506,7 +508,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
         {isOwner && (
           <div className="mt-5 p-3.5 rounded-2xl bg-stone-50 dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 flex flex-col gap-2.5">
             <div className="text-xs font-bold text-stone-800 dark:text-stone-200 flex items-center justify-between">
-              <span>Eʼlonni boshqarish</span>
+              <span>E&#39;lonni boshqarish</span>
               {onToggleComplete && (
                 <button
                   type="button"
@@ -532,8 +534,8 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
                 <QrCode className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                 <span>
                   {isTemporarilyGiven
-                    ? 'QR-kod bilan qabul qilish (+1 ball)'
-                    : 'QR-kod bilan topshirish (+1 ishonch bali)'}
+                    ? 'QR-kod bilan qabul qilish'
+                    : 'QR-kod bilan topshirish'}
                 </span>
               </button>
             )}
@@ -551,14 +553,14 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
                   </button>
                 ) : (
                   <div className="flex items-center gap-2 w-full justify-between">
-                    <span className="text-[11px] text-red-700 dark:text-red-400 font-semibold">Rostdan ham oʻchirasizmi?</span>
+                    <span className="text-[11px] text-red-700 dark:text-red-400 font-semibold">Rostdan ham o&#39;chirasizmi?</span>
                     <div className="flex items-center gap-1.5">
                       <button
                         type="button"
                         onClick={() => onDeleteBook(book.id)}
                         className="text-xs px-2.5 py-1 rounded-lg bg-red-700 hover:bg-red-800 text-white font-bold"
                       >
-                        Ha, oʻchirish
+                        Ha, o&#39;chirish
                       </button>
                       <button
                         type="button"
@@ -584,7 +586,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
                 type="button"
                 onClick={() => {
                   if (!user) {
-                    openAuthModal("Kitob almashish taklifini yuborish uchun tizimga kiring");
+                    openAuthModal("Kitob almashish va e'lon joylash uchun profilingizga kiring");
                     return;
                   }
                   if (onOpenSwapModal) {
@@ -621,6 +623,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
             </button>
           )}
         </div>
+
       </div>
 
       {/* Fullscreen / Uncropped Inspection Lightbox */}

@@ -60,7 +60,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   const navItems = [
     { id: 'home' as AppTab, label: 'Asosiy', icon: Home, count: 0 },
-    { id: 'saved' as AppTab, label: 'Saqlangan', icon: Bookmark, count: savedCount },
+    { id: 'saved' as AppTab, label: 'Saqlanganlar', icon: Bookmark, count: savedCount },
     { id: 'messages' as AppTab, label: 'Xabarlar', icon: MessageSquare, count: unreadChatCount },
     { id: 'my_listings' as AppTab, label: "E'lonlarim", icon: BookMarked, count: myListingsCount },
     { id: 'profile' as AppTab, label: 'Kabinet', icon: UserIcon, count: 0 },
@@ -221,7 +221,7 @@ export const Header: React.FC<HeaderProps> = ({
                         }}
                         className="w-full text-left px-2.5 py-2 rounded-xl text-xs text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-zinc-800 font-medium flex items-center justify-between"
                       >
-                        <span>Shaxsiy kabinet</span>
+                        <span>Kabinet</span>
                       </button>
 
                       <button
@@ -260,7 +260,7 @@ export const Header: React.FC<HeaderProps> = ({
                         }}
                         className="w-full text-left px-2.5 py-2 rounded-xl text-xs text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-zinc-800 font-medium flex items-center justify-between"
                       >
-                        <span>Saqlangan kitoblar</span>
+                        <span>Saqlanganlar</span>
                         <span className="text-[9px] font-bold px-1.5 py-0.5 bg-amber-500 text-white rounded-full">
                           {savedCount}
                         </span>
@@ -287,7 +287,7 @@ export const Header: React.FC<HeaderProps> = ({
                         className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs text-red-600 hover:text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 font-medium flex items-center gap-1.5"
                       >
                         <LogOut className="w-3.5 h-3.5" />
-                        <span>Hisobdan chiqish</span>
+                        <span>Tizimdan chiqish</span>
                       </button>
                     </div>
                   </div>
@@ -296,7 +296,7 @@ export const Header: React.FC<HeaderProps> = ({
             ) : (
               <button
                 id="header-login-btn"
-                onClick={() => openAuthModal('Kitto platformasiga kirish')}
+                onClick={() => openAuthModal('Kitob almashish va e\'lon joylash uchun profilingizga kiring')}
                 className="flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 font-medium text-xs shadow-sm active:scale-95 transition-all shrink-0"
               >
                 <UserIcon className="w-3.5 h-3.5" />
@@ -418,7 +418,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 onClick={() => {
                   setMobileMenuOpen(false);
-                  openAuthModal('Kitto platformasiga kirish');
+                  openAuthModal("Kitob almashish va e'lon joylash uchun profilingizga kiring");
                 }}
                 className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#141413] text-[#F8F7F4] dark:bg-stone-200 dark:text-stone-900 font-semibold text-xs shadow-sm"
               >

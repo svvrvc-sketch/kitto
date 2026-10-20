@@ -93,7 +93,7 @@ export const Logo: React.FC<LogoProps> = ({
           </div>
           {showTagline && (
             <p className="text-[10px] text-stone-500 dark:text-zinc-400 tracking-wide mt-0.5 leading-tight">
-              Kitob almashish va ulashish platformasi
+              Toshkentda kitob almashish platformasi
             </p>
           )}
         </div>

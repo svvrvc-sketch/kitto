@@ -61,7 +61,7 @@ export const RegionRestrictionModal: React.FC<RegionRestrictionModalProps> = ({
         {/* Title & Info */}
         <div className="text-center">
           <h3 className="font-serif text-xl sm:text-2xl font-bold text-stone-900 dark:text-stone-100 tracking-tight">
-            Eʼlon joylash faqat Toshkentda mavjud
+            Kitto hozircha faqat Toshkent shahrida ishlamoqda
           </h3>
           {distanceKm && (
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 dark:bg-zinc-800 text-stone-600 dark:text-stone-300 text-xs font-semibold mt-2">
@@ -69,8 +69,7 @@ export const RegionRestrictionModal: React.FC<RegionRestrictionModalProps> = ({
             </div>
           )}
           <p className="text-xs sm:text-sm text-stone-500 dark:text-zinc-400 font-sans leading-relaxed mt-3">
-            Kitto hozircha faqat Toshkent shahri boʻylab kitob almashish xizmatini koʻrsatmoqda.
-            Siz barcha eʼlonlarni erkin koʻrishingiz va oʻqishingiz mumkin, biroq Toshkentdan tashqarida yangi eʼlon joylash vaqtincha cheklangan.
+            Siz katalogdagi kitoblarni ko&#39;rishingiz mumkin. Tez orada viloyatingizda ham ishga tushishimiz uchun ovoz bering.
           </p>
         </div>
 
@@ -80,10 +79,10 @@ export const RegionRestrictionModal: React.FC<RegionRestrictionModalProps> = ({
             <Vote className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />
             <div>
               <div className="font-semibold text-stone-900 dark:text-stone-100">
-                Oʻz viloyatingiz uchun ovoz bering
+                O&#39;z viloyatingiz uchun ovoz bering
               </div>
               <div className="text-[11px] text-stone-500 dark:text-zinc-400">
-                Koʻp ovoz toʻplagan viloyatda xizmat keyingi navbatda ishga tushadi!
+                Ko&#39;p ovoz to&#39;plagan viloyatda xizmat birinchi bo&#39;lib ishga tushadi!
               </div>
             </div>
           </div>
@@ -100,7 +99,7 @@ export const RegionRestrictionModal: React.FC<RegionRestrictionModalProps> = ({
             className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 font-semibold text-xs tracking-wide shadow-tactile transition-all active:scale-[0.99]"
           >
             <Vote className="w-4 h-4" />
-            <span>Viloyatimga ovoz berish</span>
+            <span>Viloyat uchun ovoz berish</span>
             <ArrowRight className="w-3.5 h-3.5 ml-0.5" />
           </button>
 

@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { AlertCircle, RefreshCw, Trash2 } from 'lucide-react';
+import { BookOpen, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 
 export default function ErrorBoundary({
   error,
@@ -11,62 +12,51 @@ export default function ErrorBoundary({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error('[Kitto ErrorBoundary Caught Exception]:', error);
-  }, [error]);
+    console.error('[Kitto Notice]:', error);
 
-  const handleClearCacheAndReload = () => {
+    // Silent Auto-Recovery: if an unexpected client crash happens,
+    // automatically heal local state and reload once without bothering the user
     try {
-      if (typeof window !== 'undefined') {
-        localStorage.clear();
-        sessionStorage.clear();
+      const hasAutoRetried = sessionStorage.getItem('kitto_auto_retried');
+      if (!hasAutoRetried) {
+        sessionStorage.setItem('kitto_auto_retried', 'true');
+        // Clean out potentially corrupt data keys
+        localStorage.removeItem('kitto_books');
+        localStorage.removeItem('kitto_chats');
+        localStorage.removeItem('bookswap_books');
+        localStorage.removeItem('bookswap_chats');
+        window.location.reload();
       }
     } catch {
       // ignore
     }
-    if (typeof window !== 'undefined') {
-      window.location.href = '/';
-    }
-  };
+  }, [error]);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-[#F8F7F4] dark:bg-zinc-950 text-stone-900 dark:text-stone-100">
-      <div className="max-w-md w-full p-6 sm:p-8 rounded-3xl bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 shadow-xl text-center space-y-4">
+      <div className="max-w-md w-full p-8 rounded-3xl bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 shadow-editorial text-center space-y-5">
         <div className="w-14 h-14 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-700 dark:text-amber-400 flex items-center justify-center mx-auto">
-          <AlertCircle className="w-7 h-7 stroke-[2]" />
+          <BookOpen className="w-7 h-7 stroke-[1.8]" />
         </div>
 
-        <h2 className="font-serif font-bold text-xl sm:text-2xl">
-          Kutilmagan xatolik yuz berdi
-        </h2>
+        <div>
+          <h2 className="font-serif font-bold text-xl sm:text-2xl text-stone-900 dark:text-stone-100">
+            Sahifa yangilanmoqda
+          </h2>
+          <p className="text-xs sm:text-sm text-stone-500 dark:text-zinc-400 mt-1.5 leading-relaxed">
+            Kitoblar katalogini koʻrish uchun bosh sahifaga oʻting
+          </p>
+        </div>
 
-        <p className="text-xs sm:text-sm text-stone-600 dark:text-zinc-400 leading-relaxed">
-          Ilova keshini yangilash yoki sahifani qayta yuklash orqali muammoni darhol hal qilishingiz mumkin.
-        </p>
-
-        {error?.message && (
-          <div className="p-3 rounded-xl bg-stone-100 dark:bg-zinc-800 text-[11px] text-stone-600 dark:text-zinc-400 font-mono text-left break-all max-h-24 overflow-y-auto">
-            {error.message}
-          </div>
-        )}
-
-        <div className="flex flex-col sm:flex-row gap-2 pt-2">
-          <button
-            type="button"
+        <div className="pt-2">
+          <Link
+            href="/"
             onClick={() => reset()}
-            className="flex-1 py-3 px-4 rounded-xl bg-[#141413] hover:bg-black text-white text-xs font-semibold shadow-xs flex items-center justify-center gap-2 transition-all active:scale-95"
+            className="w-full py-3.5 px-6 rounded-2xl bg-[#141413] hover:bg-black dark:bg-stone-100 dark:hover:bg-white text-white dark:text-stone-900 text-xs font-semibold shadow-xs flex items-center justify-center gap-2 transition-all active:scale-95"
           >
-            <RefreshCw className="w-3.5 h-3.5" />
-            <span>Qayta urinish</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={handleClearCacheAndReload}
-            className="flex-1 py-3 px-4 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-100 hover:bg-stone-200 dark:bg-zinc-800 text-stone-800 dark:text-stone-200 text-xs font-semibold flex items-center justify-center gap-2 transition-all active:scale-95"
-          >
-            <Trash2 className="w-3.5 h-3.5 text-red-500" />
-            <span>Keshni tozalash</span>
-          </button>
+            <span>Bosh sahifaga oʻtish</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
       </div>
     </div>

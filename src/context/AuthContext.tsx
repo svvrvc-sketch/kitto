@@ -6,6 +6,7 @@ import { UserProfile, AuthContextType } from '@/types/auth';
 import { Book } from '@/types/book';
 import { profilesService, booksService, STORAGE_USER_KEY } from '@/services/db';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { isValidUzbekPhone, formatUzbekPhone } from '@/utils/phone';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -14,6 +15,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isHydrated, setIsHydrated] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalReason, setAuthModalReason] = useState<string | null>(null);
+  const [isPhonePromptOpen, setIsPhonePromptOpen] = useState(false);
+  const [phonePromptReason, setPhonePromptReason] = useState<string | null>(null);
 
   const clearUserStorage = () => {
     try {
@@ -53,11 +56,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         authUser.user_metadata?.picture ||
         existing?.avatar ||
         `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(fullName)}&backgroundColor=141413,27272a,3f3f46`;
-      const contactVal =
-        existing?.contact ||
-        authUser.phone ||
-        authUser.email ||
-        '+998 90 000 00 00';
+
+      // Clean contact: NEVER set email as phone number!
+      let contactVal = '';
+      if (existing?.contact && !existing.contact.includes('@') && isValidUzbekPhone(existing.contact)) {
+        contactVal = existing.contact;
+      } else if (authUser.phone && isValidUzbekPhone(authUser.phone)) {
+        contactVal = authUser.phone;
+      }
 
       const resolvedProfile: UserProfile = {
         id: authUser.id,
@@ -82,6 +88,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         window.history.replaceState({}, document.title, window.location.pathname);
       }
 
+      // If user has no valid phone after Google OAuth, automatically prompt them!
+      if (!contactVal || !isValidUzbekPhone(contactVal)) {
+        setIsPhonePromptOpen(true);
+        setPhonePromptReason('Google orqali kirdingiz. Kitob almashish va eʼlon berish uchun telefon raqamingizni kiritish majburiy.');
+      }
+
       // Async upsert to ensure cloud profile is up to date
       profilesService.upsertProfile(resolvedProfile).catch(() => {});
     } catch (e) {
@@ -95,10 +107,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (stored) {
         const parsed = JSON.parse(stored);
         if (parsed && typeof parsed === 'object' && parsed.id && parsed.name) {
+          // If stored contact was mistakenly saved as email, clear it!
+          if (parsed.contact && parsed.contact.includes('@')) {
+            parsed.contact = '';
+          }
           setUser(parsed);
           // Sync fresh profile from cloud
           profilesService.getProfile(parsed.id).then((fresh) => {
             if (fresh) {
+              if (fresh.contact && fresh.contact.includes('@')) {
+                fresh.contact = '';
+              }
               setUser(fresh);
               persistUserStorage(fresh);
             }
@@ -301,10 +320,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const email = customEmail?.trim() || 'user@gmail.com';
     loginWithProfile({
       name,
-      contact: email,
+      contact: '',
       email,
       provider: 'google',
     });
+    setIsPhonePromptOpen(true);
+    setPhonePromptReason('Google orqali kirdingiz. Kitob almashish va eʼlon berish uchun telefon raqamingizni kiritish majburiy.');
   };
 
   const loginWithTelegram = (customUsername?: string, customName?: string) => {
@@ -320,7 +341,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     if (!name) name = username ? `@${username}` : 'Kitobxon';
-    const contact = username ? `@${username}` : '+998 90 000 00 00';
+    const contact = username ? `@${username}` : '';
 
     loginWithProfile({
       name,
@@ -330,11 +351,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       avatar_url: photoUrl || undefined,
       provider: 'telegram',
     });
+
+    if (!contact || !isValidUzbekPhone(contact)) {
+      setIsPhonePromptOpen(true);
+      setPhonePromptReason('Kitob almashish va eʼlon berish uchun telefon raqamingizni kiriting.');
+    }
   };
 
   const loginAsGuest = (name: string, contact?: string, email?: string) => {
     const cleanName = name.trim() || 'Mehmon kitobxon';
-    const cleanContact = contact?.trim() || '+998 90 123 45 67';
+    const cleanContact = contact && isValidUzbekPhone(contact) ? formatUzbekPhone(contact) : '';
 
     loginWithProfile({
       name: cleanName,
@@ -366,6 +392,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setAuthModalReason(null);
   };
 
+  const hasValidPhone = Boolean(user && isValidUzbekPhone(user.contact));
+
+  const openPhonePrompt = useCallback((reason?: string) => {
+    setPhonePromptReason(reason || null);
+    setIsPhonePromptOpen(true);
+  }, []);
+
+  const closePhonePrompt = useCallback(() => {
+    setIsPhonePromptOpen(false);
+    setPhonePromptReason(null);
+  }, []);
+
+  const savePhoneNumber = useCallback(async (phone: string) => {
+    const formatted = formatUzbekPhone(phone);
+    if (!isValidUzbekPhone(formatted)) {
+      throw new Error('Iltimos, toʻgʻri Oʻzbekiston telefon raqamini kiriting (+998...)');
+    }
+    updateProfile({ contact: formatted });
+    setIsPhonePromptOpen(false);
+    setPhonePromptReason(null);
+  }, [updateProfile]);
+
+  // Prompt for phone if user is authenticated but has no valid phone (e.g. from Google login)
+  useEffect(() => {
+    if (isHydrated && user && (!user.contact || !isValidUzbekPhone(user.contact))) {
+      setIsPhonePromptOpen(true);
+      setPhonePromptReason('Kitto platformasida kitob almashish va eʼlon berish uchun telefon raqam kiritish majburiy.');
+    }
+  }, [isHydrated, user]);
+
   const isAdmin = user?.role === 'admin';
 
   return (
@@ -384,6 +440,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         authModalReason,
         openAuthModal,
         closeAuthModal,
+        hasValidPhone,
+        isPhonePromptOpen,
+        phonePromptReason,
+        openPhonePrompt,
+        closePhonePrompt,
+        savePhoneNumber,
       }}
     >
       {children}

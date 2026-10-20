@@ -89,7 +89,7 @@ export default async function BookSharePage({ params }: PageProps) {
         {book ? (
           <>
             <div className="relative aspect-[3/4] w-40 mx-auto rounded-2xl overflow-hidden shadow-book mb-5 border border-stone-200 dark:border-zinc-700 bg-stone-100">
-              {book.cover_url && book.cover_url.startsWith('http') ? (
+              {book.cover_url && (book.cover_url.startsWith('http') || book.cover_url.startsWith('data:image/')) ? (
                 <img
                   src={book.cover_url}
                   alt={book.title}
@@ -123,11 +123,11 @@ export default async function BookSharePage({ params }: PageProps) {
                 className="w-full flex items-center justify-center gap-2 py-3.5 px-5 rounded-2xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 font-bold text-xs tracking-wide shadow-tactile transition-all active:scale-[0.98]"
               >
                 <BookOpen className="w-4 h-4" />
-                <span>Kitobni ochish va bogʻlanish</span>
+                <span>Kitobni ochish</span>
               </Link>
 
               <a
-                href={`https://t.me/share/url?url=${encodeURIComponent(`https://kitto-fakv.vercel.app/book/${id}`)}&text=${encodeURIComponent(`Kitto.uz da ushbu ajoyib kitobni koʻring: "${book.title}" (${book.author})`)}`}
+                href={`https://t.me/share/url?url=${encodeURIComponent(`https://kitto-fakv.vercel.app/book/${id}`)}&text=${encodeURIComponent(`Kitto.uz orqali kitob almashing: "${book.title}" (${book.author})`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-stone-200 dark:border-zinc-800 hover:bg-stone-50 dark:hover:bg-zinc-800 text-xs text-stone-700 dark:text-stone-300 font-medium transition-colors"
@@ -142,10 +142,11 @@ export default async function BookSharePage({ params }: PageProps) {
             <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 flex items-center justify-center mx-auto mb-3 text-2xl">
               📖
             </div>
-            <h2 className="font-serif text-lg font-bold mb-1.5 text-stone-900 dark:text-stone-100">Kitob eʼloni</h2>
+            <h2 className="font-serif text-lg font-bold mb-1.5 text-stone-900 dark:text-stone-100">Kitob e&#39;loni</h2>
             <p className="text-xs text-stone-500 dark:text-zinc-400 mb-5 max-w-xs mx-auto">
-              Kitobni toʻliq koʻrish, egasi bilan bogʻlanish yoki almashish uchun platformani oching.
+              Kitob haqida to&#39;liq ma&#39;lumot olish va egasi bilan bog&#39;lanish uchun Kitto ilovasini oching.
             </p>
+
             <div className="space-y-2">
               <Link
                 href={`/?book=${encodeURIComponent(id)}`}

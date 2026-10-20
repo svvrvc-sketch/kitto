@@ -41,7 +41,7 @@ const STORAGE_GEO_DISMISSED_KEY = 'kitto_geo_prompt_dismissed';
 const TASHKENT_CENTER = { lat: 41.311081, lng: 69.240562 };
 
 export default function HomePage() {
-  const { user, openAuthModal } = useAuth();
+  const { user, openAuthModal, openPhonePrompt, hasValidPhone } = useAuth();
   const { showToast } = useToast();
   const { startConversation, totalUnreadCount } = useChat();
 
@@ -76,6 +76,7 @@ export default function HomePage() {
   const [qrModalMode, setQrModalMode] = useState<'handover' | 'return'>('handover');
   const [isSwapModalOpen, setIsSwapModalOpen] = useState(false);
   const [swapModalTargetBook, setSwapModalTargetBook] = useState<Book | null>(null);
+  const [pendingSwapTargetBook, setPendingSwapTargetBook] = useState<Book | null>(null);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   // Regional check: whether user is detected outside Tashkent
@@ -109,9 +110,13 @@ export default function HomePage() {
       openAuthModal("Kitob almashish taklifini yuborish uchun tizimga kiring");
       return;
     }
+    if (!user.contact || user.contact.includes('@') || !hasValidPhone) {
+      openPhonePrompt("Kitob almashish taklifini yuborish uchun telefon raqamingizni kiritish majburiy!");
+      return;
+    }
     setSwapModalTargetBook(targetBook);
     setIsSwapModalOpen(true);
-  }, [user, openAuthModal]);
+  }, [user, openAuthModal, openPhonePrompt, hasValidPhone]);
 
   // Dark mode state
   const [darkMode, setDarkMode] = useState(false);
@@ -159,14 +164,21 @@ export default function HomePage() {
           setBooks(fetchedBooks);
           setIsLoadingBooks(false);
 
-          // Deep-link handler: open book detail modal if ?book={id} is present
+          // Deep-link handler: open book detail modal if ?book={id} or verify modal if ?verify_swap={id}
           const urlParams = new URLSearchParams(window.location.search);
           const bookParam = urlParams.get('book');
+          const verifySwapParam = urlParams.get('verify_swap');
+
           if (bookParam && fetchedBooks.length > 0) {
             const found = fetchedBooks.find((b) => b.id === bookParam);
             if (found) {
               setSelectedBook(found);
               setIsDetailModalOpen(true);
+            }
+          } else if (verifySwapParam && fetchedBooks.length > 0) {
+            const found = fetchedBooks.find((b) => b.id === verifySwapParam);
+            if (found) {
+              handleOpenQRModal(found, 'handover');
             }
           }
         })
@@ -336,6 +348,16 @@ export default function HomePage() {
     booksService.addBook(newBook).catch((err) => {
       console.warn('Failed to sync book to Supabase:', err);
     });
+
+    if (pendingSwapTargetBook) {
+      const target = pendingSwapTargetBook;
+      setPendingSwapTargetBook(null);
+      setSwapModalTargetBook(target);
+      setIsSwapModalOpen(true);
+      showToast(`"${newBook.title}" eʼlon qilindi! Endi almashuv taklifini tasdiqlashingiz mumkin ✓`, 'success');
+      return;
+    }
+
     showToast(`"${newBook.title}" e'lon qilindi!`, 'success');
     setSelectedBook(newBook);
     setIsDetailModalOpen(true);
@@ -480,21 +502,26 @@ export default function HomePage() {
     setCurrentTab('messages');
   };
 
-  // Guarded handler for opening Add Book modal: blocks action if outside Tashkent
+  // Guarded handler for opening Add Book modal: blocks action if outside Tashkent or phone missing
   const handleOpenAddBookModal = useCallback(() => {
     if (isOutsideTashkent) {
       setIsRegionBlockedModalOpen(true);
-      showToast("Eʼlon joylash hozircha faqat Toshkent shahrida mavjud", 'info');
+      showToast("E'lon joylash hozircha faqat Toshkent shahri foydalanuvchilari uchun ochiq.", 'info');
       return;
     }
 
     if (!user) {
-      openAuthModal("Kitob joylash uchun tizimga kiring");
+      openAuthModal("Kitob almashish va e'lon joylash uchun profilingizga kiring");
+      return;
+    }
+
+    if (!user.contact || user.contact.includes('@') || !hasValidPhone) {
+      openPhonePrompt("Kitob eʼlonini joylashtirish uchun telefon raqamingizni kiritish majburiy!");
       return;
     }
 
     setIsAddModalOpen(true);
-  }, [isOutsideTashkent, user, openAuthModal, showToast]);
+  }, [isOutsideTashkent, user, openAuthModal, openPhonePrompt, hasValidPhone, showToast]);
 
   // Handle Geolocation permission
   const handleAllowGeo = (coords: { lat: number; lng: number }) => {
@@ -612,18 +639,23 @@ export default function HomePage() {
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 pt-5 pb-24 sm:pb-12">
         {/* Outside Tashkent Notice Banner */}
         {isOutsideTashkent && (
-          <div className="mb-5 p-3 sm:p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-900/60 flex items-center justify-between gap-3 text-xs text-amber-900 dark:text-amber-200 shadow-sm animate-in fade-in duration-200">
-            <div className="flex items-center gap-2.5">
-              <MapPinOff className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
-              <span>
-                Joylashuvingiz Toshkentdan tashqarida aniqlandi. Siz kitoblarni koʻrishingiz mumkin, ammo eʼlon joylash faqat Toshkentda ochiq.
-              </span>
+          <div className="mb-5 p-3.5 sm:p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-900/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-amber-900 dark:text-amber-200 shadow-sm animate-in fade-in duration-200">
+            <div className="flex items-start gap-2.5">
+              <MapPinOff className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+              <div>
+                <h4 className="font-serif font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-100">
+                  Kitto hozircha faqat Toshkent shahrida ishlamoqda
+                </h4>
+                <p className="text-[11px] sm:text-xs text-stone-600 dark:text-zinc-300 mt-0.5 leading-relaxed">
+                  Siz katalogdagi kitoblarni ko&#39;rishingiz mumkin. Tez orada viloyatingizda ham ishga tushishimiz uchun ovoz bering.
+                </p>
+              </div>
             </div>
             <button
               onClick={() => setIsCityModalOpen(true)}
-              className="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs whitespace-nowrap shadow-xs transition-all active:scale-95 shrink-0"
+              className="px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs whitespace-nowrap shadow-xs transition-all active:scale-95 shrink-0 self-end sm:self-center"
             >
-              Viloyatimga ovoz berish
+              Viloyat uchun ovoz berish
             </button>
           </div>
         )}
@@ -690,7 +722,7 @@ export default function HomePage() {
                 onFocus={() => setIsSearchFocused(true)}
                 onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Kitob nomi, muallif yoki tuman boʻyicha qidirish..."
+                placeholder="Kitob nomi yoki muallifni yozing..."
                 className="w-full pl-10 pr-10 py-3 rounded-2xl bg-white dark:bg-zinc-900 border border-stone-200/90 dark:border-zinc-800 shadow-sm text-xs sm:text-sm text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-[#141413] dark:focus:ring-stone-400 dark:focus:border-stone-400 transition-all"
               />
               {searchQuery && (
@@ -780,7 +812,7 @@ export default function HomePage() {
                   }`}
                 >
                   <Clock className="w-3.5 h-3.5" />
-                  <span>Vaqtinchalik o&#39;qishga</span>
+                  <span>Vaqtincha o&#39;qishga</span>
                 </button>
 
                 <button
@@ -793,7 +825,7 @@ export default function HomePage() {
                   }`}
                 >
                   <ArrowLeftRight className="w-3.5 h-3.5" />
-                  <span>Doimiy almashuv</span>
+                  <span>Doimiy almashish</span>
                 </button>
 
                 <button
@@ -806,7 +838,7 @@ export default function HomePage() {
                   }`}
                 >
                   <Gift className="w-3.5 h-3.5" />
-                  <span>Bepul sovg&#39;alar</span>
+                  <span>Hadya qilinadi</span>
                 </button>
               </div>
             )}
@@ -874,9 +906,10 @@ export default function HomePage() {
         )}
       </main>
 
-      {/* Floating Action Button (+ Kitob joylash) - Hidden on empty states to prevent duplication */}
+      {/* Floating Action Button (+ Kitob joylash) - Visible ONLY for authenticated users */}
       <FloatingActionButton
         visible={
+          Boolean(user) &&
           filteredBooks.length > 0 &&
           books.length > 0 &&
           (currentTab === 'home' || currentTab === 'my_listings')
@@ -980,7 +1013,13 @@ export default function HomePage() {
         }}
         targetBook={swapModalTargetBook}
         allBooks={books}
-        onOpenAddModal={handleOpenAddBookModal}
+        onOpenAddModal={() => {
+          if (swapModalTargetBook) {
+            setPendingSwapTargetBook(swapModalTargetBook);
+          }
+          setIsSwapModalOpen(false);
+          handleOpenAddBookModal();
+        }}
         onSwapSubmitted={() => {
           setIsDetailModalOpen(false);
           setCurrentTab('messages');

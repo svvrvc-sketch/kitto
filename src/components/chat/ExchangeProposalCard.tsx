@@ -16,6 +16,7 @@ interface ExchangeProposalCardProps {
   proposal: ExchangeProposalPayload;
   messageId: string;
   senderId: string;
+  senderName?: string;
   currentUserId: string;
   onAccept?: (proposalId: string) => Promise<void> | void;
   onDecline?: (proposalId: string) => Promise<void> | void;
@@ -28,6 +29,7 @@ export const ExchangeProposalCard: React.FC<ExchangeProposalCardProps> = ({
   proposal,
   messageId: _messageId,
   senderId,
+  senderName,
   currentUserId,
   onAccept,
   onDecline,
@@ -120,8 +122,15 @@ export const ExchangeProposalCard: React.FC<ExchangeProposalCardProps> = ({
         )}
       </div>
 
+      {/* Proposer note */}
+      <p className="text-xs text-stone-700 dark:text-stone-300 font-medium my-2.5">
+        {senderName
+          ? `${senderName} ushbu kitobni almashishni taklif qilmoqda`
+          : 'Ushbu kitobni almashish taklif qilinmoqda'}
+      </p>
+
       {/* Dual-Book Mini Cards (Side-by-Side) */}
-      <div className="relative grid grid-cols-2 gap-2.5 sm:gap-3 my-3.5 items-stretch">
+      <div className="relative grid grid-cols-2 gap-2.5 sm:gap-3 my-3 items-stretch">
         {/* Center Separator Badge */}
         <div
           aria-hidden="true"
@@ -212,7 +221,7 @@ export const ExchangeProposalCard: React.FC<ExchangeProposalCardProps> = ({
             className="bg-obsidian-900 bg-[#141413] hover:bg-black dark:bg-stone-100 dark:hover:bg-white text-white dark:text-stone-900 px-4 py-2 rounded-xl text-xs font-medium shadow-xs transition-all active:scale-95 flex items-center gap-1.5 disabled:opacity-50"
           >
             <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-            <span>{isSubmitting ? 'Tasdiqlanmoqda...' : 'Roziman'}</span>
+            <span>{isSubmitting ? 'Tasdiqlanmoqda...' : 'Qabul qilish'}</span>
           </button>
         </div>
       )}

@@ -50,12 +50,13 @@ export const SupportModal: React.FC<SupportModalProps> = ({ isOpen, onClose }) =
             <MessageCircle className="w-7 h-7 stroke-[1.8]" />
           </div>
           <h3 className="font-serif text-2xl font-bold text-stone-900 dark:text-stone-100 tracking-tight">
-            Savol va takliflar bormi?
+            Savol yoki taklifingiz bormi?
           </h3>
           <p className="text-xs sm:text-sm text-stone-500 dark:text-zinc-400 mt-1 max-w-xs mx-auto leading-relaxed">
-            Kitto platformasi boʻyicha har qanday savol, fikr yoki takliflaringiz boʻlsa, biz bilan bogʻlaning.
+            Kitto bo&#39;yicha savol yoki takliflaringiz bo&#39;lsa, biz bilan bog&#39;laning.
           </p>
         </div>
+
 
         {/* Contact Cards */}
         <div className="mt-6 space-y-3">

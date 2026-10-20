@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Book } from '@/types/book';
 import { Bookmark, CheckCircle2, Trash2, RefreshCw, MapPin, BookOpen, Camera, Clock, ShieldCheck, QrCode, ArrowLeftRight } from 'lucide-react';
 import { calculateDistanceKm, formatDistance } from '@/lib/geo-utils';
+import { formatBookCondition } from '@/lib/book-constants';
 
 interface BookCardProps {
   book: Book;
@@ -79,9 +80,9 @@ export const BookCard: React.FC<BookCardProps> = ({
 
   const getActionLabel = () => {
     if (isTemporary) {
-      return isTemporarilyGiven ? 'Faollashtirish' : 'Vaqtincha berilgan';
+      return isTemporarilyGiven ? 'Faollashtirish' : "O'qilmoqda";
     }
-    return isSwapped ? 'Faol qilish' : 'Almashildi';
+    return isSwapped ? 'Almashishga tayyor' : 'Band qilish';
   };
 
   const isInactive = isSwapped || isTemporarilyGiven;
@@ -131,6 +132,7 @@ export const BookCard: React.FC<BookCardProps> = ({
   // Explicit Book Status Badges
   const renderSwapBadge = () => {
     const isTemporarilyGiven = book.status === 'temporarily_given';
+    const isReserved = book.status === 'reserved';
     const isSwapped = book.status === 'swapped' || Boolean(book.isCompleted);
     const termType = book.swapTerm?.type || (book.type === 'gift' ? 'gift' : 'permanent');
 
@@ -139,7 +141,16 @@ export const BookCard: React.FC<BookCardProps> = ({
       return (
         <span className="inline-flex items-center gap-1 bg-amber-500 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-lg backdrop-blur-sm shadow-xs border border-amber-400">
           <Clock className="w-3 h-3" />
-          <span>Hozir mutolaada ({returnDate}da boʻshaydi)</span>
+          <span>O&apos;qilmoqda • {returnDate} gacha</span>
+        </span>
+      );
+    }
+
+    if (isReserved) {
+      return (
+        <span className="inline-flex items-center gap-1 bg-stone-700 text-stone-200 text-[10px] font-semibold px-2 py-0.5 rounded-lg backdrop-blur-sm shadow-xs">
+          <CheckCircle2 className="w-3 h-3" />
+          <span>Band qilingan</span>
         </span>
       );
     }
@@ -156,7 +167,7 @@ export const BookCard: React.FC<BookCardProps> = ({
     if (termType === 'gift') {
       return (
         <span className="inline-flex items-center gap-1 bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-lg backdrop-blur-sm shadow-xs">
-          <span>🎁 Sovgʻa qilinadi</span>
+          <span>Hadya qilinadi</span>
         </span>
       );
     }
@@ -164,7 +175,7 @@ export const BookCard: React.FC<BookCardProps> = ({
     if (termType === 'temporary') {
       return (
         <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-900 border border-amber-300 dark:bg-amber-950/80 dark:text-amber-300 dark:border-amber-900 text-[10px] font-semibold px-2 py-0.5 rounded-lg backdrop-blur-sm shadow-xs">
-          <span>⏳ Almashishga tayyor (Vaqtincha)</span>
+          <span>Vaqtincha o&apos;qishga</span>
         </span>
       );
     }
@@ -176,6 +187,7 @@ export const BookCard: React.FC<BookCardProps> = ({
       </span>
     );
   };
+
 
   return (
     <article
@@ -213,7 +225,7 @@ export const BookCard: React.FC<BookCardProps> = ({
             </div>
             <div className="pt-2 border-t border-stone-300/60 dark:border-zinc-700/60 flex items-center justify-between text-[9px] text-stone-500 dark:text-zinc-400">
               <span className="uppercase tracking-wider truncate max-w-[90px]">{book.category || 'Kitob'}</span>
-              <span className="capitalize">{book.condition || 'Yaxshi'}</span>
+              <span>{formatBookCondition(book.condition)}</span>
             </div>
           </div>
         )}
@@ -223,17 +235,18 @@ export const BookCard: React.FC<BookCardProps> = ({
           <div className="absolute inset-0 bg-stone-950/45 backdrop-blur-[2px] flex items-center justify-center z-10 pointer-events-none p-2 text-center">
             <span className="px-3 py-1 rounded-full bg-amber-500 text-white text-xs font-serif font-semibold tracking-wide shadow-md flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5 text-white" />
-              <span>Hozir mutolaada ({getReturnDateLabel()}da boʻshaydi)</span>
+              <span>O&apos;qilmoqda • {getReturnDateLabel()} gacha</span>
             </span>
           </div>
         ) : isSwapped ? (
           <div className="absolute inset-0 bg-stone-950/45 backdrop-blur-[2px] flex items-center justify-center z-10 pointer-events-none">
             <span className="px-3 py-1 rounded-full bg-stone-100 text-stone-600 border border-stone-200 dark:bg-zinc-900 dark:text-zinc-400 dark:border-zinc-800 text-xs font-serif font-semibold tracking-wide shadow-md flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-stone-500 dark:text-zinc-400" />
-              Almashildi
+              Almashilgan
             </span>
           </div>
         ) : null}
+
 
         {/* Top Badges Overlay */}
         <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between gap-1 pointer-events-none z-20">
@@ -274,8 +287,8 @@ export const BookCard: React.FC<BookCardProps> = ({
               <span>Haqiqiy</span>
             </span>
           )}
-          <span className="inline-block border border-stone-200/60 dark:border-zinc-700 bg-white/85 dark:bg-zinc-800/90 text-stone-700 dark:text-stone-200 text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-md backdrop-blur-sm">
-            {book.condition || 'Yaxshi'}
+          <span className="inline-block border border-stone-200/60 dark:border-zinc-700 bg-white/85 dark:bg-zinc-800/90 text-stone-700 dark:text-stone-200 text-[10px] tracking-wider font-semibold px-2 py-0.5 rounded-md backdrop-blur-sm">
+            {formatBookCondition(book.condition)}
           </span>
         </div>
       </div>
@@ -286,7 +299,7 @@ export const BookCard: React.FC<BookCardProps> = ({
           {book.title || 'Nomsiz kitob'}
         </h3>
         <p className="text-xs text-stone-500 dark:text-zinc-400 line-clamp-1 mt-0.5">
-          {book.author || 'Muallif koʻrsatilmagan'}
+          {book.author || 'Muallif ko‘rsatilmagan'}
         </p>
 
         {/* Human-readable Address Text & Distance */}
@@ -361,10 +374,10 @@ export const BookCard: React.FC<BookCardProps> = ({
                       onOpenQRModal(book, isTemporarilyGiven ? 'return' : 'handover');
                     }}
                     className="flex-1 py-1.5 px-2 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1 bg-amber-500/10 text-amber-800 dark:text-amber-300 hover:bg-amber-500/20 border border-amber-500/25 transition-all shadow-xs"
-                    title="QR kod orqali topshirish yoki qabul qilish (+1 ball)"
+                    title="QR kod orqali topshirish yoki qabul qilish"
                   >
                     <QrCode className="w-3 h-3 text-amber-600 dark:text-amber-400" />
-                    <span>QR {isTemporarilyGiven ? 'Qabul (+1 ball)' : 'Topshirish (+1)'}</span>
+                    <span>QR {isTemporarilyGiven ? 'Qabul qilish' : 'Topshirish'}</span>
                   </button>
                 )}
 
@@ -378,7 +391,7 @@ export const BookCard: React.FC<BookCardProps> = ({
                       ? 'bg-stone-100 text-stone-600 border border-stone-200 dark:bg-zinc-900 dark:text-zinc-400 dark:border-zinc-800'
                       : 'bg-amber-50 text-amber-900 border border-amber-200 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/50'
                   }`}
-                  title="Kitob holatini oʻzgartirish"
+                  title="Kitob holatini o'zgartirish"
                 >
                   <RefreshCw className="w-3 h-3 shrink-0" />
                   <span>{getActionLabel()}</span>
@@ -399,7 +412,7 @@ export const BookCard: React.FC<BookCardProps> = ({
                 className="p-2 rounded-xl bg-stone-100 dark:bg-zinc-800/90 border border-stone-300 dark:border-zinc-700 text-center animate-in fade-in duration-150"
               >
                 <div className="text-[10px] text-red-700 dark:text-red-400 font-bold mb-1.5">
-                  Rostdan ham oʻchirasizmi?
+                  Rostdan ham o'chirasizmi?
                 </div>
                 <div className="flex items-center justify-center gap-1.5">
                   <button
@@ -407,7 +420,7 @@ export const BookCard: React.FC<BookCardProps> = ({
                     onClick={handleDeleteClick}
                     className="px-2.5 py-1 rounded-md bg-red-700 hover:bg-red-800 text-white text-[10px] font-bold shadow-xs active:scale-95 transition-all"
                   >
-                    Ha, oʻchirish
+                    Ha, o'chirish
                   </button>
                   <button
                     type="button"
@@ -421,6 +434,7 @@ export const BookCard: React.FC<BookCardProps> = ({
             )}
           </div>
         )}
+
       </div>
     </article>
   );

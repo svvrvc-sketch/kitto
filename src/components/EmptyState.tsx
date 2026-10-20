@@ -67,10 +67,10 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         </div>
 
         <h3 className="font-serif text-2xl font-bold text-stone-900 dark:text-stone-100 tracking-tight mb-2">
-          Siz hali kitob qoʻshmadingiz
+          Sizda hali faol e&#39;lonlar yo&#39;q
         </h3>
         <p className="max-w-md text-sm text-stone-500 dark:text-zinc-400 font-sans leading-relaxed mb-6">
-          Javoningizdagi oʻqilgan kitoblarni boshqalar bilan ulashing!
+          O&#39;qib bo&#39;lgan kitoblaringizni joylang va boshqa kitoblarga almashing.
         </p>
 
         <button
@@ -79,7 +79,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           className="flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 font-semibold text-xs tracking-wide shadow-tactile transition-all active:scale-95"
         >
           <PlusCircle className="w-4 h-4" />
-          <span>+ Birinchi kitobni qoʻshish</span>
+          <span>+ Kitob joylash</span>
         </button>
       </div>
     );
@@ -97,7 +97,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           Saqlangan kitoblar yo&#39;q
         </h3>
         <p className="max-w-md text-sm text-stone-500 dark:text-zinc-400 font-sans leading-relaxed mb-6">
-          O&#39;zingizga yoqqan kitoblarni belgilab, ularni shu yerda saqlab qo&#39;yishingiz mumkin.
+          Yoqqan kitoblarni keyinroq topish uchun belgilab qo&#39;ying.
         </p>
 
         {onGoToFeed && (
@@ -129,16 +129,27 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           Toshkent bo&#39;ylab birinchi bo&#39;lib o&#39;z kitobingizni joylang va boshqa kitobxonlar bilan ulashing.
         </p>
 
-        <div className="flex items-center justify-center w-full max-w-xs">
-          <button
-            id="empty-feed-add-btn"
-            onClick={onOpenAddModal}
-            className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 font-semibold text-xs tracking-wide shadow-tactile transition-all active:scale-95"
-          >
-            <PlusCircle className="w-4 h-4" />
-            <span>+ Kitob joylash</span>
-          </button>
-        </div>
+        {isAuthenticated ? (
+          <div className="flex items-center justify-center w-full max-w-xs">
+            <button
+              id="empty-feed-add-btn"
+              onClick={onOpenAddModal}
+              className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 font-semibold text-xs tracking-wide shadow-tactile transition-all active:scale-95"
+            >
+              <PlusCircle className="w-4 h-4" />
+              <span>+ Kitob joylash</span>
+            </button>
+          </div>
+        ) : onOpenAuthModal ? (
+          <div className="flex items-center justify-center w-full max-w-xs">
+            <button
+              onClick={onOpenAuthModal}
+              className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 font-semibold text-xs tracking-wide shadow-tactile transition-all active:scale-95"
+            >
+              <span>Tizimga kirish</span>
+            </button>
+          </div>
+        ) : null}
       </div>
     );
   }
@@ -154,7 +165,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
       </div>
 
       <h3 className="font-serif text-2xl font-bold text-stone-900 dark:text-stone-100 tracking-tight mb-2">
-        Bunday parametrlar bo&#39;yicha kitob topilmadi.
+        Hech narsa topilmadi
       </h3>
       <p className="max-w-md text-sm text-stone-500 dark:text-zinc-400 font-sans leading-relaxed mb-6">
         {searchQuery ? (
@@ -162,10 +173,10 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
             <span className="font-semibold text-stone-900 dark:text-stone-200 font-serif">
               &ldquo;{searchQuery}&rdquo;
             </span>{' '}
-            soʻrovi boʻyicha eʼlon topilmadi. Filtrni tozalang yoki yangi kitob joylang.
+            bo&#39;yicha hech narsa topilmadi. Boshqa kalit so&#39;z bilan qidirib ko&#39;ring yoki filtrlarni tozalang.
           </>
         ) : (
-          "Tanlangan filtr parametrlari bo'yicha e'lon topilmadi. Filtrni tozalang yoki yangi kitob joylang."
+          "Boshqa kalit so'z bilan qidirib ko'ring yoki filtrlarni tozalang."
         )}
       </p>
 
@@ -181,13 +192,15 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           </button>
         )}
 
-        <button
-          onClick={onOpenAddModal}
-          className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 font-semibold text-xs tracking-wide shadow-tactile transition-all active:scale-95"
-        >
-          <PlusCircle className="w-4 h-4" />
-          <span>+ Kitob joylash</span>
-        </button>
+        {isAuthenticated && (
+          <button
+            onClick={onOpenAddModal}
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 font-semibold text-xs tracking-wide shadow-tactile transition-all active:scale-95"
+          >
+            <PlusCircle className="w-4 h-4" />
+            <span>+ Kitob joylash</span>
+          </button>
+        )}
       </div>
     </div>
   );

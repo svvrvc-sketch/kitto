@@ -4,7 +4,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { Book } from '@/types/book';
 import { ChatThread, ChatMessage, BookMiniMeta } from '@/types/chat';
-import { chatsService, booksService, STORAGE_CHATS_KEY } from '@/services/db';
+import { chatsService, booksService, exchangeTransactionsService, STORAGE_CHATS_KEY } from '@/services/db';
 import { useAuth } from './AuthContext';
 
 interface ChatContextType {
@@ -22,7 +22,8 @@ interface ChatContextType {
     threadId: string,
     offeredBook: BookMiniMeta,
     requestedBook: BookMiniMeta,
-    targetOwnerId?: string
+    targetOwnerId?: string,
+    customProposalId?: string
   ) => void;
   updateProposalStatus: (
     threadId: string,
@@ -278,15 +279,17 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     threadId: string,
     offeredBook: BookMiniMeta,
     requestedBook: BookMiniMeta,
-    targetOwnerId?: string
+    targetOwnerId?: string,
+    customProposalId?: string
   ) => {
     const currentUserId = user?.id || 'guest_user';
-    const proposalId = `prop_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const proposalId = customProposalId || `prop_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 
     const newMsg: ChatMessage = {
       id: `msg_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       senderId: currentUserId,
-      text: `Almashish taklifi: "${offeredBook.title}" ⇄ "${requestedBook.title}"`,
+      senderName: user?.name || 'Kitobxon',
+      text: `${user?.name || 'Kitobxon'} ushbu kitobni almashishni taklif qilmoqda`,
       createdAt: new Date().toISOString(),
       isRead: false,
       type: 'exchange_proposal',
@@ -365,32 +368,37 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return m;
     });
 
-    // If accepted, update both books to borrowed / reserved in DB and notify UI
+    // 1. Synchronize to exchange_transactions table in Supabase & local cache
+    exchangeTransactionsService.updateTransactionStatus(proposalId, status).catch((err) => {
+      console.warn('Failed to update exchange_transactions status:', err);
+    });
+
+    // 2. If accepted, update both books to 'swapped' in DB (satisfying CHECK constraint) and notify UI
     if (status === 'accepted' && targetProposal) {
       const offeredId = targetProposal.offered_book?.id;
       const requestedId = targetProposal.requested_book?.id;
 
       if (offeredId) {
-        booksService.updateBookStatus(offeredId, 'borrowed').catch((e) => {
+        booksService.updateBookStatus(offeredId, 'swapped').catch((e) => {
           console.warn('Failed to update offered book status:', e);
         });
         if (typeof window !== 'undefined') {
           window.dispatchEvent(
             new CustomEvent('kitto_book_status_updated', {
-              detail: { bookId: offeredId, status: 'borrowed' },
+              detail: { bookId: offeredId, status: 'swapped' },
             })
           );
         }
       }
 
       if (requestedId) {
-        booksService.updateBookStatus(requestedId, 'borrowed').catch((e) => {
+        booksService.updateBookStatus(requestedId, 'swapped').catch((e) => {
           console.warn('Failed to update requested book status:', e);
         });
         if (typeof window !== 'undefined') {
           window.dispatchEvent(
             new CustomEvent('kitto_book_status_updated', {
-              detail: { bookId: requestedId, status: 'borrowed' },
+              detail: { bookId: requestedId, status: 'swapped' },
             })
           );
         }

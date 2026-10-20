@@ -14,6 +14,7 @@ import {
   Clock,
   Compass,
 } from 'lucide-react';
+import { formatBookCondition } from '@/lib/book-constants';
 
 interface UserProfileModalProps {
   userId: string | null;
@@ -240,12 +241,12 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
           </div>
         </div>
 
-        {/* Section: Sevimli yo'nalishlar */}
+        {/* Section: Qiziqqan janrlar */}
         <div className="mt-5 space-y-2">
           <div className="flex items-center gap-1.5">
             <Compass className="w-4 h-4 text-amber-600 dark:text-amber-400" />
             <h4 className="font-serif text-xs font-bold uppercase tracking-wider text-stone-900 dark:text-stone-100">
-              Sevimli yo&#39;nalishlar
+              Qiziqqan janrlar
             </h4>
           </div>
 
@@ -262,18 +263,18 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
             </div>
           ) : (
             <p className="text-xs text-stone-400 dark:text-zinc-500 italic bg-stone-50/50 dark:bg-zinc-950/40 p-3 rounded-xl border border-stone-200/60 dark:border-zinc-800/80">
-              Sevimli yo&#39;nalishlar belgilanmagan
+              Qiziqqan janrlar belgilanmagan
             </p>
           )}
         </div>
 
-        {/* Section: Qidirilayotgan kitoblar (Wishlist for Barter) */}
+        {/* Section: Qidirayotgan kitoblari */}
         <div className="mt-5 space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5">
               <Sparkles className="w-4 h-4 text-amber-600 dark:text-amber-400" />
               <h4 className="font-serif text-xs font-bold uppercase tracking-wider text-stone-900 dark:text-stone-100">
-                Qidirilayotgan kitoblar
+                Qidirayotgan kitoblari
               </h4>
             </div>
             <span className="text-[10px] text-stone-400 dark:text-zinc-500 font-sans">
@@ -281,7 +282,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
             </span>
           </div>
           <p className="text-[11px] text-stone-500 dark:text-zinc-400 leading-tight">
-            Ushbu kitobxon bilan almashish uchun taklif qilishingiz mumkin bo&#39;lgan kitoblar ro&#39;yxati:
+            Ushbu kitobxonga almashish uchun taklif qilishingiz mumkin bo&#39;lgan kitoblar ro&#39;yxati:
           </p>
 
           {wishlistBooks.length > 0 ? (
@@ -298,7 +299,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
             </div>
           ) : (
             <p className="text-xs text-stone-400 dark:text-zinc-500 italic bg-stone-50/50 dark:bg-zinc-950/40 p-3 rounded-xl border border-stone-200/60 dark:border-zinc-800/80">
-              Hozircha qidirilayotgan kitoblar kiritilmagan
+              Hozircha qidirayotgan kitoblari yo&#39;q
             </p>
           )}
         </div>
@@ -361,20 +362,20 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                         {isLent ? (
                           <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-300 border border-amber-200/80 dark:border-amber-900/50">
                             <Clock className="w-2.5 h-2.5 text-amber-600 dark:text-amber-400" />
-                            <span>Vaqtincha berilgan</span>
+                            <span>O&apos;qilmoqda</span>
                           </span>
                         ) : isSwapped ? (
                           <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[9px] font-bold bg-stone-100 dark:bg-zinc-800 text-stone-600 dark:text-zinc-400 border border-stone-200 dark:border-zinc-700">
                             <RefreshCw className="w-2.5 h-2.5" />
-                            <span>Almashildi</span>
+                            <span>Almashilgan</span>
                           </span>
                         ) : (
-                          <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold bg-[#141413] text-[#F8F7F4] dark:bg-stone-200 dark:text-stone-900">
-                            Faol
+                          <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-700 text-white">
+                            Almashishga tayyor
                           </span>
                         )}
                         <span className="text-[9px] text-stone-400 dark:text-zinc-500">
-                          {book.condition || 'Yaxshi'}
+                          {formatBookCondition(book.condition)}
                         </span>
                       </div>
                     </div>
@@ -384,10 +385,11 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
             </div>
           ) : (
             <p className="text-xs text-stone-400 dark:text-zinc-500 italic bg-stone-50/50 dark:bg-zinc-950/40 p-3 rounded-xl border border-stone-200/60 dark:border-zinc-800/80">
-              Ushbu foydalanuvchi hozircha kitob joylamagan
+              Sizda hali faol e&apos;lonlar yo&apos;q
             </p>
           )}
         </div>
+
       </div>
     </div>
   );
