@@ -171,7 +171,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [syncSupabaseUser, loadFromLocalStorage]);
 
-  const loginWithProfile = (profile: {
+  const loginWithProfile = async (profile: {
     name: string;
     contact: string;
     email?: string;
@@ -191,36 +191,51 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       ? cleanContact.replace(/^@/, '')
       : undefined;
 
+    // Check if user profile already exists with this contact in Supabase
+    let existingProfile: UserProfile | null = null;
+    try {
+      existingProfile = await profilesService.getProfileByContact(cleanContact);
+    } catch {
+      // ignore
+    }
+
+    const userId = existingProfile?.id || `usr_${Date.now()}`;
     const avatarUrl =
       profile.avatar ||
       profile.avatar_url ||
+      existingProfile?.avatar ||
       `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(cleanName)}&backgroundColor=141413,27272a,3f3f46`;
 
-    const newUser: UserProfile = {
-      id: `usr_${Date.now()}`,
-      name: cleanName,
+    const resolvedUser: UserProfile = {
+      id: userId,
+      name: cleanName || existingProfile?.name || 'Kitobxon',
       contact: cleanContact,
-      email: cleanEmail,
-      city: profile.city?.trim() || 'Toshkent',
+      email: cleanEmail || existingProfile?.email,
+      city: profile.city?.trim() || existingProfile?.city || 'Toshkent',
+      favoriteGenres: existingProfile?.favoriteGenres || [],
+      wishlistBooks: existingProfile?.wishlistBooks || [],
       avatar: avatarUrl,
       avatar_url: avatarUrl,
-      role: profile.role || 'user',
+      role: existingProfile?.role || profile.role || 'user',
       provider: profile.provider || 'direct',
-      telegramUsername: cleanTg,
-      createdAt: new Date().toISOString(),
+      telegramUsername: cleanTg || existingProfile?.telegramUsername,
+      trustScore: existingProfile?.trustScore || 5,
+      isTrusted: true,
+      completedSwaps: existingProfile?.completedSwaps || 0,
+      createdAt: existingProfile?.createdAt || new Date().toISOString(),
     };
 
-    setUser(newUser);
-    persistUserStorage(newUser);
+    setUser(resolvedUser);
+    persistUserStorage(resolvedUser);
 
-    profilesService.upsertProfile(newUser).catch((err) => {
+    profilesService.upsertProfile(resolvedUser).catch((err) => {
       console.warn('Could not sync user profile to cloud:', err);
     });
     setIsAuthModalOpen(false);
     setAuthModalReason(null);
   };
 
-  const updateProfile = (updates: Partial<UserProfile>) => {
+  const updateProfile = useCallback((updates: Partial<UserProfile>) => {
     setUser((prev) => {
       if (!prev) return null;
       const avatarVal = updates.avatar || updates.avatar_url || prev.avatar;
@@ -234,7 +249,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         city: updates.city ? updates.city.trim() : prev.city,
       };
 
-      if (updates.name && !updates.avatar && !updates.avatar_url) {
+      if (updates.name && !updates.avatar && !updates.avatar_url && !prev.avatar) {
         const generated = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(updated.name)}&backgroundColor=141413,27272a,3f3f46`;
         updated.avatar = generated;
         updated.avatar_url = generated;
@@ -288,7 +303,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       return updated;
     });
-  };
+  }, []);
 
   const loginWithGoogle = async (customEmail?: string, customName?: string) => {
     if (isSupabaseConfigured && typeof window !== 'undefined') {

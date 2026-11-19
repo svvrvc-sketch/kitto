@@ -33,7 +33,7 @@ export interface AuthContextType {
     role?: 'admin' | 'user';
     provider?: 'google' | 'telegram' | 'direct' | 'guest';
     telegramUsername?: string;
-  }) => void;
+  }) => Promise<void> | void;
   updateProfile: (profile: Partial<UserProfile>) => void;
   loginWithGoogle: (email?: string, name?: string) => Promise<void>;
   loginWithTelegram: (username?: string, name?: string) => void;

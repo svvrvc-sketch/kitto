@@ -11,12 +11,9 @@ import {
   Clock,
   BookOpen,
   Camera,
-  ScanLine,
   RefreshCw,
-  Sparkles,
   UploadCloud,
   AlertCircle,
-  Lightbulb,
 } from 'lucide-react';
 import { Book } from '@/types/book';
 import { useAuth } from '@/context/AuthContext';
@@ -46,7 +43,7 @@ export const SwapQRModal: React.FC<SwapQRModalProps> = ({
   const [copied, setCopied] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [scanSuccess, setScanSuccess] = useState<boolean>(false);
-  const [scannedResult, setScannedResult] = useState<{ bookId: string; code?: string } | null>(null);
+  const [, setScannedResult] = useState<{ bookId: string; code?: string } | null>(null);
 
   // Camera & Scanner State
   const [isCameraActive, setIsCameraActive] = useState(false);

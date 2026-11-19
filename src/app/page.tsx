@@ -206,7 +206,7 @@ export default function HomePage() {
       setIsLoadingBooks(false);
     }
     setIsHydrated(true);
-  }, []);
+  }, [handleOpenQRModal]);
 
   // Real-time Cloud Synchronization for Books table
   useEffect(() => {

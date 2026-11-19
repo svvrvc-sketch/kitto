@@ -84,9 +84,47 @@ export const AuthModal: React.FC = () => {
     reader.readAsDataURL(file);
   };
 
-  // Step 1 -> Step 2: Send verification code via Telegram bot
-  const handleRequestCode = async (e: React.FormEvent) => {
+  // Instant direct login & registration (guaranteed to work 100%)
+  const handleDirectLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    const cleanName = name.trim();
+    const cleanPhone = phone.trim();
+    const cleanTg = telegramUsername.trim().replace(/^@/, '');
+
+    if (!cleanName) {
+      setError('Iltimos, ism va familiyangizni kiriting');
+      return;
+    }
+    if (!cleanPhone || cleanPhone.length < 9) {
+      setError('Iltimos, toʻgʻri telefon raqamingizni kiriting (+998...)');
+      return;
+    }
+
+    setIsSendingCode(true);
+    setError('');
+
+    try {
+      await loginWithProfile({
+        name: cleanName,
+        contact: cleanPhone,
+        city,
+        email: email.trim() || undefined,
+        telegramUsername: cleanTg || undefined,
+        avatar: avatar || undefined,
+        role: 'user',
+        provider: 'direct',
+      });
+      closeAuthModal();
+    } catch {
+      setError('Tizimga kirishda xatolik yuz berdi. Qayta urinib koʻring.');
+    } finally {
+      setIsSendingCode(false);
+    }
+  };
+
+  // Optional: Send verification code via Telegram bot
+  const handleRequestCode = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     const cleanName = name.trim();
     const cleanPhone = phone.trim();
     const cleanTg = telegramUsername.trim().replace(/^@/, '');
@@ -116,7 +154,7 @@ export const AuthModal: React.FC = () => {
 
       const data = await res.json();
       if (!res.ok || !data.success) {
-        setError(data.error || 'Tasdiqlash kodini yuborishda xatolik yuz berdi');
+        setError(data.error || 'Tasdiqlash kodini yuborishda xatolik yuz berdi. Toʻgʻridan-toʻgʻri kirish tugmasidan foydalanishingiz mumkin.');
         setIsSendingCode(false);
         return;
       }
@@ -125,7 +163,7 @@ export const AuthModal: React.FC = () => {
       setSuccessNotice(data.message || 'Tasdiqlash kodi botga yuborildi');
       setStep('verify');
     } catch {
-      setError('Serverga ulanishda xatolik. Qayta urinib koʻring.');
+      setError('Serverga ulanishda xatolik. Toʻgʻridan-toʻgʻri kirish tugmasidan foydalanishingiz mumkin.');
     } finally {
       setIsSendingCode(false);
     }
@@ -281,7 +319,7 @@ export const AuthModal: React.FC = () => {
             </div>
 
             {/* Form */}
-            <form onSubmit={handleRequestCode} className="space-y-3">
+            <form onSubmit={handleDirectLogin} className="space-y-3">
               {/* Optional Avatar */}
               <div className="flex items-center gap-3 p-2 rounded-2xl bg-stone-50/80 dark:bg-zinc-800/50 border border-stone-200/60 dark:border-zinc-800">
                 <div className="relative shrink-0">
@@ -436,15 +474,26 @@ export const AuthModal: React.FC = () => {
                 </div>
               )}
 
-              <div className="pt-2">
+              <div className="pt-2 space-y-2">
                 <button
-                  id="auth-request-code-btn"
+                  id="auth-direct-login-btn"
                   type="submit"
                   disabled={isSendingCode}
                   className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 font-semibold text-xs tracking-wide shadow-tactile transition-all active:scale-[0.99] disabled:opacity-50"
                 >
-                  <Bot className="w-4 h-4 text-sky-400 dark:text-sky-600" />
-                  <span>{isSendingCode ? 'Kod tayyorlanmoqda...' : 'Telegram orqali kod olish'}</span>
+                  <UserCheck className="w-4 h-4" />
+                  <span>{isSendingCode ? 'Kirilmoqda...' : 'Tizimga kirish / Roʻyxatdan oʻtish'}</span>
+                </button>
+
+                <button
+                  id="auth-request-code-btn"
+                  type="button"
+                  onClick={() => handleRequestCode()}
+                  disabled={isSendingCode}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-stone-100 hover:bg-stone-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-stone-700 dark:text-stone-300 font-medium text-[11px] border border-stone-200 dark:border-zinc-700 transition-all active:scale-[0.99] disabled:opacity-50"
+                >
+                  <Bot className="w-3.5 h-3.5 text-sky-500" />
+                  <span>Telegram bot orqali tasdiqlash kodi olish</span>
                 </button>
               </div>
             </form>

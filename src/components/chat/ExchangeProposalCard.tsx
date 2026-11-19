@@ -27,7 +27,6 @@ interface ExchangeProposalCardProps {
 
 export const ExchangeProposalCard: React.FC<ExchangeProposalCardProps> = ({
   proposal,
-  messageId: _messageId,
   senderId,
   senderName,
   currentUserId,

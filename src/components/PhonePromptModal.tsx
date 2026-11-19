@@ -152,7 +152,7 @@ export const PhonePromptModal: React.FC = () => {
       await savePhoneNumber(fullPhone);
       if (updateProfile) {
         updateProfile({
-          contact: fullPhone,
+          contact: formatUzbekPhone(fullPhone),
           city: city || 'Toshkent shahri',
           telegramUsername: telegramUsername.trim() || user?.telegramUsername,
         });

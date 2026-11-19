@@ -150,9 +150,10 @@ export function mapBookToRow(book: Book): Record<string, any> {
 export function mapRowToProfile(row: any): UserProfile {
   const avatarVal = row.avatar || row.avatar_url || undefined;
   const rawContact = row.contact ? String(row.contact) : '';
+  const score = typeof row.trust_score === 'number' ? row.trust_score : 5;
   return {
     id: String(row.id),
-    name: row.name,
+    name: row.name || 'Kitobxon',
     contact: rawContact && !rawContact.includes('@') ? rawContact : '',
     email: row.email || undefined,
     city: row.city || 'Toshkent',
@@ -163,6 +164,9 @@ export function mapRowToProfile(row: any): UserProfile {
     role: (row.role === 'admin' ? 'admin' : 'user') as 'admin' | 'user',
     provider: row.provider || 'direct',
     telegramUsername: row.telegram_username || undefined,
+    trustScore: score,
+    isTrusted: score >= 4,
+    completedSwaps: Number(row.completed_swaps ?? row.books_given_count ?? 0),
     createdAt: row.created_at || new Date().toISOString(),
   };
 }
@@ -182,6 +186,8 @@ export function mapProfileToRow(profile: UserProfile): Record<string, any> {
     role: profile.role || 'user',
     provider: profile.provider || 'direct',
     telegram_username: profile.telegramUsername || null,
+    trust_score: profile.trustScore ?? 5,
+    books_given_count: profile.completedSwaps ?? 0,
     created_at: profile.createdAt || new Date().toISOString(),
   };
 }
@@ -605,6 +611,48 @@ export const profilesService = {
         }
       } catch (e) {
         console.error('LocalStorage profile read error:', e);
+      }
+    }
+    return null;
+  },
+
+  /**
+   * Fetches user profile by contact phone or telegram username.
+   */
+  async getProfileByContact(contact: string): Promise<UserProfile | null> {
+    if (!contact) return null;
+    const cleanContact = contact.trim();
+
+    if (isSupabaseConfigured) {
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('contact', cleanContact)
+          .limit(1)
+          .maybeSingle();
+
+        if (!error && data) {
+          return mapRowToProfile(data);
+        }
+      } catch (err) {
+        console.warn('Network error fetching profile by contact:', err);
+      }
+    }
+
+    if (typeof window !== 'undefined') {
+      try {
+        const stored =
+          localStorage.getItem(STORAGE_USER_KEY) ||
+          localStorage.getItem('bookswap_user');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed && parsed.contact === cleanContact) {
+            return parsed;
+          }
+        }
+      } catch {
+        // ignore
       }
     }
     return null;

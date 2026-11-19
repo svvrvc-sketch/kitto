@@ -8,7 +8,6 @@ import {
   Sparkles,
   Plus,
   Check,
-  CheckCircle2,
   AlertCircle,
   Clock,
 } from 'lucide-react';
@@ -66,7 +65,7 @@ export const SwapRequestModal: React.FC<SwapRequestModalProps> = ({
     };
   }, [isOpen, onClose]);
 
-  const safeAllBooks = Array.isArray(allBooks) ? allBooks : [];
+  const safeAllBooks = useMemo(() => (Array.isArray(allBooks) ? allBooks : []), [allBooks]);
 
   // Target owner's active books
   const targetOwnerBooks = useMemo(() => {

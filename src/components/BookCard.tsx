@@ -447,7 +447,7 @@ export const BookCard: React.FC<BookCardProps> = ({
                 className="p-2 rounded-xl bg-stone-100 dark:bg-zinc-800/90 border border-stone-300 dark:border-zinc-700 text-center animate-in fade-in duration-150"
               >
                 <div className="text-[10px] text-red-700 dark:text-red-400 font-bold mb-1.5">
-                  Rostdan ham o'chirasizmi?
+                  Rostdan ham o&apos;chirasizmi?
                 </div>
                 <div className="flex items-center justify-center gap-1.5">
                   <button
@@ -455,7 +455,7 @@ export const BookCard: React.FC<BookCardProps> = ({
                     onClick={handleDeleteClick}
                     className="px-2.5 py-1 rounded-md bg-red-700 hover:bg-red-800 text-white text-[10px] font-bold shadow-xs active:scale-95 transition-all"
                   >
-                    Ha, o'chirish
+                    Ha, o&apos;chirish
                   </button>
                   <button
                     type="button"
