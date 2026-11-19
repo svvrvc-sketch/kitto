@@ -187,7 +187,7 @@ function AddBookContent() {
               <div className="p-1.5 rounded-xl bg-amber-600 text-white shadow-xs">
                 <LogoIcon size={20} />
               </div>
-              <span className="font-serif text-lg font-bold">Kitto</span>
+              <span className="font-sans text-lg font-bold">Kitto</span>
             </Link>
             <span className="text-stone-300 dark:text-stone-700">/</span>
             <Link
@@ -222,7 +222,7 @@ function AddBookContent() {
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Bosh sahifaga qaytish</span>
             </Link>
-            <h1 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight">
+            <h1 className="font-sans text-2xl sm:text-3xl font-bold tracking-tight">
               Yangi kitob eʼlonini joylashtirish
             </h1>
             <p className="text-xs sm:text-sm text-stone-500 dark:text-zinc-400 mt-1">
@@ -235,7 +235,7 @@ function AddBookContent() {
             <div className="p-6 sm:p-7 rounded-3xl bg-white dark:bg-zinc-900 border border-stone-200/80 dark:border-zinc-800 shadow-editorial space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="font-serif text-base font-bold flex items-center gap-2">
+                  <h2 className="font-sans text-base font-bold flex items-center gap-2">
                     <Camera className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                     <span>Kitobning haqiqiy fotosurati *</span>
                   </h2>
@@ -300,7 +300,7 @@ function AddBookContent() {
 
             {/* 2. Book Info Section */}
             <div className="p-6 sm:p-7 rounded-3xl bg-white dark:bg-zinc-900 border border-stone-200/80 dark:border-zinc-800 shadow-editorial space-y-5">
-              <h2 className="font-serif text-base font-bold flex items-center gap-2">
+              <h2 className="font-sans text-base font-bold flex items-center gap-2">
                 <BookOpen className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                 <span>Kitob maʼlumotlari</span>
               </h2>
@@ -390,7 +390,7 @@ function AddBookContent() {
 
             {/* 3. Swap Terms Section */}
             <div className="p-6 sm:p-7 rounded-3xl bg-white dark:bg-zinc-900 border border-stone-200/80 dark:border-zinc-800 shadow-editorial space-y-5">
-              <h2 className="font-serif text-base font-bold flex items-center gap-2">
+              <h2 className="font-sans text-base font-bold flex items-center gap-2">
                 <ArrowLeftRight className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                 <span>Almashuv shartlari *</span>
               </h2>
@@ -498,7 +498,7 @@ function AddBookContent() {
 
             {/* 4. Location Section */}
             <div className="p-6 sm:p-7 rounded-3xl bg-white dark:bg-zinc-900 border border-stone-200/80 dark:border-zinc-800 shadow-editorial space-y-5">
-              <h2 className="font-serif text-base font-bold flex items-center gap-2">
+              <h2 className="font-sans text-base font-bold flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                 <span>Kitob joylashgan manzil (Xarita)</span>
               </h2>
@@ -515,14 +515,21 @@ function AddBookContent() {
                   value={addressText}
                   onChange={(e) => setAddressText(e.target.value)}
                   placeholder="Masalan: Chilonzor 9-mavze, metro bekati yonida"
-                  className="w-full px-4 py-2.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-xs text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-stone-900"
+                  className="w-full px-4 py-2.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-xs text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-amber-600 dark:focus:ring-amber-500"
                 />
               </div>
 
-              <div className="h-64 sm:h-72 w-full rounded-2xl overflow-hidden border border-stone-200 dark:border-zinc-700">
+              <div className="w-full">
                 <YandexMapPicker
                   initialCoordinates={coordinates}
                   onCoordinatesChange={(coords) => setCoordinates(coords)}
+                  onAddressChange={(addr) => {
+                    if (!addressText || addressText.includes('Toshkent')) {
+                      setAddressText(addr);
+                    }
+                  }}
+                  addressText={addressText}
+                  height="300px"
                 />
               </div>
             </div>
@@ -563,7 +570,7 @@ export default function AddBookPage() {
     <Suspense
       fallback={
         <div className="min-h-screen bg-[#F8F7F4] dark:bg-zinc-950 flex items-center justify-center">
-          <div className="animate-pulse font-serif text-lg text-stone-600">Yuklanmoqda...</div>
+          <div className="animate-pulse font-sans text-lg text-stone-600">Yuklanmoqda...</div>
         </div>
       }
     >

@@ -129,23 +129,22 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* 3. Right: Actions & User Account */}
           <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
-            {/* + Kitob joylash button */}
+            {/* + Kitob joylash button (Desktop/Tablet only: mobile uses bottom nav) */}
             <button
               onClick={handleAddBookClick}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white text-xs font-bold shadow-xs transition-all"
+              className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white text-xs font-bold shadow-xs transition-all"
             >
               <Plus className="w-4 h-4 stroke-[2.5]" />
-              <span className="hidden sm:inline">Kitob joylash</span>
-              <span className="sm:hidden">Joylash</span>
+              <span>Kitob joylash</span>
             </button>
 
             {/* If Logged In: Chat Icon + Cabinet Profile Dropdown */}
             {isAuthenticated && user ? (
               <>
-                {/* Chat notifications */}
+                {/* Chat notifications (Desktop only: mobile uses bottom nav) */}
                 <Link
                   href="/messages"
-                  className="relative p-2 rounded-xl border border-stone-200/80 dark:border-stone-800 bg-white/80 dark:bg-stone-800/80 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 transition-all shadow-2xs"
+                  className="hidden sm:flex relative p-2 rounded-xl border border-stone-200/80 dark:border-stone-800 bg-white/80 dark:bg-stone-800/80 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 transition-all shadow-2xs"
                   title="Xabarlar"
                 >
                   <MessageSquare className="w-4 h-4" />
@@ -161,7 +160,7 @@ export const Header: React.FC<HeaderProps> = ({
                   <button
                     id="user-profile-menu-btn"
                     onClick={() => setShowProfileMenu(!showProfileMenu)}
-                    className="flex items-center gap-2 p-1.5 pr-2.5 rounded-xl border border-stone-200/90 dark:border-stone-800 bg-white/90 dark:bg-stone-800/90 hover:border-stone-400 dark:hover:border-stone-700 transition-all text-xs font-semibold shadow-2xs"
+                    className="flex items-center gap-1.5 p-1 sm:p-1.5 sm:pr-2.5 rounded-xl border border-stone-200/90 dark:border-stone-800 bg-white/90 dark:bg-stone-800/90 hover:border-stone-400 dark:hover:border-stone-700 transition-all text-xs font-semibold shadow-2xs"
                   >
                     {user.avatar ? (
                       <img
@@ -177,10 +176,10 @@ export const Header: React.FC<HeaderProps> = ({
                     <span className="hidden sm:inline max-w-[90px] truncate text-stone-800 dark:text-stone-200">
                       {user.name || 'Kitobxon'}
                     </span>
-                    <span className="px-1.5 py-0.5 rounded-md bg-stone-100 dark:bg-stone-700 text-[10px] text-stone-600 dark:text-stone-300 font-bold uppercase tracking-wider">
+                    <span className="hidden sm:inline px-1.5 py-0.5 rounded-md bg-stone-100 dark:bg-stone-700 text-[10px] text-stone-600 dark:text-stone-300 font-bold uppercase tracking-wider">
                       Kabinet
                     </span>
-                    <ChevronDown className="w-3.5 h-3.5 text-stone-400" />
+                    <ChevronDown className="hidden sm:inline w-3.5 h-3.5 text-stone-400" />
                   </button>
 
                   {/* Dropdown Menu */}
@@ -190,7 +189,7 @@ export const Header: React.FC<HeaderProps> = ({
                       onMouseLeave={() => setShowProfileMenu(false)}
                     >
                       <div className="p-2.5 border-b border-stone-100 dark:border-stone-800">
-                        <div className="font-serif font-bold text-xs text-stone-900 dark:text-stone-100 truncate">
+                        <div className="font-sans font-bold text-xs text-stone-900 dark:text-stone-100 truncate">
                           {user.name || 'Kitobxon'}
                         </div>
                         <div className="text-[11px] text-stone-500 dark:text-stone-400 truncate mt-0.5">

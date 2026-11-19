@@ -1,19 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import { Playfair_Display, Plus_Jakarta_Sans } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { ToastProvider } from "@/context/ToastContext";
 import { ChatProvider } from "@/context/ChatContext";
 import { AuthModal } from "@/components/AuthModal";
 import { PhonePromptModal } from "@/components/PhonePromptModal";
-
-const serifFont = Playfair_Display({
-  subsets: ["latin"],
-  variable: "--font-serif",
-  display: "swap",
-  style: ["normal", "italic"],
-});
 
 const sansFont = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -30,6 +23,11 @@ export const metadata: Metadata = {
   description:
     "Toshkentda kitobxonlar bilan kitob almashing. Xaritadan eng yaqin kitobni toping.",
   keywords: ['kitto', 'kitto.uz', 'kitob almashish', 'kitob ulashish', 'Toshkent kitoblar', 'mutolaa'],
+  icons: {
+    icon: '/kittologo.jpg',
+    shortcut: '/kittologo.jpg',
+    apple: '/kittologo.jpg',
+  },
   openGraph: {
     title: 'Kitto — Toshkentda kitob almashish platformasi',
     description: "Toshkentda kitobxonlar bilan kitob almashing. Xaritadan eng yaqin kitobni toping.",
@@ -37,9 +35,16 @@ export const metadata: Metadata = {
     siteName: 'Kitto.uz',
     locale: 'uz_UZ',
     type: 'website',
+    images: [
+      {
+        url: '/kittologo.jpg',
+        width: 640,
+        height: 640,
+        alt: 'Kitto Logo',
+      },
+    ],
   },
 };
-
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -59,14 +64,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="uz" className={`light ${serifFont.variable} ${sansFont.variable}`} suppressHydrationWarning>
+    <html lang="uz" className={`light ${sansFont.variable}`} suppressHydrationWarning>
       <head>
         <Script
           src="https://telegram.org/js/telegram-web-app.js"
           strategy="beforeInteractive"
         />
       </head>
-      <body className="antialiased min-h-screen bg-[#F8F7F4] dark:bg-zinc-950 text-[#141413] dark:text-[#F8F7F4] font-sans selection:bg-stone-800 selection:text-white dark:selection:bg-stone-200 dark:selection:text-stone-900 transition-colors duration-200">
+      <body className="antialiased min-h-screen bg-[#F8F7F4] dark:bg-zinc-950 text-[#141413] dark:text-[#F8F7F4] font-sans selection:bg-amber-600 selection:text-white dark:selection:bg-amber-500 dark:selection:text-zinc-900 overflow-x-hidden transition-colors duration-200">
         <ToastProvider>
           <AuthProvider>
             <ChatProvider>

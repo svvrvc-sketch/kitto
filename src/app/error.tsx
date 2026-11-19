@@ -40,7 +40,7 @@ export default function ErrorBoundary({
         </div>
 
         <div>
-          <h2 className="font-serif font-bold text-xl sm:text-2xl text-stone-900 dark:text-stone-100">
+          <h2 className="font-sans font-bold text-xl sm:text-2xl text-stone-900 dark:text-stone-100">
             Sahifa yangilanmoqda
           </h2>
           <p className="text-xs sm:text-sm text-stone-500 dark:text-zinc-400 mt-1.5 leading-relaxed">

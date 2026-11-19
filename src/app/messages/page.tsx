@@ -114,7 +114,7 @@ function MessagesContent() {
           <div className="w-16 h-16 rounded-full bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 flex items-center justify-center mx-auto mb-4 border border-stone-200 dark:border-stone-700">
             <MessageSquare className="w-8 h-8 stroke-[1.6]" />
           </div>
-          <h1 className="font-serif text-2xl font-bold text-stone-900 dark:text-stone-100 mb-2">
+          <h1 className="font-sans text-2xl font-bold text-stone-900 dark:text-stone-100 mb-2">
             Xabarlar va takliflar
           </h1>
           <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 mb-6 leading-relaxed">
@@ -165,7 +165,7 @@ function MessagesContent() {
               >
                 <Menu className="w-5 h-5" />
               </button>
-              <span className="font-serif text-base sm:text-lg font-bold">Xabarlar va Takliflar</span>
+              <span className="font-sans text-base sm:text-lg font-bold">Xabarlar va Takliflar</span>
             </div>
 
             <Link
@@ -188,7 +188,7 @@ function MessagesContent() {
           >
             <div className="p-4 border-b border-stone-100 dark:border-stone-800 flex items-center justify-between">
               <div>
-                <h1 className="font-serif text-lg font-bold">Suhbatlar</h1>
+                <h1 className="font-sans text-lg font-bold">Suhbatlar</h1>
                 <p className="text-[11px] text-stone-500 dark:text-stone-400">Kitobxonlar bilan yozishmalar</p>
               </div>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
@@ -234,7 +234,7 @@ function MessagesContent() {
 
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between gap-1 mb-0.5">
-                          <h3 className="font-serif text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100 truncate">
+                          <h3 className="font-sans text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100 truncate">
                             {otherPartyName || 'Kitobxon'}
                           </h3>
                           <span className="text-[10px] text-stone-400 shrink-0">
@@ -294,7 +294,7 @@ function MessagesContent() {
 
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <h2 className="font-serif text-sm sm:text-base font-bold truncate">
+                        <h2 className="font-sans text-sm sm:text-base font-bold truncate">
                           {activeThread.initiatorId === currentUserId
                             ? activeThread.ownerName
                             : activeThread.initiatorName}
@@ -403,7 +403,7 @@ function MessagesContent() {
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-stone-400">
                 <MessageSquare className="w-14 h-14 mb-3 opacity-30 stroke-[1.4]" />
-                <h3 className="font-serif text-lg font-bold text-stone-700 dark:text-stone-300">
+                <h3 className="font-sans text-lg font-bold text-stone-700 dark:text-stone-300">
                   Suhbatni tanlang
                 </h3>
                 <p className="text-xs text-stone-500 max-w-xs mt-1">
@@ -436,7 +436,7 @@ export default function MessagesPage() {
     <Suspense
       fallback={
         <div className="min-h-screen bg-[#F8F7F4] dark:bg-stone-950 flex items-center justify-center">
-          <div className="animate-pulse font-serif text-lg text-stone-600">Xabarlar yuklanmoqda...</div>
+          <div className="animate-pulse font-sans text-lg text-stone-600">Xabarlar yuklanmoqda...</div>
         </div>
       }
     >

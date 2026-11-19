@@ -107,7 +107,7 @@ const SidebarInner: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMobil
               <LogoIcon size={20} />
             </div>
             <div>
-              <div className="flex items-center gap-1 font-serif text-lg font-bold tracking-tight">
+              <div className="flex items-center gap-1 font-sans text-lg font-extrabold tracking-tight">
                 <span>Kitto</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block mb-1" />
               </div>

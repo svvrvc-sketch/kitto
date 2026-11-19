@@ -220,10 +220,10 @@ export const BookCard: React.FC<BookCardProps> = ({
               <BookOpen className="w-3.5 h-3.5 text-stone-700 dark:text-stone-300" />
             </div>
             <div className="my-auto py-2">
-              <h4 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100 line-clamp-3 leading-snug">
+              <h4 className="font-sans font-bold text-sm text-stone-900 dark:text-stone-100 line-clamp-3 leading-snug">
                 {book.title}
               </h4>
-              <p className="font-serif italic text-xs text-stone-600 dark:text-stone-300 mt-1 line-clamp-1">
+              <p className="font-sans italic text-xs text-stone-600 dark:text-stone-300 mt-1 line-clamp-1">
                 {book.author}
               </p>
             </div>
@@ -237,14 +237,14 @@ export const BookCard: React.FC<BookCardProps> = ({
         {/* Status Overlays: Vaqtincha berilgan or Almashildi */}
         {isTemporarilyGiven ? (
           <div className="absolute inset-0 bg-stone-950/45 backdrop-blur-[2px] flex items-center justify-center z-10 pointer-events-none p-2 text-center">
-            <span className="px-3 py-1 rounded-full bg-amber-500 text-white text-xs font-serif font-semibold tracking-wide shadow-md flex items-center gap-1.5">
+            <span className="px-3 py-1 rounded-full bg-amber-500 text-white text-xs font-sans font-semibold tracking-wide shadow-md flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5 text-white" />
               <span>O&apos;qilmoqda • {getReturnDateLabel()} gacha</span>
             </span>
           </div>
         ) : isSwapped ? (
           <div className="absolute inset-0 bg-stone-950/45 backdrop-blur-[2px] flex items-center justify-center z-10 pointer-events-none">
-            <span className="px-3 py-1 rounded-full bg-stone-100 text-stone-600 border border-stone-200 dark:bg-zinc-900 dark:text-zinc-400 dark:border-zinc-800 text-xs font-serif font-semibold tracking-wide shadow-md flex items-center gap-1.5">
+            <span className="px-3 py-1 rounded-full bg-stone-100 text-stone-600 border border-stone-200 dark:bg-zinc-900 dark:text-zinc-400 dark:border-zinc-800 text-xs font-sans font-semibold tracking-wide shadow-md flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-stone-500 dark:text-zinc-400" />
               {isGift ? 'Topshirildi' : 'Almashilgan'}
             </span>
@@ -300,7 +300,7 @@ export const BookCard: React.FC<BookCardProps> = ({
 
       {/* Book Metadata */}
       <div className="flex flex-col flex-1 p-3.5">
-        <h3 className="font-serif font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100 line-clamp-1 group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors tracking-tight leading-snug">
+        <h3 className="font-sans font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100 line-clamp-1 group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors tracking-tight leading-snug">
           {book.title || 'Nomsiz kitob'}
         </h3>
         <p className="text-xs text-stone-500 dark:text-zinc-400 line-clamp-1 mt-0.5">

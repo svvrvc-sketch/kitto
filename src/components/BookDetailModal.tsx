@@ -355,10 +355,10 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
                   <BookOpen className="w-3 h-3 text-stone-700 dark:text-stone-300" />
                 </div>
                 <div className="my-auto py-1 text-center">
-                  <h4 className="font-serif font-bold text-xs text-stone-900 dark:text-stone-100 line-clamp-3 leading-snug">
+                  <h4 className="font-sans font-bold text-xs text-stone-900 dark:text-stone-100 line-clamp-3 leading-snug">
                     {book.title}
                   </h4>
-                  <p className="font-serif italic text-[11px] text-stone-600 dark:text-stone-300 mt-1 line-clamp-1">
+                  <p className="font-sans italic text-[11px] text-stone-600 dark:text-stone-300 mt-1 line-clamp-1">
                     {book.author}
                   </p>
                 </div>
@@ -371,7 +371,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
 
           <div className="flex flex-col justify-between flex-1 min-w-0">
             <div>
-              <h2 className="font-serif text-xl sm:text-2xl font-bold text-stone-900 dark:text-stone-100 leading-tight tracking-tight">
+              <h2 className="font-sans text-xl sm:text-2xl font-bold text-stone-900 dark:text-stone-100 leading-tight tracking-tight">
                 {book.title}
               </h2>
               <p className="text-sm font-medium text-stone-600 dark:text-stone-300 mt-1">
@@ -686,7 +686,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
                   <Check className="w-3.5 h-3.5 text-amber-400" />
                   <span>Haqiqiy fotosurat</span>
                 </span>
-                <span className="text-xs text-stone-300 font-serif truncate max-w-[180px] sm:max-w-md">
+                <span className="text-xs text-stone-300 font-sans truncate max-w-[180px] sm:max-w-md">
                   {book.title} — {book.author}
                 </span>
               </div>
@@ -730,7 +730,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
                 <div className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 flex items-center justify-center">
                   <Share2 className="w-4 h-4" />
                 </div>
-                <h3 className="font-serif font-bold text-base text-stone-900 dark:text-stone-100">
+                <h3 className="font-sans font-bold text-base text-stone-900 dark:text-stone-100">
                   Kitobni ulashish
                 </h3>
               </div>
@@ -755,7 +755,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
                 )}
               </div>
               <div className="min-w-0 flex-1">
-                <div className="font-serif font-bold text-xs text-stone-900 dark:text-stone-100 truncate">
+                <div className="font-sans font-bold text-xs text-stone-900 dark:text-stone-100 truncate">
                   {book.title}
                 </div>
                 <div className="text-[11px] text-stone-500 dark:text-zinc-400 truncate">

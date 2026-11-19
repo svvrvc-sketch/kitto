@@ -160,7 +160,7 @@ export const ExchangeProposalCard: React.FC<ExchangeProposalCardProps> = ({
             )}
           </div>
 
-          <h4 className="font-serif font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-100 truncate w-full group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors">
+          <h4 className="font-sans font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-100 truncate w-full group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors">
             {offeredTitle}
           </h4>
           <p className="text-[11px] text-charcoal-600 text-stone-600 dark:text-zinc-400 truncate w-full mt-0.5">
@@ -190,7 +190,7 @@ export const ExchangeProposalCard: React.FC<ExchangeProposalCardProps> = ({
             )}
           </div>
 
-          <h4 className="font-serif font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-100 truncate w-full group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors">
+          <h4 className="font-sans font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-100 truncate w-full group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors">
             {requestedTitle}
           </h4>
           <p className="text-[11px] text-charcoal-600 text-stone-600 dark:text-zinc-400 truncate w-full mt-0.5">

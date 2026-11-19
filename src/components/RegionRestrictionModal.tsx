@@ -60,7 +60,7 @@ export const RegionRestrictionModal: React.FC<RegionRestrictionModalProps> = ({
 
         {/* Title & Info */}
         <div className="text-center">
-          <h3 className="font-serif text-xl sm:text-2xl font-bold text-stone-900 dark:text-stone-100 tracking-tight">
+          <h3 className="font-sans text-xl sm:text-2xl font-bold text-stone-900 dark:text-stone-100 tracking-tight">
             Kitto hozircha faqat Toshkent shahrida ishlamoqda
           </h3>
           {distanceKm && (

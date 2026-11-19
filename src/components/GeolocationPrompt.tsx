@@ -62,7 +62,7 @@ export const GeolocationPrompt: React.FC<GeolocationPromptProps> = ({
         </div>
 
         <div className="text-center">
-          <h3 className="font-serif font-bold text-lg text-stone-900 dark:text-stone-100">
+          <h3 className="font-sans font-bold text-lg text-stone-900 dark:text-stone-100">
             Kitto sizga eng yaqin kitoblarni ko&#39;rsatishi uchun joylashuvingizni ulashing
           </h3>
           <p className="text-xs text-stone-500 dark:text-zinc-400 mt-2 leading-relaxed">

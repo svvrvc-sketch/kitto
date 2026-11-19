@@ -101,7 +101,7 @@ export const AuthModal: React.FC = () => {
           <div className="w-12 h-12 rounded-2xl bg-amber-600 text-white flex items-center justify-center mx-auto mb-3 shadow-md">
             <LogoIcon size={26} />
           </div>
-          <h2 className="font-serif text-xl font-bold text-stone-900 dark:text-stone-100">
+          <h2 className="font-sans text-xl font-bold text-stone-900 dark:text-stone-100">
             Kitto tizimiga kirish
           </h2>
           {authModalReason && (

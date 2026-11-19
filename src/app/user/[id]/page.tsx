@@ -85,7 +85,7 @@ function UserProfileContent() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#F8F7F4] dark:bg-zinc-950 flex items-center justify-center">
-        <div className="animate-pulse font-serif text-lg text-stone-600">Foydalanuvchi profili yuklanmoqda...</div>
+        <div className="animate-pulse font-sans text-lg text-stone-600">Foydalanuvchi profili yuklanmoqda...</div>
       </div>
     );
   }
@@ -106,7 +106,7 @@ function UserProfileContent() {
               <div className="p-1.5 rounded-xl bg-amber-600 text-white shadow-xs">
                 <LogoIcon size={20} />
               </div>
-              <span className="font-serif text-lg font-bold">Kitto</span>
+              <span className="font-sans text-lg font-bold">Kitto</span>
             </Link>
             <span className="text-stone-300 dark:text-stone-700">/</span>
             <Link
@@ -153,14 +153,14 @@ function UserProfileContent() {
                     className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-stone-200 dark:border-zinc-700 shadow-sm"
                   />
                 ) : (
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-amber-600 text-white font-serif font-bold text-2xl flex items-center justify-center shadow-sm">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-amber-600 text-white font-sans font-bold text-2xl flex items-center justify-center shadow-sm">
                     {displayName.charAt(0).toUpperCase()}
                   </div>
                 )}
 
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h1 className="font-serif text-xl sm:text-2xl font-bold truncate">
+                    <h1 className="font-sans text-xl sm:text-2xl font-bold truncate">
                       {displayName}
                     </h1>
                     {isSelf && (
@@ -199,15 +199,15 @@ function UserProfileContent() {
             <div className="grid grid-cols-3 gap-3 pt-4 border-t border-stone-100 dark:border-zinc-800 text-center">
               <div className="p-3 rounded-2xl bg-stone-50 dark:bg-zinc-800/60">
                 <div className="text-[10px] font-bold uppercase text-stone-500">Faol kitoblari</div>
-                <div className="font-serif text-lg font-bold mt-0.5">{activeBooks.length} ta</div>
+                <div className="font-sans text-lg font-bold mt-0.5">{activeBooks.length} ta</div>
               </div>
               <div className="p-3 rounded-2xl bg-stone-50 dark:bg-zinc-800/60">
                 <div className="text-[10px] font-bold uppercase text-stone-500">Almashilgan</div>
-                <div className="font-serif text-lg font-bold mt-0.5">{swappedCount} ta</div>
+                <div className="font-sans text-lg font-bold mt-0.5">{swappedCount} ta</div>
               </div>
               <div className="p-3 rounded-2xl bg-stone-50 dark:bg-zinc-800/60">
                 <div className="text-[10px] font-bold uppercase text-stone-500">Ishonchli kitobxon</div>
-                <div className="font-serif text-lg font-bold text-emerald-600 mt-0.5">Faol</div>
+                <div className="font-sans text-lg font-bold text-emerald-600 mt-0.5">Faol</div>
               </div>
             </div>
           </div>
@@ -217,7 +217,7 @@ function UserProfileContent() {
             <div className="p-6 rounded-3xl bg-white dark:bg-zinc-900 border border-stone-200/80 dark:border-zinc-800 space-y-3">
               <div className="flex items-center gap-2">
                 <Bookmark className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                <h2 className="font-serif text-base font-bold">
+                <h2 className="font-sans text-base font-bold">
                   {displayName} qidirayotgan kitoblar (Wishlist)
                 </h2>
               </div>
@@ -241,7 +241,7 @@ function UserProfileContent() {
           {/* Favorite Genres Section */}
           {genres.length > 0 && (
             <div className="p-6 rounded-3xl bg-white dark:bg-zinc-900 border border-stone-200/80 dark:border-zinc-800 space-y-2">
-              <h2 className="font-serif text-sm font-bold text-stone-700 dark:text-stone-300">
+              <h2 className="font-sans text-sm font-bold text-stone-700 dark:text-stone-300">
                 Sevimli janrlar
               </h2>
               <div className="flex flex-wrap gap-2">
@@ -261,7 +261,7 @@ function UserProfileContent() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="font-serif text-lg font-bold">
+                <h2 className="font-sans text-lg font-bold">
                   {displayName}ning kitob javoni ({activeBooks.length})
                 </h2>
                 <p className="text-xs text-stone-500">Ushbu kitobxon bilan almashishingiz mumkin boʻlgan kitoblar</p>
@@ -298,7 +298,7 @@ function UserProfileContent() {
                       </Link>
 
                       <Link href={`/book/${book.id}`} className="block">
-                        <h3 className="font-serif text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100 truncate group-hover:text-amber-700 dark:group-hover:text-amber-400">
+                        <h3 className="font-sans text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100 truncate group-hover:text-amber-700 dark:group-hover:text-amber-400">
                           {book.title}
                         </h3>
                         <p className="text-[11px] text-stone-500 dark:text-zinc-400 truncate mt-0.5">
@@ -352,7 +352,7 @@ export default function UserProfilePage() {
     <Suspense
       fallback={
         <div className="min-h-screen bg-[#F8F7F4] dark:bg-zinc-950 flex items-center justify-center">
-          <div className="animate-pulse font-serif text-lg text-stone-600">Yuklanmoqda...</div>
+          <div className="animate-pulse font-sans text-lg text-stone-600">Yuklanmoqda...</div>
         </div>
       }
     >

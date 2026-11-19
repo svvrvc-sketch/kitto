@@ -37,7 +37,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
             <BookMarked className="w-9 h-9 text-[#141413] dark:text-stone-200 stroke-[1.25]" />
           </div>
 
-          <h3 className="font-serif text-2xl font-bold text-stone-900 dark:text-stone-100 tracking-tight mb-2">
+          <h3 className="font-sans text-2xl font-bold text-stone-900 dark:text-stone-100 tracking-tight mb-2">
             Eʼlonlar
           </h3>
           <p className="max-w-md text-sm text-stone-500 dark:text-zinc-400 font-sans leading-relaxed mb-6">
@@ -66,7 +66,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           </div>
         </div>
 
-        <h3 className="font-serif text-2xl font-bold text-stone-900 dark:text-stone-100 tracking-tight mb-2">
+        <h3 className="font-sans text-2xl font-bold text-stone-900 dark:text-stone-100 tracking-tight mb-2">
           Sizda hali faol e&#39;lonlar yo&#39;q
         </h3>
         <p className="max-w-md text-sm text-stone-500 dark:text-zinc-400 font-sans leading-relaxed mb-6">
@@ -93,7 +93,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           <Bookmark className="w-9 h-9 text-amber-600 dark:text-amber-400 stroke-[1.25]" />
         </div>
 
-        <h3 className="font-serif text-2xl font-bold text-stone-900 dark:text-stone-100 tracking-tight mb-2">
+        <h3 className="font-sans text-2xl font-bold text-stone-900 dark:text-stone-100 tracking-tight mb-2">
           Saqlangan kitoblar yo&#39;q
         </h3>
         <p className="max-w-md text-sm text-stone-500 dark:text-zinc-400 font-sans leading-relaxed mb-6">
@@ -122,7 +122,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           <Sparkles className="w-9 h-9 text-amber-600 dark:text-amber-400 stroke-[1.25]" />
         </div>
 
-        <h3 className="font-serif text-2xl font-bold text-stone-900 dark:text-stone-100 tracking-tight mb-2">
+        <h3 className="font-sans text-2xl font-bold text-stone-900 dark:text-stone-100 tracking-tight mb-2">
           Hozircha e&#39;lonlar yo&#39;q, birinchi bo&#39;lib qo&#39;shing
         </h3>
         <p className="max-w-md text-sm text-stone-500 dark:text-zinc-400 font-sans leading-relaxed mb-6">
@@ -164,13 +164,13 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         </div>
       </div>
 
-      <h3 className="font-serif text-2xl font-bold text-stone-900 dark:text-stone-100 tracking-tight mb-2">
+      <h3 className="font-sans text-2xl font-bold text-stone-900 dark:text-stone-100 tracking-tight mb-2">
         Hech narsa topilmadi
       </h3>
       <p className="max-w-md text-sm text-stone-500 dark:text-zinc-400 font-sans leading-relaxed mb-6">
         {searchQuery ? (
           <>
-            <span className="font-semibold text-stone-900 dark:text-stone-200 font-serif">
+            <span className="font-semibold text-stone-900 dark:text-stone-200 font-sans">
               &ldquo;{searchQuery}&rdquo;
             </span>{' '}
             bo&#39;yicha hech narsa topilmadi. Boshqa kalit so&#39;z bilan qidirib ko&#39;ring yoki filtrlarni tozalang.

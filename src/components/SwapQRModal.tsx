@@ -392,7 +392,7 @@ export const SwapQRModal: React.FC<SwapQRModalProps> = ({
           <div className="w-12 h-12 mx-auto rounded-2xl bg-amber-500/10 dark:bg-amber-500/20 border border-amber-500/25 flex items-center justify-center text-amber-600 dark:text-amber-400 mb-2.5 shadow-xs">
             <QrCode className="w-6 h-6 stroke-[1.8]" />
           </div>
-          <h3 className="font-serif text-2xl font-bold text-stone-900 dark:text-stone-100 tracking-tight">
+          <h3 className="font-sans text-2xl font-bold text-stone-900 dark:text-stone-100 tracking-tight">
             Kitobni topshirish
           </h3>
           <p className="text-xs text-stone-500 dark:text-zinc-400 mt-1 max-w-xs mx-auto leading-relaxed">
@@ -445,7 +445,7 @@ export const SwapQRModal: React.FC<SwapQRModalProps> = ({
             </div>
           )}
           <div className="min-w-0 flex-1">
-            <h4 className="font-serif font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-100 truncate">
+            <h4 className="font-sans font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-100 truncate">
               {book.title}
             </h4>
             <p className="text-[11px] text-stone-500 dark:text-zinc-400 truncate">{book.author}</p>
@@ -497,7 +497,7 @@ export const SwapQRModal: React.FC<SwapQRModalProps> = ({
                   Tasdiqlangach profilingizga <b>+1 ishonch bali</b> beriladi
                 </span>
               </div>
-              <span className="font-bold font-serif text-xs px-2 py-0.5 rounded-full bg-amber-500 text-white shrink-0">
+              <span className="font-bold font-sans text-xs px-2 py-0.5 rounded-full bg-amber-500 text-white shrink-0">
                 +1 Ball
               </span>
             </div>
@@ -555,7 +555,7 @@ export const SwapQRModal: React.FC<SwapQRModalProps> = ({
                   <div className="w-16 h-16 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-lg mb-2">
                     <CheckCircle2 className="w-10 h-10" />
                   </div>
-                  <h4 className="font-serif font-bold text-base text-white">QR-kod tasdiqlandi!</h4>
+                  <h4 className="font-sans font-bold text-base text-white">QR-kod tasdiqlandi!</h4>
                   <p className="text-xs text-emerald-200 mt-0.5">Almashuv muvaffaqiyatli yakunlandi</p>
                 </div>
               )}

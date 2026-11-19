@@ -257,7 +257,7 @@ export const AddBookModal: React.FC<AddBookModalProps> = ({
         {/* Modal Header */}
         <div className="flex items-center justify-between pb-3.5 border-b border-stone-100 dark:border-zinc-800">
           <div>
-            <h2 className="font-serif text-xl font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+            <h2 className="font-sans text-xl font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
               <span className="p-1 rounded-lg bg-stone-100 dark:bg-zinc-800 text-stone-800 dark:text-stone-200">
                 <Plus className="w-4 h-4 stroke-[2.2]" />
               </span>

@@ -164,7 +164,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
         {/* Modal Header */}
         <div className="flex items-center justify-between pb-3.5 border-b border-stone-200/60 dark:border-zinc-800">
           <div>
-            <h2 className="font-serif text-lg sm:text-xl font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+            <h2 className="font-sans text-lg sm:text-xl font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
               <span>Foydalanuvchi profili</span>
             </h2>
             <p className="text-[11px] text-stone-500 dark:text-zinc-400 mt-0.5">
@@ -190,14 +190,14 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                 className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover shrink-0 shadow-sm border border-stone-200 dark:border-zinc-700"
               />
             ) : (
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-amber-600 text-white font-serif font-bold text-xl sm:text-2xl flex items-center justify-center shrink-0 shadow-sm border border-stone-200 dark:border-stone-700">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-amber-600 text-white font-sans font-bold text-xl sm:text-2xl flex items-center justify-center shrink-0 shadow-sm border border-stone-200 dark:border-stone-700">
                 {(userName || 'K').charAt(0).toUpperCase()}
               </div>
             )}
 
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="font-serif text-lg sm:text-xl font-bold text-stone-900 dark:text-stone-100 truncate">
+                <h3 className="font-sans text-lg sm:text-xl font-bold text-stone-900 dark:text-stone-100 truncate">
                   {userName}
                 </h3>
                 {isSelf && (
@@ -246,7 +246,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
         <div className="mt-5 space-y-2">
           <div className="flex items-center gap-1.5">
             <Compass className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-            <h4 className="font-serif text-xs font-bold uppercase tracking-wider text-stone-900 dark:text-stone-100">
+            <h4 className="font-sans text-xs font-bold uppercase tracking-wider text-stone-900 dark:text-stone-100">
               Qiziqqan janrlar
             </h4>
           </div>
@@ -274,7 +274,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5">
               <Sparkles className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-              <h4 className="font-serif text-xs font-bold uppercase tracking-wider text-stone-900 dark:text-stone-100">
+              <h4 className="font-sans text-xs font-bold uppercase tracking-wider text-stone-900 dark:text-stone-100">
                 Qidirayotgan kitoblari
               </h4>
             </div>
@@ -310,7 +310,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5">
               <BookMarked className="w-4 h-4 text-stone-700 dark:text-stone-300" />
-              <h4 className="font-serif text-sm font-bold text-stone-900 dark:text-stone-100">
+              <h4 className="font-sans text-sm font-bold text-stone-900 dark:text-stone-100">
                 Foydalanuvchining kitoblari ({userBooks.length})
               </h4>
             </div>
@@ -343,7 +343,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                       ) : (
                         <div className="w-full h-full flex flex-col items-center justify-center p-1 text-center bg-stone-100 dark:bg-zinc-900">
                           <BookOpen className="w-4 h-4 text-stone-400 mb-0.5" />
-                          <span className="font-serif text-[7px] font-bold text-stone-800 dark:text-stone-200 line-clamp-1">
+                          <span className="font-sans text-[7px] font-bold text-stone-800 dark:text-stone-200 line-clamp-1">
                             {book.title}
                           </span>
                         </div>
@@ -352,7 +352,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
 
                     {/* Book text & status */}
                     <div className="min-w-0 flex-1">
-                      <h5 className="font-serif font-bold text-xs text-stone-900 dark:text-stone-100 truncate group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors">
+                      <h5 className="font-sans font-bold text-xs text-stone-900 dark:text-stone-100 truncate group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors">
                         {book.title}
                       </h5>
                       <p className="text-[11px] text-stone-500 dark:text-zinc-400 truncate">

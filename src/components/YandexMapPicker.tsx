@@ -13,12 +13,14 @@ import {
   Navigation,
   Check,
   X,
+  Compass,
 } from 'lucide-react';
 import { useToast } from '@/context/ToastContext';
 
 declare global {
   interface Window {
     ymaps: any;
+    L: any;
   }
 }
 
@@ -48,6 +50,19 @@ export const TASHKENT_DISTRICTS = [
   { name: 'Yangihayot', coords: { lat: 41.1969, lng: 69.2033 } },
 ];
 
+export function getClosestTashkentDistrict(lat: number, lng: number) {
+  let closest = TASHKENT_DISTRICTS[0];
+  let minDist = Infinity;
+  for (const district of TASHKENT_DISTRICTS) {
+    const dist = Math.hypot(lat - district.coords.lat, lng - district.coords.lng);
+    if (dist < minDist) {
+      minDist = dist;
+      closest = district;
+    }
+  }
+  return closest;
+}
+
 interface YandexMapPickerProps {
   initialCoordinates?: Coordinates;
   onCoordinatesChange: (coords: Coordinates) => void;
@@ -65,14 +80,16 @@ export const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
   onAddressChange,
   addressText = '',
   readOnly = false,
-  height = '260px',
+  height = '280px',
   showSearchAndDistricts = true,
   userCoordinates = null,
 }) => {
   const { showToast } = useToast();
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
+  const leafletMapRef = useRef<any>(null);
   const placemarkRef = useRef<any>(null);
+  const leafletMarkerRef = useRef<any>(null);
   const userPlacemarkRef = useRef<any>(null);
 
   const [coords, setCoords] = useState<Coordinates>(initialCoordinates);
@@ -80,6 +97,7 @@ export const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isLocating, setIsLocating] = useState<boolean>(false);
+  const [mapEngine, setMapEngine] = useState<'yandex' | 'leaflet' | 'none'>('yandex');
 
   // Search state
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -89,13 +107,22 @@ export const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
   >([]);
   const [showSearchResults, setShowSearchResults] = useState<boolean>(false);
 
-  // OpenStreetMap Nominatim Reverse Geocoding
+  // Fast reverse geocode with guaranteed district fallback
   const reverseGeocode = useCallback(
     async (lat: number, lng: number) => {
+      const closest = getClosestTashkentDistrict(lat, lng);
+      const fallbackDistrictAddress = `Toshkent shahri, ${closest.name} tumani`;
+
       try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 2000);
+
         const response = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=uz`
+          `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=uz`,
+          { signal: controller.signal }
         );
+        clearTimeout(timeoutId);
+
         if (!response.ok) throw new Error('Geocoding response not ok');
         const data = await response.json();
 
@@ -106,25 +133,26 @@ export const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
             addr.suburb ||
             addr.city_district ||
             addr.district ||
-            addr.borough;
-          const neighbourhood = addr.neighbourhood || addr.quarter || addr.subdivision;
+            closest.name + ' tumani';
           const road = addr.road || addr.pedestrian || addr.street;
           const houseNumber = addr.house_number;
 
-          const parts = [district, neighbourhood, road, houseNumber].filter(Boolean);
+          const parts = [district, road, houseNumber].filter(Boolean);
           const formatted =
             parts.length > 0
               ? parts.join(', ')
-              : data.display_name?.split(',').slice(0, 3).join(', ') || 'Toshkent shahri';
+              : `Toshkent shahri, ${closest.name} tumani`;
 
           setCurrentAddress(formatted);
           if (onAddressChange) onAddressChange(formatted);
         } else {
-          setCurrentAddress('Toshkent shahri');
-          if (onAddressChange) onAddressChange('Toshkent shahri');
+          setCurrentAddress(fallbackDistrictAddress);
+          if (onAddressChange) onAddressChange(fallbackDistrictAddress);
         }
-      } catch (e) {
-        console.warn('Nominatim reverse geocode fallback:', e);
+      } catch {
+        // Fallback gracefully without throwing
+        setCurrentAddress(fallbackDistrictAddress);
+        if (onAddressChange) onAddressChange(fallbackDistrictAddress);
       }
     },
     [onAddressChange]
@@ -141,20 +169,31 @@ export const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
       onCoordinatesChange(rounded);
       reverseGeocode(rounded.lat, rounded.lng);
 
-      if (placemarkRef.current) {
+      // Update Yandex Map
+      if (placemarkRef.current && window.ymaps) {
         placemarkRef.current.geometry.setCoordinates([lat, lng]);
       }
-      if (moveCenter && mapInstanceRef.current) {
-        mapInstanceRef.current.setCenter([lat, lng], zoomLevel, { duration: 350 });
+      if (moveCenter && mapInstanceRef.current && window.ymaps) {
+        mapInstanceRef.current.setCenter([lat, lng], zoomLevel, { duration: 300 });
+      }
+
+      // Update Leaflet Map
+      if (leafletMarkerRef.current) {
+        leafletMarkerRef.current.setLatLng([lat, lng]);
+      }
+      if (moveCenter && leafletMapRef.current) {
+        leafletMapRef.current.setView([lat, lng], zoomLevel, { animate: true });
       }
     },
     [onCoordinatesChange, reverseGeocode]
   );
 
-  // Native GPS geolocation handler
-  const handleLocateMe = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  // Native GPS geolocation handler with fast fallback
+  const handleLocateMe = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
 
     if (typeof window === 'undefined' || !('geolocation' in navigator)) {
       showToast('Brauzeringizda geolokatsiya qoʻllab-quvvatlanmaydi', 'error');
@@ -162,41 +201,55 @@ export const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
     }
 
     setIsLocating(true);
+
+    const onGeoSuccess = (pos: GeolocationPosition) => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      const closest = getClosestTashkentDistrict(lat, lng);
+
+      handleCoordinatesChange(lat, lng, true, 16);
+
+      try {
+        sessionStorage.setItem('kitto_user_coords', JSON.stringify({ lat, lng }));
+        sessionStorage.setItem('bookswap_user_coords', JSON.stringify({ lat, lng }));
+        localStorage.setItem('kitto_user_coords', JSON.stringify({ lat, lng }));
+        window.dispatchEvent(
+          new CustomEvent('kitto_coords_updated', { detail: { lat, lng } })
+        );
+        window.dispatchEvent(
+          new CustomEvent('bookswap_coords_updated', { detail: { lat, lng } })
+        );
+      } catch {
+        // ignore
+      }
+
+      setIsLocating(false);
+      showToast(`Joylashuvingiz aniqlandi: ${closest.name} tumani!`, 'success');
+    };
+
+    const onGeoError = () => {
+      // Fallback with low accuracy for instant cellular/Wi-Fi positioning
+      navigator.geolocation.getCurrentPosition(
+        onGeoSuccess,
+        (fallbackErr) => {
+          setIsLocating(false);
+          if (fallbackErr.code === 1) {
+            showToast(
+              "Brauzerda joylashuvga ruxsat berilmadi. Qulay tumanni tanlang.",
+              'error'
+            );
+          } else {
+            showToast("GPS aniqlab bo'lmadi. Tumanni bosing.", 'info');
+          }
+        },
+        { enableHighAccuracy: false, timeout: 6000, maximumAge: 300000 }
+      );
+    };
+
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const lat = pos.coords.latitude;
-        const lng = pos.coords.longitude;
-
-        handleCoordinatesChange(lat, lng, true, 16);
-
-        try {
-          sessionStorage.setItem('kitto_user_coords', JSON.stringify({ lat, lng }));
-          sessionStorage.setItem('bookswap_user_coords', JSON.stringify({ lat, lng }));
-          window.dispatchEvent(
-            new CustomEvent('kitto_coords_updated', { detail: { lat, lng } })
-          );
-          window.dispatchEvent(
-            new CustomEvent('bookswap_coords_updated', { detail: { lat, lng } })
-          );
-        } catch {
-          // ignore
-        }
-
-        setIsLocating(false);
-        showToast('Joylashuvingiz aniqlandi!', 'success');
-      },
-      (err) => {
-        setIsLocating(false);
-        if (err.code === 1) {
-          showToast(
-            "Brauzerda joylashuvga ruxsat berilmagan. Manzil panelidan ruxsat bering yoki xaritadan o'zingiz belgilang.",
-            'error'
-          );
-        } else {
-          showToast("Joylashuvni aniqlab bo'lmadi. Qulay tumanni tanlang.", 'info');
-        }
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      onGeoSuccess,
+      onGeoError,
+      { enableHighAccuracy: true, timeout: 6000, maximumAge: 60000 }
     );
   };
 
@@ -204,18 +257,22 @@ export const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
   const handleZoomIn = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (mapInstanceRef.current) {
+    if (mapInstanceRef.current && window.ymaps) {
       const currentZoom = mapInstanceRef.current.getZoom();
       mapInstanceRef.current.setZoom(currentZoom + 1, { duration: 200 });
+    } else if (leafletMapRef.current) {
+      leafletMapRef.current.zoomIn();
     }
   };
 
   const handleZoomOut = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (mapInstanceRef.current) {
+    if (mapInstanceRef.current && window.ymaps) {
       const currentZoom = mapInstanceRef.current.getZoom();
       mapInstanceRef.current.setZoom(currentZoom - 1, { duration: 200 });
+    } else if (leafletMapRef.current) {
+      leafletMapRef.current.zoomOut();
     }
   };
 
@@ -240,12 +297,12 @@ export const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
         const data = await res.json();
         setSearchResults(data || []);
         setShowSearchResults(true);
-      } catch (err) {
-        console.error('Nominatim search error:', err);
+      } catch {
+        setSearchResults([]);
       } finally {
         setIsSearching(false);
       }
-    }, 400);
+    }, 350);
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
@@ -266,12 +323,93 @@ export const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
     handleCoordinatesChange(district.coords.lat, district.coords.lng, true, 15);
   };
 
-  // Map initialization & ResizeObserver setup
+  // Leaflet Map Initialization Fallback
+  const initLeaflet = useCallback(() => {
+    if (!mapContainerRef.current) return;
+
+    const loadLeafletAssets = () => {
+      return new Promise<any>((resolve, reject) => {
+        if (window.L) return resolve(window.L);
+
+        if (!document.getElementById('leaflet-css')) {
+          const link = document.createElement('link');
+          link.id = 'leaflet-css';
+          link.rel = 'stylesheet';
+          link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+          document.head.appendChild(link);
+        }
+
+        const script = document.createElement('script');
+        script.id = 'leaflet-js';
+        script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+        script.async = true;
+        script.onload = () => resolve(window.L);
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    };
+
+    loadLeafletAssets()
+      .then((L) => {
+        if (!mapContainerRef.current) return;
+
+        // Clean container if needed
+        if (leafletMapRef.current) {
+          leafletMapRef.current.remove();
+          leafletMapRef.current = null;
+        }
+
+        const currentLat = coords.lat || TASHKENT_CENTER.lat;
+        const currentLng = coords.lng || TASHKENT_CENTER.lng;
+
+        const map = L.map(mapContainerRef.current, {
+          center: [currentLat, currentLng],
+          zoom: readOnly ? 15 : 14,
+          zoomControl: false,
+        });
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '© OpenStreetMap',
+        }).addTo(map);
+
+        const marker = L.marker([currentLat, currentLng], {
+          draggable: !readOnly,
+        }).addTo(map);
+
+        if (!readOnly) {
+          marker.on('dragend', () => {
+            const pos = marker.getLatLng();
+            handleCoordinatesChange(pos.lat, pos.lng, false);
+          });
+
+          map.on('click', (e: any) => {
+            const { lat, lng } = e.latlng;
+            marker.setLatLng([lat, lng]);
+            handleCoordinatesChange(lat, lng, false);
+          });
+        }
+
+        leafletMapRef.current = map;
+        leafletMarkerRef.current = marker;
+        setMapEngine('leaflet');
+        setIsLoading(false);
+        setLoadError(null);
+      })
+      .catch((err) => {
+        console.warn('Leaflet fallback load failed:', err);
+        setIsLoading(false);
+        setMapEngine('none');
+      });
+  }, [coords.lat, coords.lng, handleCoordinatesChange, readOnly]);
+
+  // Main Map initialization
   useEffect(() => {
     let isMounted = true;
     let resizeObserver: ResizeObserver | null = null;
+    let yandexTimeout: NodeJS.Timeout | null = null;
 
-    const initMap = () => {
+    const initYandexMap = () => {
       if (!mapContainerRef.current || !window.ymaps) return;
 
       window.ymaps.ready(() => {
@@ -286,7 +424,6 @@ export const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
           const currentLat = coords.lat || TASHKENT_CENTER.lat;
           const currentLng = coords.lng || TASHKENT_CENTER.lng;
 
-          // Initialize with controls: [] so broken keyless Yandex buttons are absent
           const map = new window.ymaps.Map(
             mapContainerRef.current,
             {
@@ -301,7 +438,6 @@ export const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
 
           mapInstanceRef.current = map;
 
-          // Main placemark
           const placemark = new window.ymaps.Placemark(
             [currentLat, currentLng],
             {
@@ -309,7 +445,7 @@ export const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
               iconCaption: readOnly ? 'Kitob joyi' : 'Belgilangan joy',
             },
             {
-              preset: 'islands#redDotIconWithCaption',
+              preset: 'islands#darkOrangeDotIconWithCaption',
               draggable: !readOnly,
             }
           );
@@ -317,7 +453,6 @@ export const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
           placemarkRef.current = placemark;
           map.geoObjects.add(placemark);
 
-          // Optional user location pin if in readOnly mode
           if (readOnly && userCoordinates) {
             const userPin = new window.ymaps.Placemark(
               [userCoordinates.lat, userCoordinates.lng],
@@ -334,7 +469,6 @@ export const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
             map.geoObjects.add(userPin);
           }
 
-          // Map events if not readOnly
           if (!readOnly) {
             placemark.events.add('dragend', () => {
               const newCoords = placemark.geometry.getCoordinates();
@@ -347,7 +481,6 @@ export const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
             });
           }
 
-          // Modal Grey-Tile / Viewport Fix
           setTimeout(() => {
             if (mapInstanceRef.current && mapInstanceRef.current.container) {
               mapInstanceRef.current.container.fitToViewport();
@@ -364,25 +497,32 @@ export const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
           }
 
           setIsLoading(false);
+          setMapEngine('yandex');
           if (!addressText) {
             reverseGeocode(currentLat, currentLng);
           }
         } catch (err) {
-          console.error('Yandex Maps init error:', err);
-          if (isMounted) {
-            setLoadError('Xarita yuklanishida xatolik yuz berdi');
-            setIsLoading(false);
-          }
+          console.warn('Yandex Maps init failed, switching to Leaflet:', err);
+          initLeaflet();
         }
       });
     };
 
-    // Load Yandex SDK singleton
+    // Load Yandex SDK singleton with fallback timeout
     if (typeof window !== 'undefined') {
       if (window.ymaps) {
-        initMap();
+        initYandexMap();
       } else {
         const existingScript = document.getElementById('yandex-maps-sdk');
+
+        // If Yandex doesn't respond in 2500ms, immediately fall back to Leaflet
+        yandexTimeout = setTimeout(() => {
+          if (isLoading && isMounted && !mapInstanceRef.current) {
+            console.info('Yandex response timed out, loading Leaflet OpenStreetMap fallback...');
+            initLeaflet();
+          }
+        }, 2500);
+
         if (!existingScript) {
           const script = document.createElement('script');
           script.id = 'yandex-maps-sdk';
@@ -390,26 +530,27 @@ export const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
           script.type = 'text/javascript';
           script.async = true;
           script.onload = () => {
-            if (isMounted) initMap();
+            if (yandexTimeout) clearTimeout(yandexTimeout);
+            if (isMounted) initYandexMap();
           };
           script.onerror = () => {
-            if (isMounted) {
-              setLoadError('Xarita skripti yuklanmadi');
-              setIsLoading(false);
-            }
+            if (yandexTimeout) clearTimeout(yandexTimeout);
+            if (isMounted) initLeaflet();
           };
           document.head.appendChild(script);
         } else {
-          existingScript.addEventListener('load', initMap);
+          existingScript.addEventListener('load', () => {
+            if (yandexTimeout) clearTimeout(yandexTimeout);
+            initYandexMap();
+          });
         }
       }
     }
 
     return () => {
       isMounted = false;
-      if (resizeObserver) {
-        resizeObserver.disconnect();
-      }
+      if (yandexTimeout) clearTimeout(yandexTimeout);
+      if (resizeObserver) resizeObserver.disconnect();
       if (mapInstanceRef.current) {
         try {
           mapInstanceRef.current.destroy();
@@ -418,10 +559,17 @@ export const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
         }
         mapInstanceRef.current = null;
       }
+      if (leafletMapRef.current) {
+        try {
+          leafletMapRef.current.remove();
+        } catch {
+          // ignore
+        }
+        leafletMapRef.current = null;
+      }
     };
-  }, [readOnly, reverseGeocode]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [readOnly, reverseGeocode, initLeaflet]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Synchronize incoming addressText prop
   useEffect(() => {
     if (addressText && addressText !== currentAddress) {
       setCurrentAddress(addressText);
@@ -429,8 +577,38 @@ export const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
   }, [addressText]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="space-y-2.5">
-      {/* Search Input Bar (When enabled) */}
+    <div className="space-y-3">
+      {/* 1. GPS Auto-Detect Button (Prominent top banner) */}
+      {!readOnly && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/30">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-amber-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+              <Compass className={`w-4 h-4 ${isLocating ? 'animate-spin' : ''}`} />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-stone-900 dark:text-stone-100">
+                Hozirgi joylashuvimni aniqlash
+              </p>
+              <p className="text-[11px] text-stone-600 dark:text-stone-400">
+                {currentAddress || 'Toshkent shahri'}
+              </p>
+            </div>
+          </div>
+
+          <button
+            id="map-locate-gps-btn"
+            type="button"
+            onClick={handleLocateMe}
+            disabled={isLocating}
+            className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white text-xs font-bold shadow-xs transition-all disabled:opacity-60 shrink-0"
+          >
+            <Crosshair className={`w-3.5 h-3.5 ${isLocating ? 'animate-spin' : ''}`} />
+            <span>{isLocating ? 'Aniqlanmoqda...' : 'GPS orqali aniqlash'}</span>
+          </button>
+        </div>
+      )}
+
+      {/* 2. Search Bar */}
       {!readOnly && showSearchAndDistricts && (
         <div className="relative">
           <div className="relative">
@@ -442,39 +620,35 @@ export const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
               onFocus={() => {
                 if (searchResults.length > 0) setShowSearchResults(true);
               }}
-              placeholder="Ko'cha, metro yoki mo'ljalni yozing..."
-              className="w-full pl-8.5 pr-8 py-2 rounded-xl border border-stone-200 dark:border-zinc-800 text-xs bg-white dark:bg-zinc-900 text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-[#141413] dark:focus:ring-stone-400 dark:focus:border-stone-400"
+              placeholder="Ko'cha, metro yoki mo'ljalni qidiring..."
+              className="w-full pl-8.5 pr-8 py-2 rounded-xl border border-stone-200 dark:border-zinc-800 text-xs bg-white dark:bg-zinc-900 text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-amber-600 dark:focus:ring-amber-500 transition-all"
             />
             {isSearching && (
               <RefreshCw className="absolute right-2.5 top-2.5 w-3.5 h-3.5 text-amber-600 animate-spin" />
             )}
-            {!isSearching && searchQuery && (
+            {searchQuery && !isSearching && (
               <button
                 type="button"
-                onClick={() => {
-                  setSearchQuery('');
-                  setSearchResults([]);
-                  setShowSearchResults(false);
-                }}
-                className="absolute right-2.5 top-2.5 text-stone-400 dark:text-zinc-400 hover:text-stone-600 dark:hover:text-stone-200"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2.5 top-2.5 text-stone-400 hover:text-stone-600"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
 
-          {/* Search suggestions dropdown */}
+          {/* Search Results Dropdown */}
           {showSearchResults && searchResults.length > 0 && (
-            <div className="absolute top-full left-0 right-0 mt-1 z-30 rounded-xl bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 shadow-xl overflow-hidden max-h-48 overflow-y-auto">
+            <div className="absolute top-full left-0 right-0 mt-1.5 z-30 bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 rounded-xl shadow-xl overflow-hidden max-h-48 overflow-y-auto">
               {searchResults.map((item, idx) => (
                 <button
                   key={idx}
                   type="button"
                   onClick={() => handleSelectSearchResult(item)}
-                  className="w-full text-left px-3 py-2 text-xs hover:bg-stone-50 dark:hover:bg-zinc-800 border-b border-stone-100 dark:border-zinc-800/80 last:border-0 flex items-start gap-2 text-stone-800 dark:text-stone-200"
+                  className="w-full text-left px-3 py-2 text-xs text-stone-800 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-zinc-800 border-b border-stone-100 dark:border-zinc-800 last:border-0 flex items-start gap-2"
                 >
                   <MapPin className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
-                  <span className="line-clamp-2">{item.display_name}</span>
+                  <span className="truncate">{item.display_name}</span>
                 </button>
               ))}
             </div>
@@ -482,24 +656,32 @@ export const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
         </div>
       )}
 
-      {/* Quick Tashkent District Chips */}
+      {/* 3. District Chips */}
       {!readOnly && showSearchAndDistricts && (
         <div>
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[11px] font-bold text-stone-600 dark:text-stone-300">
+              Toshkent tumanlari:
+            </span>
+            <span className="text-[10px] text-stone-500 dark:text-zinc-400">
+              Bir bosishda tanlang
+            </span>
+          </div>
+
+          <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
             {TASHKENT_DISTRICTS.map((district) => {
               const isSelected =
-                Math.abs(coords.lat - district.coords.lat) < 0.02 &&
-                Math.abs(coords.lng - district.coords.lng) < 0.02;
-
+                Math.hypot(coords.lat - district.coords.lat, coords.lng - district.coords.lng) <
+                0.035;
               return (
                 <button
                   key={district.name}
                   type="button"
                   onClick={() => handleSelectDistrict(district)}
-                  className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all whitespace-nowrap border flex items-center gap-1 ${
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition-all flex items-center gap-1 ${
                     isSelected
-                      ? 'bg-[#141413] text-white dark:bg-zinc-800 dark:border-stone-400 dark:text-stone-100 shadow-2xs'
-                      : 'bg-white dark:bg-zinc-900 text-stone-600 dark:text-stone-200 border-stone-200 dark:border-zinc-800 hover:border-stone-400 dark:hover:bg-zinc-800'
+                      ? 'bg-amber-600 text-white border-amber-600 shadow-2xs'
+                      : 'bg-white dark:bg-zinc-900 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-zinc-800 hover:border-amber-500'
                   }`}
                 >
                   <span>{district.name}</span>
@@ -511,26 +693,14 @@ export const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
         </div>
       )}
 
-      {/* Map Section Title in natural Uzbek */}
-      {!readOnly && (
-        <div className="pt-0.5">
-          <label className="block text-xs font-semibold text-stone-800 dark:text-stone-100">
-            Kitobni qayerdan olib ketish mumkin?
-          </label>
-          <p className="text-[11px] text-stone-500 dark:text-zinc-400 mt-0.5">
-            Xaritadan o&#39;zingizga qulay joyni belgilang
-          </p>
-        </div>
-      )}
-
-      {/* Map Container: rounded-2xl with Custom Overlays */}
+      {/* 4. Map Container */}
       <div
         className="relative w-full rounded-2xl overflow-hidden border border-stone-200/90 dark:border-zinc-800 bg-stone-100 dark:bg-zinc-950 shadow-sm"
         style={{ height }}
       >
         <div
           ref={mapContainerRef}
-          id="yandex-map-picker-container"
+          id="kitto-map-canvas"
           className="w-full h-full"
         />
 
@@ -557,7 +727,7 @@ export const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
           </div>
         )}
 
-        {/* Custom Zoom Controls (+ / -) */}
+        {/* Custom Zoom Controls */}
         <div className="absolute top-3 right-3 z-20 flex flex-col gap-1 shadow-md">
           <button
             type="button"
@@ -577,54 +747,18 @@ export const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
           </button>
         </div>
 
-        {/* Custom "Joriy joylashuvni aniqlash" (Locate Me) Button */}
-        {!readOnly && (
-          <div className="absolute bottom-3 right-3 z-20">
-            <button
-              type="button"
-              onClick={handleLocateMe}
-              disabled={isLocating}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/95 dark:bg-zinc-900/95 text-stone-800 dark:text-stone-100 text-xs font-semibold backdrop-blur-md shadow-md border border-black/[0.08] dark:border-zinc-700 hover:bg-stone-50 dark:hover:bg-zinc-800 active:scale-95 transition-all"
-              title="GPS orqali joriy joylashuvni aniqlash"
-            >
-              <Crosshair
-                className={`w-3.5 h-3.5 text-amber-600 ${isLocating ? 'animate-spin' : ''}`}
-              />
-              <span>{isLocating ? 'Aniqlanmoqda...' : 'Joriy joylashuvni aniqlash'}</span>
-            </button>
-          </div>
-        )}
-
         {/* Selected Marker Pill on Top-Left */}
         <div className="absolute top-3 left-3 z-20 pointer-events-none">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#141413]/85 dark:bg-stone-100/90 text-white dark:text-[#141413] text-[10px] font-semibold backdrop-blur-md shadow-sm border border-white/10 dark:border-black/10">
-            <MapPin className="w-3 h-3 text-amber-400 dark:text-amber-600" />
-            <span>{readOnly ? 'Uchrashuv nuqtasi' : 'Nuqta belgilandi'}</span>
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-stone-900/90 text-white text-[10px] font-semibold backdrop-blur-md shadow-sm border border-white/10">
+            <MapPin className="w-3 h-3 text-amber-400" />
+            <span className="max-w-[200px] truncate">
+              {currentAddress || `${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`}
+            </span>
           </div>
         </div>
       </div>
-
-      {/* Editable Address Input Field (Live Reverse-Geocoded) */}
-      {!readOnly && (
-        <div>
-          <label className="block text-[11px] font-semibold text-stone-800 dark:text-stone-200 mb-1">
-            Manzil va mo&#39;ljal (xaritadan avtomatik olindi, tahrirlashingiz mumkin)
-          </label>
-          <div className="relative">
-            <Navigation className="absolute left-3 top-2.5 w-3.5 h-3.5 text-amber-600" />
-            <input
-              type="text"
-              value={currentAddress}
-              onChange={(e) => {
-                setCurrentAddress(e.target.value);
-                if (onAddressChange) onAddressChange(e.target.value);
-              }}
-              placeholder="masalan: Chilonzor tumani, Bunyodkor ko'chasi, metro yonida"
-              className="w-full pl-8.5 pr-3 py-2 rounded-xl border border-stone-200 dark:border-zinc-800 text-xs bg-white dark:bg-zinc-900 text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-[#141413] dark:focus:ring-stone-400 dark:focus:border-stone-400"
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 };
+
+export default YandexMapPicker;

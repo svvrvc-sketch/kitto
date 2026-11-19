@@ -177,7 +177,7 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({
         <div className="w-16 h-16 rounded-3xl bg-stone-100 dark:bg-zinc-800 text-stone-700 dark:text-stone-300 flex items-center justify-center mx-auto mb-4 shadow-sm border border-stone-200 dark:border-zinc-700">
           <MessageSquare className="w-8 h-8 stroke-[1.6]" />
         </div>
-        <h2 className="font-serif text-2xl font-bold text-stone-900 dark:text-stone-100">
+        <h2 className="font-sans text-2xl font-bold text-stone-900 dark:text-stone-100">
           Xabarlar
         </h2>
         <p className="text-xs sm:text-sm text-stone-500 dark:text-zinc-400 mt-2 leading-relaxed">
@@ -246,7 +246,7 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({
               </div>
 
               <div className="min-w-0">
-                <h3 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100 truncate group-hover:underline underline-offset-2">
+                <h3 className="font-sans font-bold text-sm text-stone-900 dark:text-stone-100 truncate group-hover:underline underline-offset-2">
                   {otherPersonName || 'Kitobxon'}
                 </h3>
                 <div className="text-[10px] text-stone-500 dark:text-zinc-400 flex items-center gap-1.5 truncate">
@@ -280,7 +280,7 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({
               />
             )}
             <div className="min-w-0">
-              <div className="font-serif font-bold text-stone-900 dark:text-stone-100 text-xs truncate">
+              <div className="font-sans font-bold text-stone-900 dark:text-stone-100 text-xs truncate">
                 {activeThread.bookTitle}
               </div>
               <div className="text-[10px] text-amber-700 dark:text-amber-400 font-semibold truncate mt-0.5">
@@ -475,7 +475,7 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({
                     <ArrowLeftRight className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="font-serif font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100">
+                    <h3 className="font-sans font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100">
                       Almashish taklifi yuborish
                     </h3>
                     <p className="text-[11px] text-stone-500 dark:text-zinc-400">
@@ -506,7 +506,7 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({
                   <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-800 dark:text-amber-300">
                     So&#39;ralayotgan kitob
                   </span>
-                  <h4 className="font-serif font-bold text-xs text-stone-900 dark:text-stone-100 truncate">
+                  <h4 className="font-sans font-bold text-xs text-stone-900 dark:text-stone-100 truncate">
                     {activeThread.bookTitle}
                   </h4>
                   <p className="text-[11px] text-stone-500 dark:text-zinc-400 truncate">
@@ -567,7 +567,7 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({
                         </div>
 
                         <div className="min-w-0 flex-1">
-                          <h4 className="font-serif font-bold text-xs text-stone-900 dark:text-stone-100 truncate">
+                          <h4 className="font-sans font-bold text-xs text-stone-900 dark:text-stone-100 truncate">
                             {book.title}
                           </h4>
                           <p className="text-[11px] text-stone-500 dark:text-zinc-400 truncate">
@@ -626,7 +626,7 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({
         <div className="p-4 border-b border-stone-200/80 dark:border-zinc-800 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <MessageSquare className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-            <h2 className="font-serif font-bold text-base text-stone-900 dark:text-stone-100">
+            <h2 className="font-sans font-bold text-base text-stone-900 dark:text-stone-100">
               Xabarlar
             </h2>
           </div>
@@ -651,7 +651,7 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({
           ) : userThreads.length === 0 ? (
             <div className="py-12 px-4 text-center">
               <MessageSquare className="w-8 h-8 opacity-40 mx-auto mb-2 text-stone-400 dark:text-zinc-500" />
-              <h4 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100 mb-1">
+              <h4 className="font-sans font-bold text-sm text-stone-900 dark:text-stone-100 mb-1">
                 Hozircha xabarlar yo&#39;q
               </h4>
               <p className="text-xs text-stone-500 dark:text-zinc-400 max-w-xs mx-auto leading-relaxed">
@@ -697,7 +697,7 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-1">
-                      <h4 className="font-serif font-bold text-xs text-stone-900 dark:text-stone-100 truncate">
+                      <h4 className="font-sans font-bold text-xs text-stone-900 dark:text-stone-100 truncate">
                         {otherPerson}
                       </h4>
                       {lastMsg && (

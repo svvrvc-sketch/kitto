@@ -50,11 +50,15 @@ body {
 html {
   scroll-behavior: smooth;
   height: 100%;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 body {
   min-height: 100%;
   overscroll-behavior-y: none;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 /* Telegram WebApp Adaptive Layout & Safe-Area Inset */

@@ -119,7 +119,7 @@ export const BookClientView: React.FC<BookClientViewProps> = ({ initialBook, boo
               <div className="p-1.5 rounded-xl bg-amber-600 text-white shadow-xs">
                 <LogoIcon size={20} />
               </div>
-              <span className="font-serif text-lg font-bold">Kitto</span>
+              <span className="font-sans text-lg font-bold">Kitto</span>
             </Link>
             <span className="text-stone-300 dark:text-stone-700">/</span>
             <Link
@@ -187,7 +187,7 @@ export const BookClientView: React.FC<BookClientViewProps> = ({ initialBook, boo
                         <span>Holati: {book.condition || 'Yaxshi'}</span>
                       </div>
 
-                      <h1 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 dark:text-stone-100">
+                      <h1 className="font-sans text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 dark:text-stone-100">
                         {book.title}
                       </h1>
                       <p className="text-sm sm:text-base font-medium text-stone-500 dark:text-zinc-400 mt-1">
@@ -275,12 +275,12 @@ export const BookClientView: React.FC<BookClientViewProps> = ({ initialBook, boo
                     href={`/user/${book.ownerId}`}
                     className="flex items-center gap-3.5 hover:opacity-85 transition-opacity"
                   >
-                    <div className="w-12 h-12 rounded-2xl bg-amber-600 text-white font-serif font-bold text-lg flex items-center justify-center shrink-0">
+                    <div className="w-12 h-12 rounded-2xl bg-amber-600 text-white font-sans font-bold text-lg flex items-center justify-center shrink-0">
                       {(book.ownerName || 'K').charAt(0).toUpperCase()}
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <div className="font-serif text-sm font-bold text-stone-900 dark:text-stone-100">
+                        <div className="font-sans text-sm font-bold text-stone-900 dark:text-stone-100">
                           {book.ownerName || 'Kitobxon'}
                         </div>
                         <div className="flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">
@@ -306,7 +306,7 @@ export const BookClientView: React.FC<BookClientViewProps> = ({ initialBook, boo
           ) : (
             <div className="p-12 text-center rounded-3xl bg-white dark:bg-zinc-900 border border-stone-200/80">
               <BookOpen className="w-12 h-12 text-stone-400 mx-auto mb-3 opacity-40" />
-              <h2 className="font-serif text-lg font-bold mb-1">Kitob topilmadi</h2>
+              <h2 className="font-sans text-lg font-bold mb-1">Kitob topilmadi</h2>
               <p className="text-xs text-stone-500 mb-6">
                 Ushbu kitob oʻchirilgan yoki allaqachon muvaffaqiyatli almashilgan boʻlishi mumkin.
               </p>

@@ -333,7 +333,7 @@ function CabinetContent() {
           <div className="w-16 h-16 rounded-full bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 flex items-center justify-center mx-auto mb-4 border border-stone-200 dark:border-stone-700">
             <UserIcon className="w-8 h-8 stroke-[1.6]" />
           </div>
-          <h1 className="font-serif text-2xl font-bold text-stone-900 dark:text-stone-100 mb-2">
+          <h1 className="font-sans text-2xl font-bold text-stone-900 dark:text-stone-100 mb-2">
             Shaxsiy kabinet
           </h1>
           <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 mb-6 leading-relaxed">
@@ -401,7 +401,7 @@ function CabinetContent() {
             >
               <Menu className="w-5 h-5" />
             </button>
-            <div className="font-serif text-lg font-bold">Shaxsiy kabinet</div>
+            <div className="font-sans text-lg font-bold">Shaxsiy kabinet</div>
           </div>
           <div className="flex items-center gap-2">
             <Link
@@ -443,7 +443,7 @@ function CabinetContent() {
                       className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-stone-200 dark:border-zinc-700 shadow-sm"
                     />
                   ) : (
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-amber-600 text-white font-serif font-bold text-2xl sm:text-3xl flex items-center justify-center shadow-sm">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-amber-600 text-white font-sans font-bold text-2xl sm:text-3xl flex items-center justify-center shadow-sm">
                       {(user.name || 'K').charAt(0).toUpperCase()}
                     </div>
                   )}
@@ -465,7 +465,7 @@ function CabinetContent() {
                 {/* Name & Contact Info */}
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h1 className="font-serif text-xl sm:text-2xl font-bold text-stone-900 dark:text-stone-100 truncate">
+                    <h1 className="font-sans text-xl sm:text-2xl font-bold text-stone-900 dark:text-stone-100 truncate">
                       {user.name}
                     </h1>
                     <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs font-bold shadow-2xs">
@@ -609,7 +609,7 @@ function CabinetContent() {
                 <div className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-zinc-400">
                   Faol kitoblarim
                 </div>
-                <div className="font-serif text-xl font-bold text-stone-900 dark:text-stone-100 mt-0.5">
+                <div className="font-sans text-xl font-bold text-stone-900 dark:text-stone-100 mt-0.5">
                   {activeCount} ta
                 </div>
               </div>
@@ -618,7 +618,7 @@ function CabinetContent() {
                 <div className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-zinc-400">
                   Almashilgan
                 </div>
-                <div className="font-serif text-xl font-bold text-stone-900 dark:text-stone-100 mt-0.5">
+                <div className="font-sans text-xl font-bold text-stone-900 dark:text-stone-100 mt-0.5">
                   {swappedCount} ta
                 </div>
               </div>
@@ -627,7 +627,7 @@ function CabinetContent() {
                 <div className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-zinc-400">
                   Mutolaada
                 </div>
-                <div className="font-serif text-xl font-bold text-amber-700 dark:text-amber-400 mt-0.5">
+                <div className="font-sans text-xl font-bold text-amber-700 dark:text-amber-400 mt-0.5">
                   {lentBooks.length} ta
                 </div>
               </div>
@@ -636,7 +636,7 @@ function CabinetContent() {
                 <div className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-zinc-400">
                   Ishonch nishoni
                 </div>
-                <div className="font-serif text-xs font-bold text-emerald-700 dark:text-emerald-400 mt-1 flex items-center gap-1">
+                <div className="font-sans text-xs font-bold text-emerald-700 dark:text-emerald-400 mt-1 flex items-center gap-1">
                   <ShieldCheck className="w-3.5 h-3.5" />
                   <span>Ishonchli kitobxon</span>
                 </div>
@@ -712,7 +712,7 @@ function CabinetContent() {
             <div className="space-y-4 animate-in fade-in duration-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="font-serif text-lg font-bold">Mening kitoblarim</h2>
+                  <h2 className="font-sans text-lg font-bold">Mening kitoblarim</h2>
                   <p className="text-xs text-stone-500">Siz joylashtirgan barcha faol va yakunlangan kitoblar</p>
                 </div>
                 <Link
@@ -761,7 +761,7 @@ function CabinetContent() {
                         </Link>
 
                         <Link href={`/book/${book.id}`} className="block">
-                          <h3 className="font-serif text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100 truncate group-hover:text-amber-700 dark:group-hover:text-amber-400">
+                          <h3 className="font-sans text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100 truncate group-hover:text-amber-700 dark:group-hover:text-amber-400">
                             {book.title}
                           </h3>
                           <p className="text-[11px] text-stone-500 dark:text-zinc-400 truncate mt-0.5">
@@ -795,7 +795,7 @@ function CabinetContent() {
               ) : (
                 <div className="p-8 sm:p-12 rounded-3xl bg-white dark:bg-zinc-900 border border-stone-200/80 dark:border-zinc-800 text-center">
                   <BookOpen className="w-12 h-12 text-stone-400 mx-auto mb-3 stroke-[1.5]" />
-                  <h3 className="font-serif text-base font-bold text-stone-900 dark:text-stone-100">
+                  <h3 className="font-sans text-base font-bold text-stone-900 dark:text-stone-100">
                     Javoningizda hali kitoblar yoʻq
                   </h3>
                   <p className="text-xs text-stone-500 max-w-sm mx-auto mt-1 mb-5">
@@ -820,7 +820,7 @@ function CabinetContent() {
               <div className="p-6 rounded-3xl bg-white dark:bg-zinc-900 border border-stone-200/80 dark:border-zinc-800 space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-serif text-base font-bold flex items-center gap-2">
+                    <h3 className="font-sans text-base font-bold flex items-center gap-2">
                       <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                       <span>Vaqtincha berilgan kitoblar (Lending Tracker)</span>
                     </h3>
@@ -853,7 +853,7 @@ function CabinetContent() {
                               )}
                             </div>
                             <div className="min-w-0">
-                              <h4 className="font-serif text-sm font-bold truncate text-stone-900 dark:text-stone-100">
+                              <h4 className="font-sans text-sm font-bold truncate text-stone-900 dark:text-stone-100">
                                 {book.title}
                               </h4>
                               <p className="text-xs text-stone-500 dark:text-zinc-400 truncate">
@@ -888,7 +888,7 @@ function CabinetContent() {
               <div className="p-6 rounded-3xl bg-white dark:bg-zinc-900 border border-stone-200/80 dark:border-zinc-800 space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-serif text-base font-bold flex items-center gap-2">
+                    <h3 className="font-sans text-base font-bold flex items-center gap-2">
                       <ArrowLeftRight className="w-4 h-4 text-stone-600 dark:text-stone-400" />
                       <span>Almashuv takliflari tarixi</span>
                     </h3>
@@ -955,7 +955,7 @@ function CabinetContent() {
             <div className="p-6 rounded-3xl bg-white dark:bg-zinc-900 border border-stone-200/80 dark:border-zinc-800 space-y-4 animate-in fade-in duration-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-serif text-base font-bold flex items-center gap-2">
+                  <h3 className="font-sans text-base font-bold flex items-center gap-2">
                     <Bookmark className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                     <span>Qidirayotgan kitoblarim (Wishlist)</span>
                   </h3>
@@ -1019,7 +1019,7 @@ function CabinetContent() {
           {activeTab === 'genres' && (
             <div className="p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 space-y-4 animate-in fade-in duration-200">
               <div>
-                <h3 className="font-serif text-base font-bold flex items-center gap-2">
+                <h3 className="font-sans text-base font-bold flex items-center gap-2">
                   <Compass className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                   <span>Qiziqqan janrlarim</span>
                 </h3>
@@ -1055,7 +1055,7 @@ function CabinetContent() {
           {activeTab === 'profile' && (
             <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-sm space-y-8 animate-in fade-in duration-200">
               <div>
-                <h3 className="font-serif text-lg sm:text-xl font-bold flex items-center gap-2.5 text-stone-900 dark:text-stone-100">
+                <h3 className="font-sans text-lg sm:text-xl font-bold flex items-center gap-2.5 text-stone-900 dark:text-stone-100">
                   <UserIcon className="w-5 h-5 text-amber-600 dark:text-amber-400" />
                   <span>Profil sozlamalari</span>
                 </h3>
@@ -1297,7 +1297,7 @@ export default function CabinetPage() {
     <Suspense
       fallback={
         <div className="min-h-screen bg-[#F8F7F4] dark:bg-zinc-950 flex items-center justify-center">
-          <div className="animate-pulse font-serif text-lg text-stone-600">Kabinet yuklanmoqda...</div>
+          <div className="animate-pulse font-sans text-lg text-stone-600">Kabinet yuklanmoqda...</div>
         </div>
       }
     >

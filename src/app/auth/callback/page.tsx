@@ -95,7 +95,7 @@ function CallbackContent() {
         </div>
       </div>
       <div>
-        <h2 className="font-serif text-lg font-bold text-stone-900 dark:text-stone-100">
+        <h2 className="font-sans text-lg font-bold text-stone-900 dark:text-stone-100">
           {status}
         </h2>
         <p className="text-xs text-stone-500 dark:text-zinc-400 mt-1">

@@ -77,9 +77,9 @@ function LoginFormContent() {
             <div className="p-2 rounded-2xl bg-amber-600 text-white shadow-md group-hover:scale-105 transition-transform">
               <LogoIcon size={32} />
             </div>
-            <span className="font-serif text-2xl font-bold tracking-tight">Kitto.</span>
+            <span className="font-sans text-2xl font-bold tracking-tight">Kitto.</span>
           </Link>
-          <h1 className="font-serif text-xl sm:text-2xl font-bold text-stone-900 dark:text-stone-100">
+          <h1 className="font-sans text-xl sm:text-2xl font-bold text-stone-900 dark:text-stone-100">
             Tizimga kirish
           </h1>
           <p className="text-xs sm:text-sm text-stone-500 dark:text-zinc-400 mt-1 max-w-xs mx-auto">
@@ -217,7 +217,7 @@ export default function LoginPage() {
     <Suspense
       fallback={
         <div className="min-h-screen bg-[#F8F7F4] dark:bg-zinc-950 flex items-center justify-center">
-          <div className="animate-pulse font-serif text-lg text-stone-600">Kirish oynasi yuklanmoqda...</div>
+          <div className="animate-pulse font-sans text-lg text-stone-600">Kirish oynasi yuklanmoqda...</div>
         </div>
       }
     >

@@ -10,7 +10,6 @@ import { BookDetailModal } from '@/components/BookDetailModal';
 import { AddBookModal } from '@/components/AddBookModal';
 import { EmptyState } from '@/components/EmptyState';
 import { BottomNav } from '@/components/BottomNav';
-import { FloatingActionButton } from '@/components/FloatingActionButton';
 import { CitySelectorModal } from '@/components/CitySelectorModal';
 import { ProfileTab } from '@/components/ProfileTab';
 import { MessagesTab } from '@/components/MessagesTab';
@@ -675,7 +674,7 @@ export default function HomePage() {
             <div className="flex items-start gap-2.5">
               <MapPinOff className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
               <div>
-                <h4 className="font-serif font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-100">
+                <h4 className="font-sans font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-100">
                   Kitto hozircha faqat Toshkent shahrida ishlamoqda
                 </h4>
                 <p className="text-[11px] sm:text-xs text-stone-600 dark:text-zinc-300 mt-0.5 leading-relaxed">
@@ -727,7 +726,7 @@ export default function HomePage() {
             <div className="mb-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <h1 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 dark:text-stone-100">
+                  <h1 className="font-sans text-2xl sm:text-3xl font-extrabold tracking-tight text-stone-900 dark:text-stone-100">
                     {currentTab === 'home' && 'Kitoblar lentasi'}
                     {currentTab === 'saved' && 'Saqlangan kitoblar'}
                     {currentTab === 'my_listings' && 'Eʼlonlarim'}
@@ -800,7 +799,7 @@ export default function HomePage() {
                           )}
                         </div>
                         <div className="min-w-0 flex-1 text-left">
-                          <div className="font-serif font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-100 group-hover:text-amber-700 dark:group-hover:text-amber-400 truncate">
+                          <div className="font-sans font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-100 group-hover:text-amber-700 dark:group-hover:text-amber-400 truncate">
                             {suggestion.title}
                           </div>
                           <div className="text-[11px] text-stone-500 dark:text-zinc-400 truncate">
@@ -939,17 +938,6 @@ export default function HomePage() {
           </>
         )}
       </main>
-
-      {/* Floating Action Button (+ Kitob joylash) - Visible ONLY for authenticated users */}
-      <FloatingActionButton
-        visible={
-          Boolean(user) &&
-          filteredBooks.length > 0 &&
-          books.length > 0 &&
-          (currentTab === 'home' || currentTab === 'my_listings')
-        }
-        onClick={handleOpenAddBookModal}
-      />
 
       {/* Bottom Navigation for Mobile */}
       <BottomNav

@@ -246,7 +246,7 @@ export const SwapRequestModal: React.FC<SwapRequestModalProps> = ({
               <ArrowLeftRight className="w-4 h-4 stroke-[2.2]" />
             </div>
             <div>
-              <h2 className="font-serif font-bold text-base sm:text-lg text-stone-900 dark:text-stone-100 leading-tight">
+              <h2 className="font-sans font-bold text-base sm:text-lg text-stone-900 dark:text-stone-100 leading-tight">
                 Almashish uchun kitobingizni tanlang
               </h2>
               <p className="text-[11px] text-stone-500 dark:text-zinc-400">
@@ -314,7 +314,7 @@ export const SwapRequestModal: React.FC<SwapRequestModalProps> = ({
                       </div>
 
                       <div className="min-w-0 flex-1">
-                        <h4 className="font-serif font-bold text-xs text-stone-900 dark:text-stone-100 line-clamp-2 leading-tight group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors">
+                        <h4 className="font-sans font-bold text-xs text-stone-900 dark:text-stone-100 line-clamp-2 leading-tight group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors">
                           {book.title}
                         </h4>
                         <p className="text-[10px] text-stone-500 dark:text-zinc-400 truncate mt-0.5">
@@ -354,7 +354,7 @@ export const SwapRequestModal: React.FC<SwapRequestModalProps> = ({
                 <div className="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300 flex items-center justify-center mx-auto mb-2.5 shadow-2xs">
                   <AlertCircle className="w-6 h-6 stroke-[1.8]" />
                 </div>
-                <h4 className="font-serif font-bold text-sm text-amber-950 dark:text-amber-200">
+                <h4 className="font-sans font-bold text-sm text-amber-950 dark:text-amber-200">
                   Almashish uchun avval o&apos;z kitobingizni joylashingiz kerak
                 </h4>
                 <p className="text-xs text-amber-800/80 dark:text-amber-300/80 mt-1 max-w-sm mx-auto leading-relaxed">
@@ -409,7 +409,7 @@ export const SwapRequestModal: React.FC<SwapRequestModalProps> = ({
                         </div>
 
                         <div className="min-w-0 flex-1">
-                          <h4 className="font-serif font-bold text-xs text-stone-900 dark:text-stone-100 line-clamp-2 leading-tight group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors">
+                          <h4 className="font-sans font-bold text-xs text-stone-900 dark:text-stone-100 line-clamp-2 leading-tight group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors">
                             {book.title}
                           </h4>
                           <p className="text-[10px] text-stone-500 dark:text-zinc-400 truncate mt-0.5">
@@ -480,7 +480,7 @@ export const SwapRequestModal: React.FC<SwapRequestModalProps> = ({
                     <span className="text-[9px] font-semibold text-stone-500 dark:text-zinc-400 uppercase block">
                       Mening kitobim
                     </span>
-                    <h5 className="font-serif font-bold text-xs text-stone-900 dark:text-stone-100 truncate">
+                    <h5 className="font-sans font-bold text-xs text-stone-900 dark:text-stone-100 truncate">
                       {selectedMyBook.title}
                     </h5>
                     <p className="text-[10px] text-stone-500 dark:text-zinc-400 truncate">
@@ -508,7 +508,7 @@ export const SwapRequestModal: React.FC<SwapRequestModalProps> = ({
                     <span className="text-[9px] font-semibold text-amber-700 dark:text-amber-400 uppercase block">
                       Tanlangan kitob
                     </span>
-                    <h5 className="font-serif font-bold text-xs text-stone-900 dark:text-stone-100 truncate">
+                    <h5 className="font-sans font-bold text-xs text-stone-900 dark:text-stone-100 truncate">
                       {selectedTargetBook.title}
                     </h5>
                     <p className="text-[10px] text-stone-500 dark:text-zinc-400 truncate">

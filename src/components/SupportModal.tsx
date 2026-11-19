@@ -49,7 +49,7 @@ export const SupportModal: React.FC<SupportModalProps> = ({ isOpen, onClose }) =
           <div className="w-14 h-14 mx-auto rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-900/50 flex items-center justify-center text-amber-600 dark:text-amber-400 mb-3 shadow-xs">
             <MessageCircle className="w-7 h-7 stroke-[1.8]" />
           </div>
-          <h3 className="font-serif text-2xl font-bold text-stone-900 dark:text-stone-100 tracking-tight">
+          <h3 className="font-sans text-2xl font-bold text-stone-900 dark:text-stone-100 tracking-tight">
             Savol yoki taklifingiz bormi?
           </h3>
           <p className="text-xs sm:text-sm text-stone-500 dark:text-zinc-400 mt-1 max-w-xs mx-auto leading-relaxed">
@@ -75,7 +75,7 @@ export const SupportModal: React.FC<SupportModalProps> = ({ isOpen, onClose }) =
                 <div className="text-[10px] uppercase font-bold tracking-wider text-sky-800 dark:text-sky-300">
                   Telegram orqali yozish
                 </div>
-                <div className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100">
+                <div className="font-sans font-bold text-sm text-stone-900 dark:text-stone-100">
                   @{SUPPORT_TELEGRAM}
                 </div>
               </div>
@@ -98,7 +98,7 @@ export const SupportModal: React.FC<SupportModalProps> = ({ isOpen, onClose }) =
                 <div className="text-[10px] uppercase font-bold tracking-wider text-emerald-800 dark:text-emerald-300">
                   Telefon orqali bogʻlanish
                 </div>
-                <div className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100">
+                <div className="font-sans font-bold text-sm text-stone-900 dark:text-stone-100">
                   {SUPPORT_PHONE}
                 </div>
               </div>

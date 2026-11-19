@@ -202,7 +202,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             <span>Mehmon</span>
           </div>
 
-          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900 dark:text-stone-100 tracking-tight">
+          <h2 className="font-sans text-2xl sm:text-3xl font-bold text-stone-900 dark:text-stone-100 tracking-tight">
             Shaxsiy kabinetga kirish
           </h2>
           <p className="text-xs sm:text-sm text-stone-500 dark:text-zinc-400 mt-2 max-w-md mx-auto leading-relaxed">
@@ -235,7 +235,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
     <div className="max-w-3xl mx-auto py-6 sm:py-8 px-4 space-y-6 animate-in fade-in duration-300">
       {/* Editorial Title */}
       <div>
-        <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-stone-900 dark:text-stone-100 tracking-tight flex items-center gap-2.5">
+        <h1 className="font-sans text-2xl sm:text-3xl lg:text-4xl font-bold text-stone-900 dark:text-stone-100 tracking-tight flex items-center gap-2.5">
           <span>Kabinet</span>
         </h1>
         <p className="text-xs sm:text-sm text-stone-500 dark:text-zinc-400 mt-1">
@@ -266,7 +266,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                     className="w-16 h-16 rounded-full object-cover border-2 border-stone-200 dark:border-zinc-700 shadow-sm"
                   />
                 ) : (
-                  <div className="w-16 h-16 rounded-full bg-[#141413] dark:bg-stone-100 text-white dark:text-[#141413] font-serif font-bold text-2xl flex items-center justify-center shadow-sm">
+                  <div className="w-16 h-16 rounded-full bg-[#141413] dark:bg-stone-100 text-white dark:text-[#141413] font-sans font-bold text-2xl flex items-center justify-center shadow-sm">
                     {(user.name || 'K').charAt(0).toUpperCase()}
                   </div>
                 )}
@@ -289,7 +289,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
 
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h2 id="profile-user-name" className="font-serif text-xl sm:text-2xl font-bold text-stone-900 dark:text-stone-100 truncate">
+                  <h2 id="profile-user-name" className="font-sans text-xl sm:text-2xl font-bold text-stone-900 dark:text-stone-100 truncate">
                     {user.name}
                   </h2>
                   <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs font-bold shadow-xs">
@@ -511,7 +511,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Compass className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-            <h3 className="font-serif font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100">
+            <h3 className="font-sans font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100">
               Qiziqqan janrlarim
             </h3>
           </div>
@@ -550,7 +550,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-            <h3 className="font-serif font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100">
+            <h3 className="font-sans font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100">
               Qidirayotgan kitoblarim
             </h3>
           </div>
@@ -614,7 +614,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-            <h3 className="font-serif font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100">
+            <h3 className="font-sans font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100">
               Vaqtincha berilgan kitoblar
             </h3>
           </div>
@@ -655,7 +655,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                     </div>
 
                     <div className="min-w-0">
-                      <h4 className="font-serif font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-100 truncate hover:text-amber-700 dark:hover:text-amber-400 transition-colors">
+                      <h4 className="font-sans font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-100 truncate hover:text-amber-700 dark:hover:text-amber-400 transition-colors">
                         {book.title}
                       </h4>
                       <p className="text-[11px] text-stone-500 dark:text-zinc-400 truncate">
@@ -761,7 +761,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             <ArrowRight className="w-3.5 h-3.5 text-stone-400 group-hover:translate-x-1 transition-transform" />
           </div>
           <div className="mt-3">
-            <div id="profile-stat-my-listings-count" className="font-serif text-2xl sm:text-3xl font-bold text-stone-900 dark:text-stone-100">
+            <div id="profile-stat-my-listings-count" className="font-sans text-2xl sm:text-3xl font-bold text-stone-900 dark:text-stone-100">
               {myListingsCount}
             </div>
             <div className="text-[11px] text-stone-500 dark:text-zinc-400 font-medium mt-0.5 truncate">
@@ -783,7 +783,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             <ArrowRight className="w-3.5 h-3.5 text-stone-400 group-hover:translate-x-1 transition-transform" />
           </div>
           <div className="mt-3">
-            <div id="profile-stat-swapped-count" className="font-serif text-2xl sm:text-3xl font-bold text-stone-900 dark:text-stone-100">
+            <div id="profile-stat-swapped-count" className="font-sans text-2xl sm:text-3xl font-bold text-stone-900 dark:text-stone-100">
               {swappedCount}
             </div>
             <div className="text-[11px] text-stone-500 dark:text-zinc-400 font-medium mt-0.5 truncate">
@@ -805,7 +805,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             <ArrowRight className="w-3.5 h-3.5 text-stone-400 group-hover:translate-x-1 transition-transform" />
           </div>
           <div className="mt-3">
-            <div id="profile-stat-saved-count" className="font-serif text-2xl sm:text-3xl font-bold text-stone-900 dark:text-stone-100">
+            <div id="profile-stat-saved-count" className="font-sans text-2xl sm:text-3xl font-bold text-stone-900 dark:text-stone-100">
               {savedCount}
             </div>
             <div className="text-[11px] text-stone-500 dark:text-zinc-400 font-medium mt-0.5 truncate">
@@ -817,7 +817,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
 
       {/* Quick Actions Card */}
       <div className="p-6 rounded-3xl bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 shadow-editorial space-y-3">
-        <h3 className="font-serif font-bold text-base text-stone-900 dark:text-stone-100 mb-1">
+        <h3 className="font-sans font-bold text-base text-stone-900 dark:text-stone-100 mb-1">
           Tezkor amallar
         </h3>
 
@@ -876,7 +876,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
               <HelpCircle className="w-4 h-4" />
               <span>Qoʻllab-quvvatlash va Takliflar</span>
             </div>
-            <h4 className="font-serif font-bold text-base text-stone-900 dark:text-stone-100">
+            <h4 className="font-sans font-bold text-base text-stone-900 dark:text-stone-100">
               Savol yoki takliflaringiz bormi?
             </h4>
             <p className="text-xs text-stone-500 dark:text-zinc-400 mt-1 max-w-md">

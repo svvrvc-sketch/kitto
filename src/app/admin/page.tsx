@@ -93,7 +93,7 @@ export default function AdminPage() {
         <div className="w-16 h-16 rounded-2xl bg-red-100 dark:bg-red-950/60 border border-red-200 dark:border-red-900 flex items-center justify-center mb-4 text-red-600 dark:text-red-400">
           <ShieldAlert className="w-8 h-8" />
         </div>
-        <h1 className="font-serif text-2xl font-bold text-stone-900 dark:text-stone-100">
+        <h1 className="font-sans text-2xl font-bold text-stone-900 dark:text-stone-100">
           Kirish taqiqlangan (403 Forbidden)
         </h1>
         <p className="text-sm text-stone-600 dark:text-zinc-400 max-w-md mt-2 mb-6">
@@ -148,7 +148,7 @@ export default function AdminPage() {
               <span className="text-xs font-medium">Jami kitoblar</span>
               <BookOpen className="w-4 h-4 text-amber-600" />
             </div>
-            <div className="text-2xl font-bold font-serif">{books.length}</div>
+            <div className="text-2xl font-bold font-sans">{books.length}</div>
           </div>
 
           <div className="p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-stone-200/90 dark:border-zinc-800 shadow-sm">
@@ -156,7 +156,7 @@ export default function AdminPage() {
               <span className="text-xs font-medium">Faol eʼlonlar</span>
               <CheckCircle2 className="w-4 h-4 text-emerald-600" />
             </div>
-            <div className="text-2xl font-bold font-serif text-emerald-600 dark:text-emerald-400">
+            <div className="text-2xl font-bold font-sans text-emerald-600 dark:text-emerald-400">
               {books.filter((b) => b.status === 'active').length}
             </div>
           </div>
@@ -166,7 +166,7 @@ export default function AdminPage() {
               <span className="text-xs font-medium">Almashilgan</span>
               <RefreshCw className="w-4 h-4 text-sky-600" />
             </div>
-            <div className="text-2xl font-bold font-serif">
+            <div className="text-2xl font-bold font-sans">
               {books.filter((b) => b.status === 'swapped' || b.isCompleted).length}
             </div>
           </div>
@@ -253,7 +253,7 @@ export default function AdminPage() {
                     filteredBooks.map((book) => (
                       <tr key={book.id} className="hover:bg-stone-50/50 dark:hover:bg-zinc-850/50 transition-colors">
                         <td className="py-3 px-4">
-                          <div className="font-semibold text-stone-900 dark:text-stone-100 font-serif">
+                          <div className="font-semibold text-stone-900 dark:text-stone-100 font-sans">
                             {book.title}
                           </div>
                           <div className="text-[11px] text-stone-500 dark:text-zinc-400">{book.author}</div>
@@ -311,7 +311,7 @@ export default function AdminPage() {
         {/* Tab 2: Users Table */}
         {activeTab === 'users' && (
           <div className="rounded-2xl bg-white dark:bg-zinc-900 border border-stone-200/90 dark:border-zinc-800 shadow-sm p-6">
-            <h3 className="font-serif font-bold text-lg mb-2">Foydalanuvchilar va Rollar (RBAC)</h3>
+            <h3 className="font-sans font-bold text-lg mb-2">Foydalanuvchilar va Rollar (RBAC)</h3>
             <p className="text-xs text-stone-500 dark:text-zinc-400 mb-4">
               Supabase profiles jadvalidagi <code className="px-1.5 py-0.5 rounded bg-stone-100 dark:bg-zinc-800">role</code> ustuni orqali admin ruxsatlari boshqariladi.
             </p>

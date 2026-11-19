@@ -142,7 +142,7 @@ export const PhonePromptModal: React.FC = () => {
           <div className="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-3.5 border border-amber-500/20">
             <UserCheck className="w-7 h-7 stroke-[1.8]" />
           </div>
-          <h2 className="font-serif text-xl sm:text-2xl font-bold tracking-tight">
+          <h2 className="font-sans text-xl sm:text-2xl font-bold tracking-tight">
             Profilingizni toʻldiring
           </h2>
           <p className="text-xs text-stone-500 dark:text-stone-400 mt-1 leading-relaxed max-w-sm">
