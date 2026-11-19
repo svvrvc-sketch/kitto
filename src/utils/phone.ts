@@ -20,6 +20,21 @@ export const isValidUzbekPhone = (contact?: string | null): boolean => {
   return false;
 };
 
+export const formatLocalPhone = (raw: string): string => {
+  let digits = raw.replace(/\D/g, '');
+  if (digits.startsWith('998')) {
+    digits = digits.substring(3);
+  }
+  digits = digits.substring(0, 9);
+
+  let formatted = '';
+  if (digits.length > 0) formatted += digits.substring(0, 2);
+  if (digits.length > 2) formatted += ` ${digits.substring(2, 5)}`;
+  if (digits.length > 5) formatted += ` ${digits.substring(5, 7)}`;
+  if (digits.length > 7) formatted += ` ${digits.substring(7, 9)}`;
+  return formatted;
+};
+
 export const formatUzbekPhone = (raw: string): string => {
   let digits = raw.replace(/\D/g, '');
   if (digits.startsWith('998')) {

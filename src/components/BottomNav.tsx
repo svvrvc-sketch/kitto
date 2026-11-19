@@ -32,14 +32,14 @@ const BottomNavInner: React.FC<BottomNavProps> = ({
           href="/"
           className={`flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all ${
             isHome
-              ? 'text-stone-900 dark:text-stone-100 font-bold'
-              : 'text-stone-400 dark:text-stone-500 hover:text-stone-700'
+              ? 'text-amber-600 dark:text-amber-400 font-bold'
+              : 'text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 font-medium'
           }`}
         >
           <div className="relative">
             <Compass className="w-5 h-5 stroke-[1.8]" />
             {isHome && (
-              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-amber-600" />
+              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-amber-600" />
             )}
           </div>
           <span className="text-[9px] tracking-tight mt-1 truncate">Do&#39;kon</span>
@@ -50,8 +50,8 @@ const BottomNavInner: React.FC<BottomNavProps> = ({
           href="/cabinet?tab=wishlist"
           className={`flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all relative ${
             isWishlist
-              ? 'text-stone-900 dark:text-stone-100 font-bold'
-              : 'text-stone-400 dark:text-stone-500 hover:text-stone-700'
+              ? 'text-amber-600 dark:text-amber-400 font-bold'
+              : 'text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 font-medium'
           }`}
         >
           <div className="relative">
@@ -62,7 +62,7 @@ const BottomNavInner: React.FC<BottomNavProps> = ({
               </span>
             )}
             {isWishlist && (
-              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-amber-600" />
+              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-amber-600" />
             )}
           </div>
           <span className="text-[9px] tracking-tight mt-1 truncate">Istaklar</span>
@@ -84,8 +84,8 @@ const BottomNavInner: React.FC<BottomNavProps> = ({
           href="/messages"
           className={`flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all relative ${
             isMessages
-              ? 'text-stone-900 dark:text-stone-100 font-bold'
-              : 'text-stone-400 dark:text-stone-500 hover:text-stone-700'
+              ? 'text-amber-600 dark:text-amber-400 font-bold'
+              : 'text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 font-medium'
           }`}
         >
           <div className="relative">
@@ -96,7 +96,7 @@ const BottomNavInner: React.FC<BottomNavProps> = ({
               </span>
             )}
             {isMessages && (
-              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-amber-600" />
+              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-amber-600" />
             )}
           </div>
           <span className="text-[9px] tracking-tight mt-1 truncate">Xabarlar</span>
@@ -107,14 +107,14 @@ const BottomNavInner: React.FC<BottomNavProps> = ({
           href="/cabinet"
           className={`flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all relative ${
             isCabinet
-              ? 'text-stone-900 dark:text-stone-100 font-bold'
-              : 'text-stone-400 dark:text-stone-500 hover:text-stone-700'
+              ? 'text-amber-600 dark:text-amber-400 font-bold'
+              : 'text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 font-medium'
           }`}
         >
           <div className="relative">
             <User className="w-5 h-5 stroke-[1.8]" />
             {isCabinet && (
-              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-amber-600" />
+              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-amber-600" />
             )}
           </div>
           <span className="text-[9px] tracking-tight mt-1 truncate">Kabinet</span>

@@ -392,7 +392,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
                 className="flex items-center gap-2 cursor-pointer group/owner hover:opacity-90 transition-opacity"
                 title="Foydalanuvchi profilini ko'rish"
               >
-                <div className="w-8 h-8 rounded-full bg-[#141413] text-[#F8F7F4] dark:bg-stone-100 dark:text-[#141413] flex items-center justify-center font-bold text-xs group-hover/owner:scale-105 transition-transform shadow-xs">
+                <div className="w-8 h-8 rounded-full bg-amber-600 text-white flex items-center justify-center font-bold text-xs group-hover/owner:scale-105 transition-transform shadow-xs">
                   {(book.ownerName || 'K').charAt(0).toUpperCase()}
                 </div>
                 <div>

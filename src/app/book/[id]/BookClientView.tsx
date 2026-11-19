@@ -116,7 +116,7 @@ export const BookClientView: React.FC<BookClientViewProps> = ({ initialBook, boo
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2 group">
-              <div className="p-1.5 rounded-xl bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 shadow-2xs">
+              <div className="p-1.5 rounded-xl bg-amber-600 text-white shadow-xs">
                 <LogoIcon size={20} />
               </div>
               <span className="font-serif text-lg font-bold">Kitto</span>
@@ -275,7 +275,7 @@ export const BookClientView: React.FC<BookClientViewProps> = ({ initialBook, boo
                     href={`/user/${book.ownerId}`}
                     className="flex items-center gap-3.5 hover:opacity-85 transition-opacity"
                   >
-                    <div className="w-12 h-12 rounded-2xl bg-[#141413] text-white dark:bg-stone-100 dark:text-[#141413] font-serif font-bold text-lg flex items-center justify-center shrink-0">
+                    <div className="w-12 h-12 rounded-2xl bg-amber-600 text-white font-serif font-bold text-lg flex items-center justify-center shrink-0">
                       {(book.ownerName || 'K').charAt(0).toUpperCase()}
                     </div>
                     <div>

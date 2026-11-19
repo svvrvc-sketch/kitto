@@ -829,8 +829,8 @@ export default function HomePage() {
                   onClick={() => setFeedFilter('all')}
                   className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 active:scale-[0.98] border ${
                     feedFilter === 'all'
-                      ? 'bg-[#141413] text-[#F8F7F4] dark:bg-stone-200 dark:text-stone-900 border-[#141413] dark:border-stone-200 shadow-xs'
-                      : 'bg-white dark:bg-zinc-900 text-stone-600 dark:text-stone-300 border-stone-200 dark:border-zinc-800 hover:border-stone-300 dark:hover:border-zinc-700'
+                      ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
+                      : 'bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-800 hover:border-amber-400 dark:hover:border-amber-500/40'
                   }`}
                 >
                   Barchasi
@@ -841,8 +841,8 @@ export default function HomePage() {
                   onClick={() => setFeedFilter('temporary')}
                   className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition-all duration-200 active:scale-[0.98] border ${
                     feedFilter === 'temporary'
-                      ? 'bg-amber-500 text-white border-amber-500 shadow-xs'
-                      : 'bg-white dark:bg-zinc-900 text-stone-600 dark:text-stone-300 border-stone-200 dark:border-zinc-800 hover:border-stone-300 dark:hover:border-zinc-700'
+                      ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
+                      : 'bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-800 hover:border-amber-400 dark:hover:border-amber-500/40'
                   }`}
                 >
                   <Clock className="w-3.5 h-3.5" />
@@ -854,8 +854,8 @@ export default function HomePage() {
                   onClick={() => setFeedFilter('permanent')}
                   className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition-all duration-200 active:scale-[0.98] border ${
                     feedFilter === 'permanent'
-                      ? 'bg-[#141413] text-[#F8F7F4] dark:bg-stone-200 dark:text-stone-900 border-[#141413] dark:border-stone-200 shadow-xs'
-                      : 'bg-white dark:bg-zinc-900 text-stone-600 dark:text-stone-300 border-stone-200 dark:border-zinc-800 hover:border-stone-300 dark:hover:border-zinc-700'
+                      ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
+                      : 'bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-800 hover:border-amber-400 dark:hover:border-amber-500/40'
                   }`}
                 >
                   <ArrowLeftRight className="w-3.5 h-3.5" />
@@ -867,8 +867,8 @@ export default function HomePage() {
                   onClick={() => setFeedFilter('gift')}
                   className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition-all duration-200 active:scale-[0.98] border ${
                     feedFilter === 'gift'
-                      ? 'bg-amber-500 text-white border-amber-500 shadow-xs'
-                      : 'bg-white dark:bg-zinc-900 text-stone-600 dark:text-stone-300 border-stone-200 dark:border-zinc-800 hover:border-stone-300 dark:hover:border-zinc-700'
+                      ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
+                      : 'bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-800 hover:border-amber-400 dark:hover:border-amber-500/40'
                   }`}
                 >
                   <Gift className="w-3.5 h-3.5" />

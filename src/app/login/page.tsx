@@ -74,7 +74,7 @@ function LoginFormContent() {
         {/* Logo & Headline */}
         <div>
           <Link href="/" className="inline-flex items-center gap-2 mb-3 group">
-            <div className="p-2 rounded-2xl bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 shadow-sm group-hover:scale-105 transition-transform">
+            <div className="p-2 rounded-2xl bg-amber-600 text-white shadow-md group-hover:scale-105 transition-transform">
               <LogoIcon size={32} />
             </div>
             <span className="font-serif text-2xl font-bold tracking-tight">Kitto.</span>

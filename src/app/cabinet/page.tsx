@@ -31,7 +31,7 @@ import { useToast } from '@/context/ToastContext';
 import { Book } from '@/types/book';
 import { booksService, exchangeTransactionsService, profilesService } from '@/services/db';
 import { uploadImageToStorage } from '@/utils/storage';
-import { isValidUzbekPhone, formatUzbekPhone } from '@/utils/phone';
+import { isValidUzbekPhone, formatUzbekPhone, formatLocalPhone, getUzbekOperator } from '@/utils/phone';
 import { UZBEKISTAN_REGIONS, normalizeRegionName } from '@/lib/regions';
 import { Sidebar } from '@/components/Sidebar';
 import { SwapQRModal } from '@/components/SwapQRModal';
@@ -92,7 +92,12 @@ function CabinetContent() {
   useEffect(() => {
     if (user) {
       setEditName(user.name || '');
-      setEditContact(user.contact && !user.contact.includes('@') ? user.contact : '');
+      if (user.contact && !user.contact.includes('@')) {
+        const clean = user.contact.replace('+998', '').replace(/\D/g, '');
+        setEditContact(clean.substring(0, 9));
+      } else {
+        setEditContact('');
+      }
       setEditCity(user.city ? normalizeRegionName(user.city) : 'Toshkent shahri');
       setEditTelegram(user.telegramUsername ? user.telegramUsername.replace(/^@/, '') : '');
       setEditAge(user.age ? String(user.age) : '');
@@ -206,12 +211,20 @@ function CabinetContent() {
     if (e) e.preventDefault();
     if (!user) return;
 
-    if (!editName.trim() || !editContact.trim()) {
-      showToast('Ism va telefon raqamini kiriting', 'error');
+    if (!editName.trim()) {
+      showToast('Iltimos, ismingizni kiriting', 'error');
       return;
     }
-    if (editContact.includes('@') || !isValidUzbekPhone(editContact.trim())) {
-      showToast('Iltimos, amaldagi Oʻzbekiston telefon raqamini kiriting (+998...)', 'error');
+
+    const rawDigits = editContact.replace(/\D/g, '');
+    if (!rawDigits || rawDigits.length !== 9) {
+      showToast('Iltimos, 9 xonali telefon raqamingizni toʻliq kiriting', 'error');
+      return;
+    }
+
+    const fullPhone = `+998 ${rawDigits.substring(0, 2)} ${rawDigits.substring(2, 5)} ${rawDigits.substring(5, 7)} ${rawDigits.substring(7, 9)}`;
+    if (!isValidUzbekPhone(fullPhone)) {
+      showToast('Notoʻgʻri Oʻzbekiston operator kodi (masalan: 90, 91, 93, 94, 97, 98, 99, 33, 88, 77, 50, 20)', 'error');
       return;
     }
 
@@ -226,7 +239,7 @@ function CabinetContent() {
       const updatedUser = {
         ...user,
         name: editName.trim(),
-        contact: formatUzbekPhone(editContact.trim()),
+        contact: fullPhone,
         city: editCity,
         telegramUsername: editTelegram.trim() ? `@${editTelegram.trim().replace(/^@/, '')}` : undefined,
         age: cleanAge,
@@ -430,7 +443,7 @@ function CabinetContent() {
                       className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-stone-200 dark:border-zinc-700 shadow-sm"
                     />
                   ) : (
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#141413] text-white dark:bg-stone-100 dark:text-[#141413] font-serif font-bold text-2xl sm:text-3xl flex items-center justify-center shadow-sm">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-amber-600 text-white font-serif font-bold text-2xl sm:text-3xl flex items-center justify-center shadow-sm">
                       {(user.name || 'K').charAt(0).toUpperCase()}
                     </div>
                   )}
@@ -520,14 +533,24 @@ function CabinetContent() {
                     <label className="block text-xs font-semibold text-stone-800 dark:text-stone-200 mb-1">
                       Telefon raqam (majburiy) *
                     </label>
-                    <input
-                      type="tel"
-                      required
-                      value={editContact}
-                      onChange={(e) => setEditContact(e.target.value)}
-                      placeholder="+998 90 123 45 67"
-                      className="w-full px-3.5 py-2 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-xs text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-stone-900"
-                    />
+                    <div className="flex items-center rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 overflow-hidden focus-within:ring-1 focus-within:ring-stone-900 transition-all">
+                      <div className="px-3 py-2 bg-stone-100 dark:bg-zinc-700/60 text-xs font-bold text-stone-600 dark:text-stone-300 border-r border-stone-200 dark:border-zinc-700 shrink-0 select-none">
+                        UZ +998
+                      </div>
+                      <input
+                        type="tel"
+                        required
+                        value={formatLocalPhone(editContact)}
+                        onChange={(e) => {
+                          let digits = e.target.value.replace(/\D/g, '');
+                          if (digits.startsWith('998')) digits = digits.substring(3);
+                          setEditContact(digits.substring(0, 9));
+                        }}
+                        placeholder="90 123 45 67"
+                        maxLength={12}
+                        className="w-full px-3 py-2 bg-transparent text-xs text-stone-900 dark:text-stone-100 focus:outline-none"
+                      />
+                    </div>
                   </div>
 
                   <div>
@@ -622,13 +645,13 @@ function CabinetContent() {
           </div>
 
           {/* Navigation Sub-Tabs Bar */}
-          <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-stone-200/60 dark:bg-zinc-850 overflow-x-auto scrollbar-none">
+          <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-stone-200/70 dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 overflow-x-auto scrollbar-none">
             <button
               onClick={() => setTab('my_books')}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                 activeTab === 'my_books'
-                  ? 'bg-white dark:bg-zinc-900 text-stone-900 dark:text-stone-100 shadow-xs'
-                  : 'text-stone-600 dark:text-zinc-400 hover:text-stone-900'
+                  ? 'bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 shadow-xs border border-stone-200/60 dark:border-stone-700/60'
+                  : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
               }`}
             >
               <BookOpen className="w-4 h-4 text-amber-600 dark:text-amber-400" />
@@ -639,8 +662,8 @@ function CabinetContent() {
               onClick={() => setTab('swaps')}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                 activeTab === 'swaps'
-                  ? 'bg-white dark:bg-zinc-900 text-stone-900 dark:text-stone-100 shadow-xs'
-                  : 'text-stone-600 dark:text-zinc-400 hover:text-stone-900'
+                  ? 'bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 shadow-xs border border-stone-200/60 dark:border-stone-700/60'
+                  : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
               }`}
             >
               <ArrowLeftRight className="w-4 h-4 text-amber-600 dark:text-amber-400" />
@@ -651,8 +674,8 @@ function CabinetContent() {
               onClick={() => setTab('wishlist')}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                 activeTab === 'wishlist'
-                  ? 'bg-white dark:bg-zinc-900 text-stone-900 dark:text-stone-100 shadow-xs'
-                  : 'text-stone-600 dark:text-zinc-400 hover:text-stone-900'
+                  ? 'bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 shadow-xs border border-stone-200/60 dark:border-stone-700/60'
+                  : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
               }`}
             >
               <Bookmark className="w-4 h-4 text-amber-600 dark:text-amber-400" />
@@ -663,7 +686,7 @@ function CabinetContent() {
               onClick={() => setTab('genres')}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                 activeTab === 'genres'
-                  ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-xs'
+                  ? 'bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 shadow-xs border border-stone-200/60 dark:border-stone-700/60'
                   : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
               }`}
             >
@@ -675,7 +698,7 @@ function CabinetContent() {
               onClick={() => setTab('profile')}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                 activeTab === 'profile'
-                  ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-xs'
+                  ? 'bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 shadow-xs border border-stone-200/60 dark:border-stone-700/60'
                   : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
               }`}
             >
@@ -1132,17 +1155,34 @@ function CabinetContent() {
 
                   {/* Telefon */}
                   <div>
-                    <label className="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1.5">
-                      Telefon raqam <span className="text-amber-500">*</span>
-                    </label>
-                    <input
-                      type="tel"
-                      required
-                      value={editContact}
-                      onChange={(e) => setEditContact(e.target.value)}
-                      placeholder="+998 90 123 45 67"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-xs sm:text-sm text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 transition-all"
-                    />
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-xs font-bold text-stone-700 dark:text-stone-300">
+                        Telefon raqam <span className="text-amber-500">*</span>
+                      </label>
+                      {getUzbekOperator(editContact) && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-stone-100 dark:bg-stone-700 text-stone-600 dark:text-stone-300">
+                          {getUzbekOperator(editContact)?.name}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center rounded-xl bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 focus-within:ring-2 focus-within:ring-amber-500/40 focus-within:border-amber-500 overflow-hidden transition-all">
+                      <div className="px-3 py-2.5 bg-stone-100 dark:bg-stone-700/60 text-xs font-bold text-stone-600 dark:text-stone-300 border-r border-stone-200 dark:border-stone-700 shrink-0 select-none">
+                        UZ +998
+                      </div>
+                      <input
+                        type="tel"
+                        required
+                        value={formatLocalPhone(editContact)}
+                        onChange={(e) => {
+                          let digits = e.target.value.replace(/\D/g, '');
+                          if (digits.startsWith('998')) digits = digits.substring(3);
+                          setEditContact(digits.substring(0, 9));
+                        }}
+                        placeholder="90 123 45 67"
+                        maxLength={12}
+                        className="w-full px-3 py-2.5 bg-transparent text-xs sm:text-sm font-medium text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none"
+                      />
+                    </div>
                   </div>
 
                   {/* Telegram */}

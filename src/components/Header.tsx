@@ -170,7 +170,7 @@ export const Header: React.FC<HeaderProps> = ({
                         className="w-7 h-7 rounded-full object-cover border border-stone-200 dark:border-stone-700 shrink-0"
                       />
                     ) : (
-                      <div className="w-7 h-7 rounded-full bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 font-bold text-xs flex items-center justify-center shrink-0">
+                      <div className="w-7 h-7 rounded-full bg-amber-600 text-white font-bold text-xs flex items-center justify-center shrink-0">
                         {(user.name || 'K').charAt(0).toUpperCase()}
                       </div>
                     )}

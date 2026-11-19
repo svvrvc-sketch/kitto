@@ -190,7 +190,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                 className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover shrink-0 shadow-sm border border-stone-200 dark:border-zinc-700"
               />
             ) : (
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#141413] text-[#F8F7F4] dark:bg-stone-100 dark:text-[#141413] font-serif font-bold text-xl sm:text-2xl flex items-center justify-center shrink-0 shadow-sm border border-stone-200 dark:border-zinc-700">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-amber-600 text-white font-serif font-bold text-xl sm:text-2xl flex items-center justify-center shrink-0 shadow-sm border border-stone-200 dark:border-stone-700">
                 {(userName || 'K').charAt(0).toUpperCase()}
               </div>
             )}
@@ -224,7 +224,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
           {/* Summary metrics strip: Faol e'lonlar: X ta | Almashilgan: Y ta */}
           <div className="flex flex-wrap items-center gap-2 mt-4 pt-3.5 border-t border-stone-200/60 dark:border-zinc-800 text-xs">
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-zinc-900 border border-stone-200/80 dark:border-zinc-800 text-stone-800 dark:text-stone-200 font-semibold shadow-2xs">
-              <span className="w-2 h-2 rounded-full bg-stone-900 dark:bg-stone-100" />
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
               <span>Faol e&#39;lonlar: {activeCount} ta</span>
             </span>
 

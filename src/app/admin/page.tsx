@@ -101,7 +101,7 @@ export default function AdminPage() {
         </p>
         <Link
           href="/"
-          className="inline-flex items-center gap-2 py-2.5 px-5 rounded-xl bg-[#141413] hover:bg-stone-800 text-[#F8F7F4] dark:bg-stone-200 dark:text-stone-900 text-xs font-semibold shadow-sm transition-all"
+          className="inline-flex items-center gap-2 py-2.5 px-5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold shadow-md transition-all active:scale-95"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Bosh sahifaga qaytish</span>
@@ -189,8 +189,8 @@ export default function AdminPage() {
               onClick={() => setActiveTab('books')}
               className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
                 activeTab === 'books'
-                  ? 'bg-[#141413] text-[#F8F7F4] dark:bg-stone-200 dark:text-stone-900'
-                  : 'bg-white dark:bg-zinc-900 text-stone-600 dark:text-zinc-400 border border-stone-200 dark:border-zinc-800'
+                  ? 'bg-amber-600 text-white shadow-xs'
+                  : 'bg-white dark:bg-stone-900 text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-800'
               }`}
             >
               Kitoblar boshqaruvi ({books.length})
@@ -199,8 +199,8 @@ export default function AdminPage() {
               onClick={() => setActiveTab('users')}
               className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
                 activeTab === 'users'
-                  ? 'bg-[#141413] text-[#F8F7F4] dark:bg-stone-200 dark:text-stone-900'
-                  : 'bg-white dark:bg-zinc-900 text-stone-600 dark:text-zinc-400 border border-stone-200 dark:border-zinc-800'
+                  ? 'bg-amber-600 text-white shadow-xs'
+                  : 'bg-white dark:bg-stone-900 text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-800'
               }`}
             >
               Foydalanuvchilar

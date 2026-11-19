@@ -98,7 +98,7 @@ export const AuthModal: React.FC = () => {
 
         {/* Brand */}
         <div>
-          <div className="w-12 h-12 rounded-2xl bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 flex items-center justify-center mx-auto mb-3 shadow-sm">
+          <div className="w-12 h-12 rounded-2xl bg-amber-600 text-white flex items-center justify-center mx-auto mb-3 shadow-md">
             <LogoIcon size={26} />
           </div>
           <h2 className="font-serif text-xl font-bold text-stone-900 dark:text-stone-100">

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { UserCheck, ShieldCheck, X } from 'lucide-react';
-import { isValidUzbekPhone, formatUzbekPhone, getUzbekOperator } from '@/utils/phone';
+import { isValidUzbekPhone, formatLocalPhone, getUzbekOperator } from '@/utils/phone';
 import { UZBEKISTAN_REGIONS } from '@/lib/regions';
 import { profilesService } from '@/services/db';
 
@@ -187,7 +187,7 @@ export const PhonePromptModal: React.FC = () => {
               </div>
               <input
                 type="tel"
-                value={formatUzbekPhone(phoneInput)}
+                value={formatLocalPhone(phoneInput)}
                 onChange={handlePhoneChange}
                 placeholder="90 123 45 67"
                 maxLength={12}

@@ -580,8 +580,8 @@ export const AddBookModal: React.FC<AddBookModalProps> = ({
                         onClick={() => setDurationPreset(preset.id)}
                         className={`py-2 px-2.5 rounded-xl text-xs font-medium border text-center transition-all ${
                           isSelected
-                            ? 'bg-[#141413] text-[#F8F7F4] dark:bg-stone-200 dark:border-stone-200 dark:text-stone-900 font-semibold shadow-xs'
-                            : 'bg-white dark:bg-zinc-900 text-stone-700 dark:text-zinc-300 border-stone-200 dark:border-zinc-800 hover:border-stone-300 dark:hover:border-zinc-700'
+                            ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
+                            : 'bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-700 hover:border-amber-400'
                         }`}
                       >
                         {preset.label}

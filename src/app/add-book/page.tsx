@@ -184,7 +184,7 @@ function AddBookContent() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2 group">
-              <div className="p-1.5 rounded-xl bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 shadow-2xs">
+              <div className="p-1.5 rounded-xl bg-amber-600 text-white shadow-xs">
                 <LogoIcon size={20} />
               </div>
               <span className="font-serif text-lg font-bold">Kitto</span>

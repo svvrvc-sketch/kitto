@@ -103,7 +103,7 @@ function UserProfileContent() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2 group">
-              <div className="p-1.5 rounded-xl bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 shadow-2xs">
+              <div className="p-1.5 rounded-xl bg-amber-600 text-white shadow-xs">
                 <LogoIcon size={20} />
               </div>
               <span className="font-serif text-lg font-bold">Kitto</span>
@@ -153,7 +153,7 @@ function UserProfileContent() {
                     className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-stone-200 dark:border-zinc-700 shadow-sm"
                   />
                 ) : (
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#141413] text-white dark:bg-stone-100 dark:text-[#141413] font-serif font-bold text-2xl flex items-center justify-center shadow-sm">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-amber-600 text-white font-serif font-bold text-2xl flex items-center justify-center shadow-sm">
                     {displayName.charAt(0).toUpperCase()}
                   </div>
                 )}
