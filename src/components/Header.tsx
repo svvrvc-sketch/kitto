@@ -220,36 +220,28 @@ export const Header: React.FC<HeaderProps> = ({
                         </Link>
                       )}
 
-                      <button
-                        id="menu-tab-profile"
-                        onClick={() => {
-                          onSelectTab('profile');
-                          setShowProfileMenu(false);
-                        }}
+                      <Link
+                        href="/cabinet"
+                        onClick={() => setShowProfileMenu(false)}
                         className="w-full text-left px-2.5 py-2 rounded-xl text-xs text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-zinc-800 font-medium flex items-center justify-between"
                       >
                         <span>Kabinet</span>
-                      </button>
+                      </Link>
 
-                      <button
-                        onClick={() => {
-                          onSelectTab('my_listings');
-                          setShowProfileMenu(false);
-                        }}
+                      <Link
+                        href="/cabinet?tab=my_books"
+                        onClick={() => setShowProfileMenu(false)}
                         className="w-full text-left px-2.5 py-2 rounded-xl text-xs text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-zinc-800 font-medium flex items-center justify-between"
                       >
                         <span>E&#39;lonlarim</span>
                         <span className="text-[9px] font-bold px-1.5 py-0.5 bg-stone-200 dark:bg-zinc-800 text-stone-800 dark:text-stone-200 rounded-full">
                           {myListingsCount}
                         </span>
-                      </button>
+                      </Link>
 
-                      <button
-                        id="menu-tab-messages"
-                        onClick={() => {
-                          onSelectTab('messages');
-                          setShowProfileMenu(false);
-                        }}
+                      <Link
+                        href="/messages"
+                        onClick={() => setShowProfileMenu(false)}
                         className="w-full text-left px-2.5 py-2 rounded-xl text-xs text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-zinc-800 font-medium flex items-center justify-between"
                       >
                         <span>Xabarlar</span>
@@ -258,20 +250,18 @@ export const Header: React.FC<HeaderProps> = ({
                             {unreadChatCount}
                           </span>
                         )}
-                      </button>
+                      </Link>
 
-                      <button
-                        onClick={() => {
-                          onSelectTab('saved');
-                          setShowProfileMenu(false);
-                        }}
+                      <Link
+                        href="/cabinet?tab=wishlist"
+                        onClick={() => setShowProfileMenu(false)}
                         className="w-full text-left px-2.5 py-2 rounded-xl text-xs text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-zinc-800 font-medium flex items-center justify-between"
                       >
                         <span>Saqlanganlar</span>
                         <span className="text-[9px] font-bold px-1.5 py-0.5 bg-amber-500 text-white rounded-full">
                           {savedCount}
                         </span>
-                      </button>
+                      </Link>
 
                       {onOpenSupport && (
                         <button

@@ -2,8 +2,10 @@
 'use client';
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { Book, AppTab, FeedFilterType, BookStatus } from '@/types/book';
 import { Header } from '@/components/Header';
+import { Sidebar } from '@/components/Sidebar';
 import { BookCard } from '@/components/BookCard';
 import { BookDetailModal } from '@/components/BookDetailModal';
 import { AddBookModal } from '@/components/AddBookModal';
@@ -43,9 +45,12 @@ const STORAGE_GEO_DISMISSED_KEY = 'kitto_geo_prompt_dismissed';
 const TASHKENT_CENTER = { lat: 41.311081, lng: 69.240562 };
 
 export default function HomePage() {
+  const router = useRouter();
   const { user, openAuthModal, openPhonePrompt, hasValidPhone } = useAuth();
   const { showToast } = useToast();
   const { startConversation, totalUnreadCount } = useChat();
+
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Books and saved IDs state: Default [] on fresh start
   const [books, setBooks] = useState<Book[]>([]);
@@ -495,17 +500,15 @@ export default function HomePage() {
     showToast("Kitob faollashtirildi va ro'yxatga qaytarildi", 'success');
   };
 
-  // Open public reader profile
+  // Open public reader profile page
   const handleOpenUserProfile = (userId: string) => {
-    setSelectedProfileUserId(userId);
-    setIsProfileModalOpen(true);
+    router.push(`/user/${userId}`);
   };
 
-  // Open book details
+  // Open book details page
   const handleOpenDetail = useCallback((book: Book) => {
-    setSelectedBook(book);
-    setIsDetailModalOpen(true);
-  }, []);
+    router.push(`/book/${book.id}`);
+  }, [router]);
 
   // Start in-app chat with book owner
   const handleStartChatFromDetail = (book: Book) => {
@@ -513,11 +516,11 @@ export default function HomePage() {
       openAuthModal("Kitob egasiga xabar yozish uchun tizimga kiring");
       return;
     }
-    startConversation(book);
-    setCurrentTab('messages');
+    const threadId = startConversation(book);
+    router.push(`/messages?thread=${threadId}`);
   };
 
-  // Guarded handler for opening Add Book modal: blocks action if outside Tashkent or phone missing
+  // Guarded handler for opening Add Book page: blocks action if outside Tashkent or phone missing
   const handleOpenAddBookModal = useCallback(() => {
     if (isOutsideTashkent) {
       setIsRegionBlockedModalOpen(true);
@@ -535,8 +538,8 @@ export default function HomePage() {
       return;
     }
 
-    setIsAddModalOpen(true);
-  }, [isOutsideTashkent, user, openAuthModal, openPhonePrompt, hasValidPhone, showToast]);
+    router.push('/add-book');
+  }, [isOutsideTashkent, user, openAuthModal, openPhonePrompt, hasValidPhone, showToast, router]);
 
   // Handle Geolocation permission
   const handleAllowGeo = (coords: { lat: number; lng: number }) => {
@@ -624,27 +627,47 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F8F7F4] dark:bg-zinc-950 text-stone-900 dark:text-stone-100 transition-colors duration-200">
-      {/* Geolocation Banner / Prompt */}
-      <GeolocationPrompt
-        isOpen={isGeoPromptOpen}
-        onAllow={handleAllowGeo}
-        onSkip={handleSkipGeo}
-      />
+      {/* Desktop & Mobile Responsive Sidebar */}
+      <Sidebar mobileOpen={mobileMenuOpen} onCloseMobile={() => setMobileMenuOpen(false)} />
 
-      {/* Main Header with Toshkent location trigger */}
-      <Header
-        darkMode={darkMode}
-        onToggleTheme={() => setDarkMode(!darkMode)}
-        currentTab={currentTab}
-        onSelectTab={(tab) => {
-          if (tab === 'home') {
-            setSearchQuery('');
-            setFeedFilter('all');
-          }
-          setCurrentTab(tab);
-        }}
-        savedCount={savedBookIds.size}
-        myListingsCount={myListings.length}
+      <div className="lg:pl-64 flex flex-col flex-1 min-h-screen">
+        {/* Geolocation Banner / Prompt */}
+        <GeolocationPrompt
+          isOpen={isGeoPromptOpen}
+          onAllow={handleAllowGeo}
+          onSkip={handleSkipGeo}
+        />
+
+        {/* Main Header with Toshkent location trigger */}
+        <Header
+          darkMode={darkMode}
+          onToggleTheme={() => setDarkMode(!darkMode)}
+          currentTab={currentTab}
+          onSelectTab={(tab) => {
+            if (tab === 'profile') {
+              router.push('/cabinet');
+              return;
+            }
+            if (tab === 'messages') {
+              router.push('/messages');
+              return;
+            }
+            if (tab === 'my_listings') {
+              router.push('/cabinet?tab=my_books');
+              return;
+            }
+            if (tab === 'saved') {
+              router.push('/cabinet?tab=wishlist');
+              return;
+            }
+            if (tab === 'home') {
+              setSearchQuery('');
+              setFeedFilter('all');
+            }
+            setCurrentTab(tab);
+          }}
+          savedCount={savedBookIds.size}
+          myListingsCount={myListings.length}
         unreadChatCount={totalUnreadCount}
         onOpenCitySelector={() => setIsCityModalOpen(true)}
         onOpenSupport={() => setIsSupportModalOpen(true)}
@@ -937,11 +960,30 @@ export default function HomePage() {
       {/* Bottom Navigation for Mobile */}
       <BottomNav
         currentTab={currentTab}
-        onSelectTab={setCurrentTab}
+        onSelectTab={(tab) => {
+          if (tab === 'profile') {
+            router.push('/cabinet');
+            return;
+          }
+          if (tab === 'messages') {
+            router.push('/messages');
+            return;
+          }
+          if (tab === 'my_listings') {
+            router.push('/cabinet?tab=my_books');
+            return;
+          }
+          if (tab === 'saved') {
+            router.push('/cabinet?tab=wishlist');
+            return;
+          }
+          setCurrentTab(tab);
+        }}
         savedCount={savedBookIds.size}
         myListingsCount={myListings.length}
         unreadChatCount={totalUnreadCount}
       />
+      </div>
 
       {/* Book Detail Modal */}
       <BookDetailModal

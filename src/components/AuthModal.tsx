@@ -1,23 +1,12 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import {
   X,
   ShieldCheck,
-  UserCheck,
-  AlertCircle,
-  Sparkles,
-  Camera,
-  Check,
-  Bot,
-  ExternalLink,
-  ArrowLeft,
-  KeyRound,
-  RotateCcw,
 } from 'lucide-react';
 import { LogoIcon } from './Logo';
-import { UZBEKISTAN_REGIONS } from '@/lib/regions';
 
 export const AuthModal: React.FC = () => {
   const {
@@ -28,25 +17,11 @@ export const AuthModal: React.FC = () => {
     loginWithGoogle,
   } = useAuth();
 
-  // Step 1: Input details, Step 2: Verification code
-  const [step, setStep] = useState<'form' | 'verify'>('form');
-
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [telegramUsername, setTelegramUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [city, setCity] = useState('Toshkent shahri');
-  const [avatar, setAvatar] = useState<string | null>(null);
-
-  const [verificationCode, setVerificationCode] = useState('');
-  const [botDeepLink, setBotDeepLink] = useState('https://t.me/kittouzbot');
-  const [isSendingCode, setIsSendingCode] = useState(false);
-  const [isVerifyingCode, setIsVerifyingCode] = useState(false);
-  const [error, setError] = useState('');
-  const [successNotice, setSuccessNotice] = useState('');
   const [loadingGoogle, setLoadingGoogle] = useState(false);
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showPhoneLogin, setShowPhoneLogin] = useState(false);
+  const [phoneName, setPhoneName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -60,550 +35,187 @@ export const AuthModal: React.FC = () => {
       document.body.style.overflow = 'auto';
       window.removeEventListener('keydown', handleKeyDown);
       setError('');
-      setSuccessNotice('');
-      setStep('form');
+      setShowPhoneLogin(false);
     };
   }, [isAuthModalOpen, closeAuthModal]);
 
   if (!isAuthModalOpen) return null;
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      setError('Faqat rasm formatidagi fayl yuklashingiz mumkin');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      setAvatar(event.target?.result as string);
-      setError('');
-    };
-    reader.readAsDataURL(file);
-  };
-
-  // Instant direct login & registration (guaranteed to work 100%)
-  const handleDirectLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const cleanName = name.trim();
-    const cleanPhone = phone.trim();
-    const cleanTg = telegramUsername.trim().replace(/^@/, '');
-
-    if (!cleanName) {
-      setError('Iltimos, ism va familiyangizni kiriting');
-      return;
-    }
-    if (!cleanPhone || cleanPhone.length < 9) {
-      setError('Iltimos, toʻgʻri telefon raqamingizni kiriting (+998...)');
-      return;
-    }
-
-    setIsSendingCode(true);
-    setError('');
-
-    try {
-      await loginWithProfile({
-        name: cleanName,
-        contact: cleanPhone,
-        city,
-        email: email.trim() || undefined,
-        telegramUsername: cleanTg || undefined,
-        avatar: avatar || undefined,
-        role: 'user',
-        provider: 'direct',
-      });
-      closeAuthModal();
-    } catch {
-      setError('Tizimga kirishda xatolik yuz berdi. Qayta urinib koʻring.');
-    } finally {
-      setIsSendingCode(false);
-    }
-  };
-
-  // Optional: Send verification code via Telegram bot
-  const handleRequestCode = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    const cleanName = name.trim();
-    const cleanPhone = phone.trim();
-    const cleanTg = telegramUsername.trim().replace(/^@/, '');
-
-    if (!cleanName) {
-      setError('Iltimos, ism va familiyangizni kiriting');
-      return;
-    }
-    if (!cleanPhone || cleanPhone.length < 9) {
-      setError('Iltimos, toʻgʻri telefon raqamingizni kiriting (+998...)');
-      return;
-    }
-
-    setIsSendingCode(true);
-    setError('');
-
-    try {
-      const res = await fetch('/api/auth/send-telegram-code', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          phone: cleanPhone,
-          name: cleanName,
-          username: cleanTg,
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        setError(data.error || 'Tasdiqlash kodini yuborishda xatolik yuz berdi. Toʻgʻridan-toʻgʻri kirish tugmasidan foydalanishingiz mumkin.');
-        setIsSendingCode(false);
-        return;
-      }
-
-      setBotDeepLink(data.botDeepLink || 'https://t.me/kittouzbot');
-      setSuccessNotice(data.message || 'Tasdiqlash kodi botga yuborildi');
-      setStep('verify');
-    } catch {
-      setError('Serverga ulanishda xatolik. Toʻgʻridan-toʻgʻri kirish tugmasidan foydalanishingiz mumkin.');
-    } finally {
-      setIsSendingCode(false);
-    }
-  };
-
-  // Step 2: Verify 6-digit code and complete login
-  const handleVerifyAndLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const cleanCode = verificationCode.trim();
-
-    if (!cleanCode || cleanCode.length !== 6) {
-      setError('Iltimos, 6 xonali tasdiqlash kodini kiriting');
-      return;
-    }
-
-    setIsVerifyingCode(true);
-    setError('');
-
-    try {
-      const res = await fetch('/api/auth/verify-telegram-code', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          phone: phone.trim(),
-          code: cleanCode,
-          name: name.trim(),
-          username: telegramUsername.trim(),
-          email: email.trim(),
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        setError(data.error || 'Notoʻgʻri yoki muddati oʻtgan kod');
-        setIsVerifyingCode(false);
-        return;
-      }
-
-      // Success! Log the user in
-      loginWithProfile({
-        name: name.trim(),
-        contact: phone.trim(),
-        telegramUsername: telegramUsername.trim() ? telegramUsername.trim().replace(/^@/, '') : undefined,
-        email: email.trim() || undefined,
-        city,
-        avatar: avatar || undefined,
-        provider: 'direct',
-      });
-
-      closeAuthModal();
-    } catch {
-      setError('Tasdiqlashda xatolik. Qayta urinib koʻring.');
-    } finally {
-      setIsVerifyingCode(false);
-    }
-  };
-
-  const handleGoogleClick = async () => {
+  const handleGoogleLogin = async () => {
     setLoadingGoogle(true);
     setError('');
     try {
       await loginWithGoogle();
     } catch {
-      setError('Google orqali kirishda xatolik yuz berdi');
+      setError('Google orqali kirishda xatolik yuz berdi. Qaytadan urinib koʻring.');
       setLoadingGoogle(false);
+    }
+  };
+
+  const handleDirectPhoneLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanName = phoneName.trim();
+    const cleanPhone = phoneNumber.trim();
+
+    if (!cleanName) {
+      setError('Iltimos, ismingizni kiriting');
+      return;
+    }
+    if (!cleanPhone || cleanPhone.length < 9) {
+      setError('Iltimos, toʻgʻri telefon raqamingizni kiriting (+998...)');
+      return;
+    }
+
+    try {
+      await loginWithProfile({
+        name: cleanName,
+        contact: cleanPhone,
+        city: 'Toshkent shahri',
+        provider: 'direct',
+      });
+      closeAuthModal();
+    } catch {
+      setError('Kirishda xatolik yuz berdi');
     }
   };
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-stone-950/60 backdrop-blur-md modal-backdrop-animate"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/60 backdrop-blur-md animate-in fade-in duration-200"
       onClick={closeAuthModal}
     >
       <div
-        className="relative w-full max-w-md max-h-[92vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl bg-white dark:bg-zinc-900 backdrop-blur-xl border border-stone-200/90 dark:border-zinc-800 shadow-2xl p-6 sm:p-7 modal-container-animate"
+        className="relative w-full max-w-sm rounded-3xl bg-white dark:bg-zinc-900 border border-stone-200/90 dark:border-zinc-800 shadow-2xl p-7 text-center space-y-5 animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close Button */}
         <button
           onClick={closeAuthModal}
-          className="absolute top-4 right-4 p-2 rounded-full text-stone-400 hover:text-stone-700 dark:text-zinc-400 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-zinc-800 transition-colors"
+          className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-stone-100 dark:hover:bg-zinc-800 text-stone-400 hover:text-stone-700 transition-colors"
           title="Yopish"
         >
           <X className="w-5 h-5" />
         </button>
 
-        {/* Modal Header */}
-        <div className="text-center pt-1">
-          <div className="flex justify-center mb-3">
-            <LogoIcon size={44} />
+        {/* Brand */}
+        <div>
+          <div className="w-12 h-12 rounded-2xl bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 flex items-center justify-center mx-auto mb-3 shadow-sm">
+            <LogoIcon size={26} />
           </div>
-          <h3 className="font-serif text-2xl font-bold text-stone-900 dark:text-stone-100 tracking-tight">
-            {step === 'form' ? 'Tizimga kirish' : 'Kodni tasdiqlash'}
-          </h3>
-          <p className="text-xs text-stone-500 dark:text-zinc-400 mt-1 max-w-xs mx-auto leading-relaxed">
-            {step === 'form'
-              ? "Kitob almashish va e'lon joylash uchun profilingizga kiring"
-              : `${phone} raqamiga Telegram bot orqali tasdiqlash kodi yuborildi.`}
-          </p>
+          <h2 className="font-serif text-xl font-bold text-stone-900 dark:text-stone-100">
+            Kitto tizimiga kirish
+          </h2>
+          {authModalReason && (
+            <p className="text-xs text-amber-700 dark:text-amber-400 font-medium mt-1">
+              {authModalReason}
+            </p>
+          )}
         </div>
 
-        {/* Reason banner if triggered by a protected action */}
-        {authModalReason && (
-          <div className="mt-3.5 p-2.5 rounded-xl bg-amber-50/90 dark:bg-amber-950/50 border border-amber-200/80 dark:border-amber-900/60 flex items-center gap-2 text-xs text-amber-900 dark:text-amber-300">
-            <Sparkles className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
-            <span className="font-medium">{authModalReason}</span>
+        {error && (
+          <div className="p-3 rounded-2xl bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 text-xs text-left border border-red-200">
+            {error}
           </div>
         )}
 
-        {step === 'form' ? (
-          <>
-            {/* Option 1: Modern Full-Width Google OAuth Button */}
-            <div className="mt-5">
-              <button
-                type="button"
-                id="auth-google-login-btn"
-                onClick={handleGoogleClick}
-                disabled={loadingGoogle}
-                className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-2xl bg-white dark:bg-zinc-800 hover:bg-stone-50 dark:hover:bg-zinc-700 text-stone-800 dark:text-stone-100 font-semibold text-xs tracking-wide border border-stone-200/90 dark:border-zinc-700 shadow-xs transition-all active:scale-[0.99] group"
-              >
-                <svg className="w-4 h-4 shrink-0 transition-transform group-hover:scale-105" viewBox="0 0 24 24">
-                  <path
-                    fill="#4285F4"
-                    d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.15z"
-                  />
-                  <path
-                    fill="#34A853"
-                    d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"
-                  />
-                  <path
-                    fill="#FBBC05"
-                    d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.98 0 12s.45 3.82 1.25 5.42l4.03-3.15z"
-                  />
-                  <path
-                    fill="#EA4335"
-                    d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
-                  />
-                </svg>
-                <span>{loadingGoogle ? 'Google tizimiga ulanmoqda...' : 'Google orqali tezkor kirish'}</span>
-              </button>
-            </div>
+        {/* Google OAuth Button */}
+        <div className="space-y-3">
+          <button
+            onClick={handleGoogleLogin}
+            disabled={loadingGoogle}
+            className="w-full py-3 px-4 rounded-2xl bg-white dark:bg-zinc-800 hover:bg-stone-50 dark:hover:bg-zinc-750 text-stone-800 dark:text-stone-100 border border-stone-200 dark:border-zinc-700 font-semibold text-xs flex items-center justify-center gap-2.5 shadow-xs hover:shadow-md transition-all active:scale-[0.98] disabled:opacity-50"
+          >
+            {loadingGoogle ? (
+              <div className="w-4 h-4 border-2 border-stone-400 border-t-stone-900 rounded-full animate-spin" />
+            ) : (
+              <svg className="w-4 h-4" viewBox="0 0 24 24">
+                <path
+                  fill="#4285F4"
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                />
+                <path
+                  fill="#EA4335"
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                />
+              </svg>
+            )}
+            <span>Google orqali davom etish</span>
+          </button>
 
-            {/* Divider */}
-            <div className="relative my-4">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-stone-200 dark:border-zinc-800" />
-              </div>
-              <div className="relative flex justify-center text-[10px] uppercase tracking-[0.16em] font-semibold">
-                <span className="bg-white dark:bg-zinc-900 px-3 text-stone-400 dark:text-zinc-500">
-                  yoki telefon raqam orqali
-                </span>
-              </div>
-            </div>
-
-            {/* Form */}
-            <form onSubmit={handleDirectLogin} className="space-y-3">
-              {/* Optional Avatar */}
-              <div className="flex items-center gap-3 p-2 rounded-2xl bg-stone-50/80 dark:bg-zinc-800/50 border border-stone-200/60 dark:border-zinc-800">
-                <div className="relative shrink-0">
-                  {avatar ? (
-                    <img
-                      src={avatar}
-                      alt="Profil rasmi"
-                      className="w-11 h-11 rounded-full object-cover border-2 border-stone-300 dark:border-zinc-700 shadow-xs"
-                    />
-                  ) : (
-                    <div className="w-11 h-11 rounded-full bg-stone-200 dark:bg-zinc-700 text-stone-500 dark:text-zinc-300 flex items-center justify-center font-bold text-sm">
-                      {name.trim() ? name.trim().charAt(0).toUpperCase() : <Camera className="w-4 h-4 stroke-[1.8]" />}
-                    </div>
-                  )}
-                  {avatar && (
-                    <span className="absolute -bottom-0.5 -right-0.5 p-0.5 rounded-full bg-emerald-500 text-white shadow-xs">
-                      <Check className="w-2.5 h-2.5 stroke-[3]" />
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleAvatarChange}
-                    className="hidden"
-                    id="auth-avatar-file-input"
-                  />
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="px-2.5 py-1 rounded-lg bg-white dark:bg-zinc-800 hover:bg-stone-100 dark:hover:bg-zinc-700 text-stone-700 dark:text-stone-200 text-xs font-semibold border border-stone-200 dark:border-zinc-700 shadow-2xs transition-colors"
-                    >
-                      {avatar ? "Rasmni almashtirish" : '+ Rasm qoʻshish'}
-                    </button>
-                    {avatar && (
-                      <button
-                        type="button"
-                        onClick={() => setAvatar(null)}
-                        className="text-[11px] text-stone-400 hover:text-red-600 transition-colors"
-                      >
-                        Oʻchirish
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Ism va familiya (Majburiy) */}
+          {/* Quick Direct Phone fallback */}
+          {!showPhoneLogin ? (
+            <button
+              type="button"
+              onClick={() => setShowPhoneLogin(true)}
+              className="text-xs text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 underline"
+            >
+              yoki telefon raqam orqali kirish
+            </button>
+          ) : (
+            <form onSubmit={handleDirectPhoneLogin} className="space-y-2.5 pt-2 text-left border-t border-stone-100 dark:border-zinc-800">
               <div>
-                <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">
-                  Ism va familiya *
+                <label className="block text-[11px] font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                  Ismingiz
                 </label>
                 <input
-                  id="auth-name-input"
                   type="text"
                   required
-                  value={name}
-                  onChange={(e) => {
-                    setName(e.target.value);
-                    if (error) setError('');
-                  }}
-                  placeholder="masalan: Sardor Rahimov"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 dark:border-zinc-800 text-sm bg-stone-50 dark:bg-zinc-900 text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-[#141413] dark:focus:ring-stone-400 transition-all"
+                  value={phoneName}
+                  onChange={(e) => setPhoneName(e.target.value)}
+                  placeholder="Ism va familiya"
+                  className="w-full px-3 py-2 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-xs text-stone-900 dark:text-stone-100"
                 />
               </div>
 
-              {/* Telefon raqami */}
               <div>
-                <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">
-                  Telefon raqamingiz *
+                <label className="block text-[11px] font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                  Telefon raqamingiz (+998...)
                 </label>
                 <input
-                  id="auth-phone-input"
                   type="tel"
                   required
-                  value={phone}
-                  onChange={(e) => {
-                    setPhone(e.target.value);
-                    if (error) setError('');
-                  }}
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
                   placeholder="+998 90 123 45 67"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 dark:border-zinc-800 text-sm bg-stone-50 dark:bg-zinc-900 text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-[#141413] dark:focus:ring-stone-400 transition-all"
-                />
-                <p className="text-[10px] text-stone-400 dark:text-zinc-500 mt-1">
-                  Tasdiqlash kodi @kittouzbot orqali yuboriladi
-                </p>
-              </div>
-
-              {/* Telegram Username (Ixtiyoriy, raqam pastida) */}
-              <div>
-                <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">
-                  Telegram username (ixtiyoriy)
-                </label>
-                <div className="relative">
-                  <input
-                    id="auth-telegram-input"
-                    type="text"
-                    value={telegramUsername}
-                    onChange={(e) => setTelegramUsername(e.target.value)}
-                    placeholder="@username"
-                    className="w-full pl-3.5 pr-8 py-2.5 rounded-xl border border-stone-200 dark:border-zinc-800 text-sm bg-stone-50 dark:bg-zinc-900 text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-[#141413] dark:focus:ring-stone-400 transition-all"
-                  />
-                  <Bot className="w-4 h-4 text-sky-600 dark:text-sky-400 absolute right-3 top-3 pointer-events-none" />
-                </div>
-                <p className="text-[10px] text-stone-400 dark:text-zinc-500 mt-1">
-                  Botimizdan tasdiqlash kodini tezkor qabul qilish uchun
-                </p>
-              </div>
-
-              {/* Email (Ixtiyoriy) */}
-              <div>
-                <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">
-                  Email manzil (ixtiyoriy)
-                </label>
-                <input
-                  id="auth-email-input"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="sardor@example.com"
-                  className="w-full px-3.5 py-2 rounded-xl border border-stone-200 dark:border-zinc-800 text-xs bg-stone-50 dark:bg-zinc-900 text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-[#141413] dark:focus:ring-stone-400"
+                  className="w-full px-3 py-2 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-xs text-stone-900 dark:text-stone-100"
                 />
               </div>
 
-              {/* Viloyat / Hudud */}
-              <div>
-                <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">
-                  Viloyat / Hududingiz
-                </label>
-                <select
-                  id="auth-city-select"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 dark:border-zinc-800 text-xs font-medium bg-stone-50 dark:bg-zinc-900 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-[#141413] dark:focus:ring-stone-400 transition-all"
-                >
-                  {UZBEKISTAN_REGIONS.map((r) => (
-                    <option key={r.id} value={r.name}>
-                      {r.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {error && (
-                <div className="text-[11px] text-red-600 dark:text-red-400 flex items-center gap-1 pt-0.5">
-                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                  <span>{error}</span>
-                </div>
-              )}
-
-              <div className="pt-2 space-y-2">
+              <div className="flex gap-2 pt-1">
                 <button
-                  id="auth-direct-login-btn"
-                  type="submit"
-                  disabled={isSendingCode}
-                  className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 font-semibold text-xs tracking-wide shadow-tactile transition-all active:scale-[0.99] disabled:opacity-50"
-                >
-                  <UserCheck className="w-4 h-4" />
-                  <span>{isSendingCode ? 'Kirilmoqda...' : 'Tizimga kirish / Roʻyxatdan oʻtish'}</span>
-                </button>
-
-                <button
-                  id="auth-request-code-btn"
                   type="button"
-                  onClick={() => handleRequestCode()}
-                  disabled={isSendingCode}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-stone-100 hover:bg-stone-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-stone-700 dark:text-stone-300 font-medium text-[11px] border border-stone-200 dark:border-zinc-700 transition-all active:scale-[0.99] disabled:opacity-50"
+                  onClick={() => setShowPhoneLogin(false)}
+                  className="flex-1 py-2 px-3 rounded-xl border border-stone-200 text-xs font-semibold text-stone-600 hover:bg-stone-50"
                 >
-                  <Bot className="w-3.5 h-3.5 text-sky-500" />
-                  <span>Telegram bot orqali tasdiqlash kodi olish</span>
+                  Bekor qilish
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2 px-3 rounded-xl bg-[#141413] hover:bg-black text-white text-xs font-semibold shadow-xs"
+                >
+                  Kirish
                 </button>
               </div>
             </form>
-          </>
-        ) : (
-          /* Step 2: Verification Code View */
-          <form onSubmit={handleVerifyAndLogin} className="mt-5 space-y-4">
-            {/* Telegram Bot Action Banner */}
-            <div className="p-3.5 rounded-2xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800/60 text-center space-y-2">
-              <div className="flex items-center justify-center gap-1.5 text-xs font-semibold text-sky-900 dark:text-sky-200">
-                <Bot className="w-4 h-4 text-sky-600 dark:text-sky-400" />
-                <span>Kodingiz @kittouzbot ga yuborildi</span>
-              </div>
-              <p className="text-[11px] text-sky-700 dark:text-sky-300">
-                Kodni koʻrish uchun botimizga kiring va <b>Start</b> tugmasini bosing:
-              </p>
-              <a
-                href={botDeepLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs shadow-sm transition-all active:scale-95 w-full"
-              >
-                <Bot className="w-4 h-4" />
-                <span>@kittouzbot dan kodni olish</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
-            </div>
+          )}
+        </div>
 
-            {successNotice && (
-              <div className="text-[11px] text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 p-2 rounded-xl border border-emerald-200 dark:border-emerald-800/50 flex items-center gap-1.5">
-                <Check className="w-3.5 h-3.5 shrink-0" />
-                <span>{successNotice}</span>
-              </div>
-            )}
-
-            {/* 6-Digit Code Input */}
-            <div>
-              <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1.5 text-center">
-                6 xonali tasdiqlash kodini kiriting
-              </label>
-              <div className="relative">
-                <input
-                  id="auth-code-input"
-                  type="text"
-                  maxLength={6}
-                  required
-                  autoFocus
-                  value={verificationCode}
-                  onChange={(e) => {
-                    const val = e.target.value.replace(/\D/g, '').slice(0, 6);
-                    setVerificationCode(val);
-                    if (error) setError('');
-                  }}
-                  placeholder="6 xonali kodni kiriting"
-                  className="w-full text-center font-mono text-base py-3 rounded-2xl border-2 border-stone-300 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-900 text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-zinc-500 focus:outline-none focus:border-[#141413] dark:focus:border-stone-300 transition-all font-bold tracking-widest"
-                />
-                <KeyRound className="w-4 h-4 text-stone-400 absolute right-4 top-4 pointer-events-none" />
-              </div>
-            </div>
-
-            {error && (
-              <div className="text-[11px] text-red-600 dark:text-red-400 flex items-center justify-center gap-1 pt-0.5">
-                <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                <span>{error}</span>
-              </div>
-            )}
-
-            {/* Submit & Back Buttons */}
-            <div className="space-y-2 pt-1">
-              <button
-                id="auth-verify-submit-btn"
-                type="submit"
-                disabled={isVerifyingCode || verificationCode.length !== 6}
-                className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 font-semibold text-xs tracking-wide shadow-tactile transition-all active:scale-[0.99] disabled:opacity-40"
-              >
-                <UserCheck className="w-4 h-4 stroke-[2.2]" />
-                <span>{isVerifyingCode ? 'Tekshirilmoqda...' : 'Tasdiqlash va tizimga kirish'}</span>
-              </button>
-
-              <div className="flex items-center justify-between pt-2 text-xs">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setStep('form');
-                    setVerificationCode('');
-                    setError('');
-                  }}
-                  className="inline-flex items-center gap-1 text-stone-500 hover:text-stone-800 dark:text-zinc-400 dark:hover:text-stone-200 transition-colors"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Raqamni oʻzgartirish</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={(e) => handleRequestCode(e)}
-                  className="inline-flex items-center gap-1 text-amber-700 dark:text-amber-400 hover:underline font-medium"
-                >
-                  <RotateCcw className="w-3.5 h-3.5" />
-                  <span>Kodni qayta soʻrash</span>
-                </button>
-              </div>
-            </div>
-          </form>
-        )}
-
-        {/* Security Note */}
-        <div className="mt-4 pt-3 border-t border-stone-100 dark:border-zinc-800 flex items-center justify-center gap-1.5 text-[10px] tracking-wide text-stone-400 dark:text-zinc-500">
-          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-          <span>Telegram bot orqali 100% xavfsiz tasdiqlash</span>
+        {/* 15-Day Inactivity Security Info */}
+        <div className="p-3.5 rounded-2xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-900/50 text-left space-y-1.5">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900 dark:text-amber-300">
+            <ShieldCheck className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+            <span>15 kunlik xavfsiz sessiya</span>
+          </div>
+          <p className="text-[11px] text-stone-600 dark:text-zinc-400 leading-snug">
+            15 kun kirmasangiz, hisobingizdan xavfsiz chiqiladi, lekin barcha kitob va xabarlaringiz saqlanadi.
+          </p>
         </div>
       </div>
     </div>

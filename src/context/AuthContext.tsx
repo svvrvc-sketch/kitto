@@ -10,6 +10,32 @@ import { isValidUzbekPhone, formatUzbekPhone } from '@/utils/phone';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// 15 days in milliseconds = 15 * 24 * 60 * 60 * 1000
+const FIFTEEN_DAYS_MS = 15 * 24 * 60 * 60 * 1000;
+const LAST_ACTIVE_KEY = 'kitto_last_active_at';
+
+const checkInactivityExpiration = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  try {
+    const raw = localStorage.getItem(LAST_ACTIVE_KEY);
+    if (!raw) return false;
+    const lastActive = parseInt(raw, 10);
+    if (isNaN(lastActive)) return false;
+    return Date.now() - lastActive > FIFTEEN_DAYS_MS;
+  } catch {
+    return false;
+  }
+};
+
+const updateLastActive = () => {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(LAST_ACTIVE_KEY, String(Date.now()));
+  } catch {
+    // ignore
+  }
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
@@ -22,6 +48,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       localStorage.removeItem(STORAGE_USER_KEY);
       localStorage.removeItem('bookswap_user');
+      localStorage.removeItem(LAST_ACTIVE_KEY);
       // Clear cookie used for middleware RBAC if present
       document.cookie = 'kitto_user_id=; path=/; max-age=0';
       document.cookie = 'kitto_user_role=; path=/; max-age=0';
@@ -34,6 +61,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(u));
       localStorage.setItem('bookswap_user', JSON.stringify(u));
+      updateLastActive();
       // Set secure cookie for middleware check
       document.cookie = `kitto_user_id=${encodeURIComponent(u.id)}; path=/; max-age=2592000; SameSite=Lax`;
       document.cookie = `kitto_user_role=${encodeURIComponent(u.role || 'user')}; path=/; max-age=2592000; SameSite=Lax`;
@@ -129,9 +157,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  // SSR mount guard and Supabase Auth session listener
+  // SSR mount guard, 15-day inactivity auto-logout, and Supabase Auth session listener
   useEffect(() => {
     let isMounted = true;
+
+    // Check if 15 days of inactivity have passed
+    if (checkInactivityExpiration()) {
+      console.info('[Auth] 15 kunlik nofaollik tufayli sessiya avtomatik yakunlandi.');
+      clearUserStorage();
+      if (isSupabaseConfigured) {
+        supabase.auth.signOut().catch(() => {});
+      }
+      setUser(null);
+      setIsHydrated(true);
+      return;
+    }
+
+    // User is active: update last active timestamp
+    updateLastActive();
+
+    const handleActivity = () => {
+      updateLastActive();
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('click', handleActivity, { passive: true });
+      window.addEventListener('keydown', handleActivity, { passive: true });
+      window.addEventListener('touchstart', handleActivity, { passive: true });
+    }
 
     if (isSupabaseConfigured) {
       supabase.auth.getSession().then(({ data: { session } }) => {
@@ -153,6 +206,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         async (event, session) => {
           if (!isMounted) return;
           if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session?.user) {
+            updateLastActive();
             syncSupabaseUser(session.user);
           } else if (event === 'SIGNED_OUT') {
             setUser(null);
@@ -164,10 +218,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return () => {
         isMounted = false;
         authListener?.subscription?.unsubscribe();
+        if (typeof window !== 'undefined') {
+          window.removeEventListener('click', handleActivity);
+          window.removeEventListener('keydown', handleActivity);
+          window.removeEventListener('touchstart', handleActivity);
+        }
       };
     } else {
       loadFromLocalStorage();
       setIsHydrated(true);
+      return () => {
+        isMounted = false;
+        if (typeof window !== 'undefined') {
+          window.removeEventListener('click', handleActivity);
+          window.removeEventListener('keydown', handleActivity);
+          window.removeEventListener('touchstart', handleActivity);
+        }
+      };
     }
   }, [syncSupabaseUser, loadFromLocalStorage]);
 
