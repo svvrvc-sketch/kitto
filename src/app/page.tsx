@@ -10,6 +10,7 @@ import { BookDetailModal } from '@/components/BookDetailModal';
 import { AddBookModal } from '@/components/AddBookModal';
 import { EmptyState } from '@/components/EmptyState';
 import { BottomNav } from '@/components/BottomNav';
+import { Footer } from '@/components/Footer';
 import { CitySelectorModal } from '@/components/CitySelectorModal';
 import { ProfileTab } from '@/components/ProfileTab';
 import { MessagesTab } from '@/components/MessagesTab';
@@ -938,6 +939,9 @@ export default function HomePage() {
           </>
         )}
       </main>
+
+      {/* Website Footer */}
+      <Footer />
 
       {/* Bottom Navigation for Mobile */}
       <BottomNav

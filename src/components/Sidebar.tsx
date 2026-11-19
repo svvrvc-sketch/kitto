@@ -13,6 +13,7 @@ import {
   Plus,
   LogOut,
   ShieldCheck,
+  HelpCircle,
   X,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -78,6 +79,23 @@ const SidebarInner: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMobil
           href: '/cabinet?tab=profile',
           icon: UserIcon,
           active: isLinkActive('/cabinet', 'profile'),
+        },
+      ],
+    },
+    {
+      group: "QO'LLANMA",
+      items: [
+        {
+          label: 'Qanday ishlaydi?',
+          href: '/how-it-works',
+          icon: HelpCircle,
+          active: pathname === '/how-it-works',
+        },
+        {
+          label: 'Xavfsizlik qoidalari',
+          href: '/safety',
+          icon: ShieldCheck,
+          active: pathname === '/safety',
         },
       ],
     },

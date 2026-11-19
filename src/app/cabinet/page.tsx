@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, Suspense } from 'react';
+import React, { useState, useEffect, useRef, useMemo, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -23,11 +23,14 @@ import {
   X,
   Menu,
   QrCode,
+  Search,
   LogOut,
   ExternalLink,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
+import { BottomNav } from '@/components/BottomNav';
+import { Footer } from '@/components/Footer';
 import { Book } from '@/types/book';
 import { booksService, exchangeTransactionsService, profilesService } from '@/services/db';
 import { uploadImageToStorage } from '@/utils/storage';
@@ -80,6 +83,55 @@ function CabinetContent() {
 
   // Wishlist state
   const [wishlistInput, setWishlistInput] = useState('');
+
+  // My Books Search & Filter State
+  const [myBooksSearchQuery, setMyBooksSearchQuery] = useState('');
+  const [myBooksFilterStatus, setMyBooksFilterStatus] = useState<'all' | 'active' | 'swapped' | 'temporarily_given'>('all');
+
+  // Filtered My Books
+  const filteredMyBooks = useMemo(() => {
+    let list = myBooks;
+    if (myBooksFilterStatus === 'active') {
+      list = list.filter((b) => b.status === 'active');
+    } else if (myBooksFilterStatus === 'swapped') {
+      list = list.filter((b) => b.status === 'swapped');
+    } else if (myBooksFilterStatus === 'temporarily_given') {
+      list = list.filter((b) => b.status === 'temporarily_given');
+    }
+    if (myBooksSearchQuery.trim()) {
+      const q = myBooksSearchQuery.toLowerCase().trim();
+      list = list.filter(
+        (b) =>
+          (b.title && b.title.toLowerCase().includes(q)) ||
+          (b.author && b.author.toLowerCase().includes(q))
+      );
+    }
+    return list;
+  }, [myBooks, myBooksFilterStatus, myBooksSearchQuery]);
+
+  // Gamified User Tier
+  const userTier = useMemo(() => {
+    const count = myBooks.length;
+    if (count >= 8) {
+      return {
+        name: 'Mutolaa Ustasi',
+        icon: '👑',
+        color: 'text-amber-800 dark:text-amber-300 bg-amber-500/15 border-amber-500/30',
+      };
+    }
+    if (count >= 3) {
+      return {
+        name: 'Faol Kitobxon',
+        icon: '📚',
+        color: 'text-sky-800 dark:text-sky-300 bg-sky-500/15 border-sky-500/30',
+      };
+    }
+    return {
+      name: 'Yangi Kitobxon',
+      icon: '🌱',
+      color: 'text-emerald-800 dark:text-emerald-300 bg-emerald-500/15 border-emerald-500/30',
+    };
+  }, [myBooks.length]);
 
   // QR Modal
   const [isQRModalOpen, setIsQRModalOpen] = useState(false);
@@ -468,6 +520,10 @@ function CabinetContent() {
                     <h1 className="font-sans text-xl sm:text-2xl font-bold text-stone-900 dark:text-stone-100 truncate">
                       {user.name}
                     </h1>
+                    <div className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-xs font-bold shadow-2xs ${userTier.color}`}>
+                      <span>{userTier.icon}</span>
+                      <span>{userTier.name}</span>
+                    </div>
                     <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs font-bold shadow-2xs">
                       <ShieldCheck className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                       <span>{user.trustScore ?? 1} ball</span>
@@ -724,15 +780,70 @@ function CabinetContent() {
                 </Link>
               </div>
 
+              {/* Search & Filter Bar */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+                <div className="relative flex-1 max-w-sm">
+                  <Search className="absolute left-3 top-2.5 w-3.5 h-3.5 text-stone-400" />
+                  <input
+                    type="text"
+                    value={myBooksSearchQuery}
+                    onChange={(e) => setMyBooksSearchQuery(e.target.value)}
+                    placeholder="Javondan kitob qidirish..."
+                    className="w-full pl-8 pr-7 py-2 rounded-xl border border-stone-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-xs text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                  />
+                  {myBooksSearchQuery && (
+                    <button
+                      onClick={() => setMyBooksSearchQuery('')}
+                      className="absolute right-2.5 top-2.5 text-stone-400 hover:text-stone-600"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none">
+                  <button
+                    onClick={() => setMyBooksFilterStatus('all')}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                      myBooksFilterStatus === 'all'
+                        ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 shadow-2xs'
+                        : 'bg-stone-100 dark:bg-zinc-800 text-stone-600 dark:text-stone-300'
+                    }`}
+                  >
+                    Barchasi ({myBooks.length})
+                  </button>
+                  <button
+                    onClick={() => setMyBooksFilterStatus('active')}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                      myBooksFilterStatus === 'active'
+                        ? 'bg-emerald-600 text-white shadow-2xs'
+                        : 'bg-stone-100 dark:bg-zinc-800 text-stone-600 dark:text-stone-300'
+                    }`}
+                  >
+                    Faol ({activeCount})
+                  </button>
+                  <button
+                    onClick={() => setMyBooksFilterStatus('swapped')}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                      myBooksFilterStatus === 'swapped'
+                        ? 'bg-amber-600 text-white shadow-2xs'
+                        : 'bg-stone-100 dark:bg-zinc-800 text-stone-600 dark:text-stone-300'
+                    }`}
+                  >
+                    Almashilgan ({swappedCount})
+                  </button>
+                </div>
+              </div>
+
               {loading ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 animate-pulse">
                   {[1, 2, 3, 4].map((i) => (
                     <div key={i} className="aspect-[3/4] rounded-2xl bg-stone-200 dark:bg-zinc-800" />
                   ))}
                 </div>
-              ) : myBooks.length > 0 ? (
+              ) : filteredMyBooks.length > 0 ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {myBooks.map((book) => (
+                  {filteredMyBooks.map((book) => (
                     <div
                       key={book.id}
                       className="bg-white dark:bg-zinc-900 rounded-2xl border border-stone-200/80 dark:border-zinc-800 p-3 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group"
@@ -796,18 +907,33 @@ function CabinetContent() {
                 <div className="p-8 sm:p-12 rounded-3xl bg-white dark:bg-zinc-900 border border-stone-200/80 dark:border-zinc-800 text-center">
                   <BookOpen className="w-12 h-12 text-stone-400 mx-auto mb-3 stroke-[1.5]" />
                   <h3 className="font-sans text-base font-bold text-stone-900 dark:text-stone-100">
-                    Javoningizda hali kitoblar yoʻq
+                    {myBooksSearchQuery ? 'Ushbu qidiruv bo‘yicha kitob topilmadi' : 'Javoningizda hali kitoblar yoʻq'}
                   </h3>
                   <p className="text-xs text-stone-500 max-w-sm mx-auto mt-1 mb-5">
-                    Oʻzingiz oʻqib boʻlgan kitoblarni joylang va boshqa kitobxonlar bilan doimiy yoki vaqtincha almashing.
+                    {myBooksSearchQuery
+                      ? 'Boshqa kalit so‘z bilan qidiring yoki filtrlarni tozalang.'
+                      : 'Oʻzingiz oʻqib boʻlgan kitoblarni joylang va boshqa kitobxonlar bilan doimiy yoki vaqtincha almashing.'}
                   </p>
-                  <Link
-                    href="/add-book"
-                    className="inline-flex items-center gap-2 py-2.5 px-5 rounded-2xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white font-semibold text-xs shadow-xs transition-all"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Birinchi kitobni joylash</span>
-                  </Link>
+                  {myBooksSearchQuery ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMyBooksSearchQuery('');
+                        setMyBooksFilterStatus('all');
+                      }}
+                      className="inline-flex items-center gap-2 py-2 px-4 rounded-xl bg-stone-200 dark:bg-zinc-800 text-stone-800 dark:text-stone-200 font-semibold text-xs"
+                    >
+                      Filtrni tozalash
+                    </button>
+                  ) : (
+                    <Link
+                      href="/add-book"
+                      className="inline-flex items-center gap-2 py-2.5 px-5 rounded-2xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white font-semibold text-xs shadow-xs transition-all"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Birinchi kitobni joylash</span>
+                    </Link>
+                  )}
                 </div>
               )}
             </div>
@@ -1272,6 +1398,12 @@ function CabinetContent() {
             </div>
           )}
         </main>
+
+        {/* Footer */}
+        <Footer />
+
+        {/* Mobile Bottom Navigation */}
+        <BottomNav savedCount={user.wishlistBooks?.length || 0} />
       </div>
 
       {/* QR Code Handover & Return Modal */}

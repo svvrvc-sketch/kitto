@@ -71,7 +71,7 @@ export default function RootLayout({
           strategy="beforeInteractive"
         />
       </head>
-      <body className="antialiased min-h-screen bg-[#F8F7F4] dark:bg-zinc-950 text-[#141413] dark:text-[#F8F7F4] font-sans selection:bg-amber-600 selection:text-white dark:selection:bg-amber-500 dark:selection:text-zinc-900 overflow-x-hidden transition-colors duration-200">
+      <body className="antialiased min-h-screen bg-[#F8F7F4] dark:bg-zinc-950 text-[#141413] dark:text-[#F8F7F4] font-sans selection:bg-amber-600 selection:text-white dark:selection:bg-amber-500 dark:selection:text-zinc-900 overflow-x-clip transition-colors duration-200">
         <ToastProvider>
           <AuthProvider>
             <ChatProvider>

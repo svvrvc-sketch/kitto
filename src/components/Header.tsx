@@ -26,8 +26,8 @@ import { useToast } from '@/context/ToastContext';
 import { Logo } from './Logo';
 
 interface HeaderProps {
-  darkMode: boolean;
-  onToggleTheme: () => void;
+  darkMode?: boolean;
+  onToggleTheme?: () => void;
   currentTab?: AppTab;
   onSelectTab?: (tab: AppTab) => void;
   savedCount?: number;
@@ -53,6 +53,17 @@ export const Header: React.FC<HeaderProps> = ({
   const { showToast } = useToast();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [internalDarkMode, setInternalDarkMode] = useState(false);
+
+  const isDark = darkMode !== undefined ? darkMode : internalDarkMode;
+  const toggleTheme = onToggleTheme || (() => {
+    const next = !internalDarkMode;
+    setInternalDarkMode(next);
+    if (typeof document !== 'undefined') {
+      if (next) document.documentElement.classList.add('dark');
+      else document.documentElement.classList.remove('dark');
+    }
+  });
 
   const userCityDisplay = user?.city
     ? user.city.includes('Toshkent')
@@ -113,18 +124,28 @@ export const Header: React.FC<HeaderProps> = ({
           <nav className="hidden md:flex items-center gap-1.5 text-xs font-semibold">
             <Link
               href="/"
-              className="px-3.5 py-2 rounded-xl text-stone-900 dark:text-stone-100 bg-stone-200/60 dark:bg-stone-800 transition-all"
+              className="px-3.5 py-2 rounded-xl text-stone-900 dark:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800 transition-all"
             >
-              Katalog (Do&#39;kon)
+              Katalog
             </Link>
-            {onOpenSupport && (
-              <button
-                onClick={onOpenSupport}
-                className="px-3 py-2 rounded-xl text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800/50 transition-all"
-              >
-                Yordam
-              </button>
-            )}
+            <Link
+              href="/how-it-works"
+              className="px-3 py-2 rounded-xl text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800/50 transition-all"
+            >
+              Qanday ishlaydi?
+            </Link>
+            <Link
+              href="/safety"
+              className="px-3 py-2 rounded-xl text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800/50 transition-all"
+            >
+              Xavfsizlik
+            </Link>
+            <Link
+              href="/faq"
+              className="px-3 py-2 rounded-xl text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800/50 transition-all"
+            >
+              FAQ
+            </Link>
           </nav>
 
           {/* 3. Right: Actions & User Account */}
@@ -297,11 +318,11 @@ export const Header: React.FC<HeaderProps> = ({
 
             {/* Dark Mode Toggle */}
             <button
-              onClick={onToggleTheme}
+              onClick={toggleTheme}
               className="p-2 rounded-xl border border-stone-200/80 dark:border-stone-800 bg-white/60 dark:bg-stone-800/60 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors shadow-2xs shrink-0"
               title="Mavzuni almashtirish"
             >
-              {darkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
+              {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
             </button>
           </div>
         </div>
