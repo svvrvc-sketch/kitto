@@ -17,6 +17,7 @@ import {
   Edit3,
   Camera,
   Trash2,
+  RotateCcw,
   Clock,
   Check,
   X,
@@ -28,7 +29,7 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { Book } from '@/types/book';
-import { booksService, exchangeTransactionsService } from '@/services/db';
+import { booksService, exchangeTransactionsService, profilesService } from '@/services/db';
 import { uploadImageToStorage } from '@/utils/storage';
 import { isValidUzbekPhone, formatUzbekPhone } from '@/utils/phone';
 import { UZBEKISTAN_REGIONS, normalizeRegionName } from '@/lib/regions';
@@ -72,6 +73,9 @@ function CabinetContent() {
   const [editContact, setEditContact] = useState('');
   const [editCity, setEditCity] = useState('Toshkent shahri');
   const [editTelegram, setEditTelegram] = useState('');
+  const [editAge, setEditAge] = useState('');
+  const [editBio, setEditBio] = useState('');
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
   // Wishlist state
@@ -90,7 +94,9 @@ function CabinetContent() {
       setEditName(user.name || '');
       setEditContact(user.contact && !user.contact.includes('@') ? user.contact : '');
       setEditCity(user.city ? normalizeRegionName(user.city) : 'Toshkent shahri');
-      setEditTelegram(user.telegramUsername || '');
+      setEditTelegram(user.telegramUsername ? user.telegramUsername.replace(/^@/, '') : '');
+      setEditAge(user.age ? String(user.age) : '');
+      setEditBio(user.bio || '');
     }
   }, [user]);
 
@@ -130,7 +136,7 @@ function CabinetContent() {
   // Avatar upload
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || !user) return;
 
     if (!file.type.startsWith('image/')) {
       showToast('Faqat rasm formatidagi fayllarni yuklashingiz mumkin', 'error');
@@ -140,17 +146,66 @@ function CabinetContent() {
     setIsUploadingAvatar(true);
     try {
       const publicUrl = await uploadImageToStorage(file, 'avatars');
-      updateProfile({ avatar: publicUrl, avatar_url: publicUrl });
-      showToast('Profil rasmi muvaffaqiyatli yuklandi', 'success');
+      const updatedUser = {
+        ...user,
+        avatar: publicUrl,
+        avatar_url: publicUrl,
+      };
+      await profilesService.upsertProfile(updatedUser);
+      updateProfile(updatedUser);
+      showToast('Profil rasmi muvaffaqiyatli yangilandi', 'success');
     } catch {
       showToast('Rasmni yuklashda xatolik yuz berdi', 'error');
     } finally {
       setIsUploadingAvatar(false);
+      if (avatarInputRef.current) avatarInputRef.current.value = '';
     }
   };
 
-  const handleSaveProfile = (e: React.FormEvent) => {
-    e.preventDefault();
+  // Restore Google account original avatar
+  const handleRestoreGoogleAvatar = async () => {
+    if (!user) return;
+    const googleAvatar = user.google_avatar_url;
+    if (!googleAvatar) {
+      showToast('Google hisobingizdagi rasm topilmadi', 'info');
+      return;
+    }
+    try {
+      const updatedUser = {
+        ...user,
+        avatar: googleAvatar,
+        avatar_url: googleAvatar,
+      };
+      await profilesService.upsertProfile(updatedUser);
+      updateProfile(updatedUser);
+      showToast('Google hisobingizdagi rasm qaytarildi!', 'success');
+    } catch {
+      showToast('Rasmni yangilashda xatolik yuz berdi', 'error');
+    }
+  };
+
+  // Remove custom avatar and reset to initials
+  const handleRemoveAvatar = async () => {
+    if (!user) return;
+    try {
+      const fallback = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user.name)}&backgroundColor=141413,27272a,3f3f46`;
+      const updatedUser = {
+        ...user,
+        avatar: fallback,
+        avatar_url: fallback,
+      };
+      await profilesService.upsertProfile(updatedUser);
+      updateProfile(updatedUser);
+      showToast('Profil rasmi tozalandi', 'info');
+    } catch {
+      showToast('Rasmni tozalashda xatolik yuz berdi', 'error');
+    }
+  };
+
+  const handleSaveProfile = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!user) return;
+
     if (!editName.trim() || !editContact.trim()) {
       showToast('Ism va telefon raqamini kiriting', 'error');
       return;
@@ -159,14 +214,35 @@ function CabinetContent() {
       showToast('Iltimos, amaldagi Oʻzbekiston telefon raqamini kiriting (+998...)', 'error');
       return;
     }
-    updateProfile({
-      name: editName.trim(),
-      contact: formatUzbekPhone(editContact.trim()),
-      city: editCity,
-      telegramUsername: editTelegram.trim() ? editTelegram.trim().replace(/^@/, '') : undefined,
-    });
-    setIsEditingProfile(false);
-    showToast('Profil maʼlumotlari saqlandi', 'success');
+
+    const cleanAge = editAge.trim() ? parseInt(editAge.trim(), 10) : undefined;
+    if (cleanAge !== undefined && (isNaN(cleanAge) || cleanAge < 7 || cleanAge > 110)) {
+      showToast('Iltimos, haqiqiy yoshingizni kiriting (7-110)', 'error');
+      return;
+    }
+
+    setIsSavingProfile(true);
+    try {
+      const updatedUser = {
+        ...user,
+        name: editName.trim(),
+        contact: formatUzbekPhone(editContact.trim()),
+        city: editCity,
+        telegramUsername: editTelegram.trim() ? `@${editTelegram.trim().replace(/^@/, '')}` : undefined,
+        age: cleanAge,
+        bio: editBio.trim() || undefined,
+      };
+
+      await profilesService.upsertProfile(updatedUser);
+      updateProfile(updatedUser);
+      setIsEditingProfile(false);
+      showToast('Profil maʼlumotlari muvaffaqiyatli saqlandi!', 'success');
+    } catch (err) {
+      console.error('Failed to save profile:', err);
+      showToast('Profilni saqlashda xatolik yuz berdi', 'error');
+    } finally {
+      setIsSavingProfile(false);
+    }
   };
 
   // Genre selection
@@ -253,7 +329,7 @@ function CabinetContent() {
 
           <button
             onClick={() => loginWithGoogle().catch(() => openAuthModal())}
-            className="w-full py-3.5 px-5 rounded-2xl bg-stone-900 hover:bg-black dark:bg-stone-100 dark:hover:bg-white text-white dark:text-stone-900 font-semibold text-xs tracking-wide shadow-md flex items-center justify-center gap-2.5 transition-all active:scale-[0.98]"
+            className="w-full py-3.5 px-5 rounded-2xl bg-amber-600 hover:bg-amber-700 active:scale-98 text-white font-semibold text-xs tracking-wide shadow-md flex items-center justify-center gap-2.5 transition-all"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path
@@ -495,9 +571,10 @@ function CabinetContent() {
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 rounded-xl bg-[#141413] hover:bg-black dark:bg-stone-100 dark:hover:bg-white text-white dark:text-stone-900 text-xs font-semibold shadow-xs"
+                    disabled={isSavingProfile}
+                    className="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold shadow-xs disabled:opacity-50"
                   >
-                    Saqlash
+                    {isSavingProfile ? 'Saqlanmoqda...' : 'Saqlash'}
                   </button>
                 </div>
               </form>
@@ -586,12 +663,24 @@ function CabinetContent() {
               onClick={() => setTab('genres')}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                 activeTab === 'genres'
-                  ? 'bg-white dark:bg-zinc-900 text-stone-900 dark:text-stone-100 shadow-xs'
-                  : 'text-stone-600 dark:text-zinc-400 hover:text-stone-900'
+                  ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-xs'
+                  : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
               }`}
             >
               <Compass className="w-4 h-4 text-amber-600 dark:text-amber-400" />
               <span>Qiziqqan janrlar</span>
+            </button>
+
+            <button
+              onClick={() => setTab('profile')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                activeTab === 'profile'
+                  ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-xs'
+                  : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
+              }`}
+            >
+              <UserIcon className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+              <span>Profil sozlamalari</span>
             </button>
           </div>
 
@@ -605,7 +694,7 @@ function CabinetContent() {
                 </div>
                 <Link
                   href="/add-book"
-                  className="flex items-center gap-1.5 py-2 px-3.5 rounded-xl bg-[#141413] hover:bg-black dark:bg-stone-100 dark:hover:bg-white text-white dark:text-stone-900 font-semibold text-xs shadow-xs"
+                  className="flex items-center gap-1.5 py-2 px-3.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs shadow-xs transition-all active:scale-95"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Yangi kitob</span>
@@ -691,7 +780,7 @@ function CabinetContent() {
                   </p>
                   <Link
                     href="/add-book"
-                    className="inline-flex items-center gap-2 py-2.5 px-5 rounded-2xl bg-[#141413] text-white dark:bg-stone-100 dark:text-stone-900 font-semibold text-xs shadow-xs"
+                    className="inline-flex items-center gap-2 py-2.5 px-5 rounded-2xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white font-semibold text-xs shadow-xs transition-all"
                   >
                     <Plus className="w-4 h-4" />
                     <span>Birinchi kitobni joylash</span>
@@ -868,7 +957,7 @@ function CabinetContent() {
                 <button
                   type="submit"
                   disabled={!wishlistInput.trim()}
-                  className="px-5 py-2.5 rounded-xl bg-[#141413] hover:bg-black dark:bg-stone-100 dark:hover:bg-white text-white dark:text-stone-900 font-semibold text-xs shadow-xs disabled:opacity-40"
+                  className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white font-semibold text-xs shadow-xs disabled:opacity-40"
                 >
                   + Qo&#39;shish
                 </button>
@@ -905,7 +994,7 @@ function CabinetContent() {
 
           {/* TAB 4: QIZIQQAN JANRLAR */}
           {activeTab === 'genres' && (
-            <div className="p-6 rounded-3xl bg-white dark:bg-zinc-900 border border-stone-200/80 dark:border-zinc-800 space-y-4 animate-in fade-in duration-200">
+            <div className="p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 space-y-4 animate-in fade-in duration-200">
               <div>
                 <h3 className="font-serif text-base font-bold flex items-center gap-2">
                   <Compass className="w-4 h-4 text-amber-600 dark:text-amber-400" />
@@ -926,8 +1015,8 @@ function CabinetContent() {
                       onClick={() => handleToggleGenre(genre)}
                       className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all border active:scale-95 ${
                         isSelected
-                          ? 'bg-[#141413] text-white dark:bg-stone-100 dark:text-stone-900 border-[#141413] dark:border-stone-100 shadow-xs'
-                          : 'bg-stone-50 dark:bg-zinc-800 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-zinc-700 hover:border-stone-400'
+                          ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
+                          : 'bg-stone-50 dark:bg-stone-800 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-700 hover:border-amber-400'
                       }`}
                     >
                       {genre}
@@ -936,6 +1025,210 @@ function CabinetContent() {
                   );
                 })}
               </div>
+            </div>
+          )}
+
+          {/* TAB 5: PROFIL SOZLAMALARI */}
+          {activeTab === 'profile' && (
+            <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-sm space-y-8 animate-in fade-in duration-200">
+              <div>
+                <h3 className="font-serif text-lg sm:text-xl font-bold flex items-center gap-2.5 text-stone-900 dark:text-stone-100">
+                  <UserIcon className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                  <span>Profil sozlamalari</span>
+                </h3>
+                <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-400 mt-1">
+                  Shaxsiy maʼlumotlaringiz, avataringiz va boshqa kitobxonlar bilan bogʻlanish kontaktlarini boshqaring.
+                </p>
+              </div>
+
+              {/* Avatar Management Card */}
+              <div className="p-5 sm:p-6 rounded-2xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200/80 dark:border-stone-700/80 flex flex-col sm:flex-row items-center gap-6">
+                <div className="relative group shrink-0">
+                  <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-2 border-amber-500 shadow-md bg-stone-200 dark:bg-stone-700">
+                    <img
+                      src={user.avatar || user.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user.name)}`}
+                      alt={user.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => avatarInputRef.current?.click()}
+                    disabled={isUploadingAvatar}
+                    className="absolute bottom-0 right-0 p-2 rounded-full bg-amber-600 hover:bg-amber-700 text-white shadow-md border-2 border-white dark:border-stone-900 transition-transform active:scale-90"
+                    title="Yangi rasm yuklash"
+                  >
+                    <Camera className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="flex-1 text-center sm:text-left space-y-2">
+                  <h4 className="font-semibold text-sm sm:text-base text-stone-900 dark:text-stone-100">
+                    Profil suratingiz
+                  </h4>
+                  <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed max-w-md">
+                    Suratingiz kitob almashuvlarida va suhbatlarda boshqa kitobxonlarga koʻrinadi.
+                  </p>
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1">
+                    <input
+                      type="file"
+                      ref={avatarInputRef}
+                      onChange={handleAvatarUpload}
+                      accept="image/*"
+                      className="hidden"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => avatarInputRef.current?.click()}
+                      disabled={isUploadingAvatar}
+                      className="flex items-center gap-1.5 py-2 px-3.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs shadow-xs transition-all active:scale-95 disabled:opacity-50"
+                    >
+                      <Camera className="w-3.5 h-3.5" />
+                      <span>{isUploadingAvatar ? 'Yuklanmoqda...' : 'Yangi rasm yuklash'}</span>
+                    </button>
+
+                    {user.google_avatar_url && (
+                      <button
+                        type="button"
+                        onClick={handleRestoreGoogleAvatar}
+                        className="flex items-center gap-1.5 py-2 px-3.5 rounded-xl bg-stone-200 dark:bg-stone-700 hover:bg-stone-300 dark:hover:bg-stone-600 text-stone-800 dark:text-stone-200 font-semibold text-xs transition-all active:scale-95"
+                        title="Google hisobingizdagi asl rasmni qaytarish"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        <span>Google rasmini tiklash</span>
+                      </button>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={handleRemoveAvatar}
+                      className="flex items-center gap-1.5 py-2 px-3 rounded-xl border border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 text-xs font-semibold transition-all active:scale-95"
+                      title="Maxsus rasmni o'chirish"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Tozalash</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Form */}
+              <form onSubmit={handleSaveProfile} className="space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Ism familiya */}
+                  <div>
+                    <label className="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1.5">
+                      Ism va familiyangiz <span className="text-amber-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      placeholder="Masalan: Zuxriddin Hasanov"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-xs sm:text-sm text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 transition-all"
+                    />
+                  </div>
+
+                  {/* Telefon */}
+                  <div>
+                    <label className="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1.5">
+                      Telefon raqam <span className="text-amber-500">*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      required
+                      value={editContact}
+                      onChange={(e) => setEditContact(e.target.value)}
+                      placeholder="+998 90 123 45 67"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-xs sm:text-sm text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 transition-all"
+                    />
+                  </div>
+
+                  {/* Telegram */}
+                  <div>
+                    <label className="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1.5">
+                      Telegram username (bogʻlanish uchun)
+                    </label>
+                    <div className="flex items-center rounded-xl bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 focus-within:ring-2 focus-within:ring-amber-500/40 focus-within:border-amber-500 overflow-hidden transition-all">
+                      <span className="pl-3.5 text-stone-400 font-bold text-xs select-none">@</span>
+                      <input
+                        type="text"
+                        value={editTelegram}
+                        onChange={(e) => setEditTelegram(e.target.value.replace(/^@/, ''))}
+                        placeholder="username"
+                        className="w-full px-2 py-2.5 bg-transparent text-xs sm:text-sm text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Yoshi */}
+                  <div>
+                    <label className="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1.5">
+                      Yoshingiz
+                    </label>
+                    <input
+                      type="number"
+                      min={7}
+                      max={110}
+                      value={editAge}
+                      onChange={(e) => setEditAge(e.target.value)}
+                      placeholder="Masalan: 22"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-xs sm:text-sm text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 transition-all"
+                    />
+                  </div>
+
+                  {/* Viloyat */}
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1.5">
+                      Viloyat / Shahar <span className="text-amber-500">*</span>
+                    </label>
+                    <select
+                      value={editCity}
+                      onChange={(e) => setEditCity(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-xs sm:text-sm text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 transition-all cursor-pointer"
+                    >
+                      {UZBEKISTAN_REGIONS.map((r) => (
+                        <option key={r.id} value={r.name} className="bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100">
+                          {r.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Bio */}
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1.5">
+                      Oʻzingiz haqingizda (Bio)
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={editBio}
+                      onChange={(e) => setEditBio(e.target.value)}
+                      placeholder="Kitoblar, sevimli mualliflaringiz yoki mutolaa maqsadlaringiz haqida qisqacha yozing..."
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-xs sm:text-sm text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 transition-all resize-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Save Button */}
+                <div className="pt-2 flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={isSavingProfile}
+                    className="py-3 px-8 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white font-bold text-xs sm:text-sm tracking-wide shadow-md transition-all flex items-center gap-2 disabled:opacity-50"
+                  >
+                    {isSavingProfile ? (
+                      <span className="animate-pulse">Saqlanmoqda...</span>
+                    ) : (
+                      <>
+                        <Check className="w-4 h-4 stroke-[2.5]" />
+                        <span>Oʻzgarishlarni saqlash</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
             </div>
           )}
         </main>

@@ -217,7 +217,7 @@ export const ExchangeProposalCard: React.FC<ExchangeProposalCardProps> = ({
             type="button"
             disabled={isSubmitting}
             onClick={handleAcceptClick}
-            className="bg-obsidian-900 bg-[#141413] hover:bg-black dark:bg-stone-100 dark:hover:bg-white text-white dark:text-stone-900 px-4 py-2 rounded-xl text-xs font-medium shadow-xs transition-all active:scale-95 flex items-center gap-1.5 disabled:opacity-50"
+            className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow-xs transition-all active:scale-95 flex items-center gap-1.5 disabled:opacity-50"
           >
             <Check className="w-3.5 h-3.5 stroke-[2.5]" />
             <span>{isSubmitting ? 'Tasdiqlanmoqda...' : 'Qabul qilish'}</span>

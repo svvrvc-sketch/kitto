@@ -189,7 +189,7 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({
             onClick={() =>
               openAuthModal("Kitob almashish va e'lon joylash uchun profilingizga kiring")
             }
-            className="w-full py-3.5 px-6 rounded-2xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 text-xs font-semibold shadow-tactile transition-all active:scale-[0.99]"
+            className="w-full py-3.5 px-6 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold shadow-md transition-all active:scale-[0.99]"
           >
             Tizimga kirish
           </button>
@@ -451,7 +451,7 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({
             id="chat-send-btn"
             type="submit"
             disabled={!inputText.trim()}
-            className="p-2.5 rounded-2xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 disabled:opacity-40 disabled:cursor-not-allowed shadow-xs transition-all active:scale-95 shrink-0"
+            className="p-2.5 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white disabled:opacity-40 disabled:cursor-not-allowed shadow-xs transition-all active:scale-95 shrink-0"
             title="Yuborish"
           >
             <Send className="w-4 h-4 fill-current" />
@@ -661,7 +661,7 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({
                 <button
                   type="button"
                   onClick={onGoToFeed}
-                  className="mt-3 px-3.5 py-2 rounded-xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 text-xs font-semibold shadow-xs"
+                  className="mt-3 px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold shadow-xs"
                 >
                   Kitoblarni ko&#39;rish
                 </button>

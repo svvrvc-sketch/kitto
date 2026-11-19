@@ -466,7 +466,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
               href={yandexRouteUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-1.5 py-2 px-3.5 rounded-xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 text-xs font-semibold shadow-xs transition-all active:scale-95 shrink-0"
+              className="inline-flex items-center justify-center gap-1.5 py-2 px-3.5 rounded-xl bg-stone-900 hover:bg-black dark:bg-stone-800 dark:hover:bg-stone-700 text-white text-xs font-semibold shadow-xs transition-all active:scale-95 shrink-0"
             >
               <Navigation className="w-3.5 h-3.5 text-amber-400 dark:text-amber-600" />
               <span>Yandex Xaritada yo&#39;nalish</span>
@@ -617,9 +617,9 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
                       onOpenSwapModal(book);
                     }
                   }}
-                  className="flex-1 flex items-center justify-center gap-2 py-3.5 px-5 rounded-2xl bg-[#141413] hover:bg-black dark:bg-stone-100 dark:hover:bg-white text-white dark:text-stone-900 font-semibold text-xs sm:text-sm shadow-tactile transition-all active:scale-[0.99]"
+                  className="flex-1 flex items-center justify-center gap-2 py-3.5 px-5 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs sm:text-sm shadow-md transition-all active:scale-[0.99]"
                 >
-                  <Clock className="w-4 h-4 text-amber-500" />
+                  <Clock className="w-4 h-4 text-white" />
                   <span>O&#39;qishga so&#39;rash</span>
                 </button>
               ) : (
@@ -635,9 +635,9 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
                       onOpenSwapModal(book);
                     }
                   }}
-                  className="flex-1 flex items-center justify-center gap-2 py-3.5 px-5 rounded-2xl bg-[#141413] hover:bg-black dark:bg-stone-100 dark:hover:bg-white text-white dark:text-stone-900 font-semibold text-xs sm:text-sm shadow-tactile transition-all active:scale-[0.99]"
+                  className="flex-1 flex items-center justify-center gap-2 py-3.5 px-5 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs sm:text-sm shadow-md transition-all active:scale-[0.99]"
                 >
-                  <ArrowLeftRight className="w-4 h-4 text-amber-500" />
+                  <ArrowLeftRight className="w-4 h-4 text-white" />
                   <span>Kitob almashish</span>
                 </button>
               )}
@@ -807,7 +807,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
                 <button
                   type="button"
                   onClick={handleCopyLink}
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-white dark:text-stone-900 text-xs font-bold transition-all active:scale-95"
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all active:scale-95"
                 >
                   {copied ? (
                     <>

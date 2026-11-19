@@ -79,10 +79,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         authUser.user_metadata?.name ||
         authUser.email?.split('@')[0] ||
         'Kitobxon';
-      const avatarUrl =
+      const googlePic =
         authUser.user_metadata?.avatar_url ||
         authUser.user_metadata?.picture ||
+        existing?.google_avatar_url;
+      const avatarUrl =
         existing?.avatar ||
+        existing?.avatar_url ||
+        googlePic ||
         `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(fullName)}&backgroundColor=141413,27272a,3f3f46`;
 
       // Clean contact: NEVER set email as phone number!
@@ -103,6 +107,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         wishlistBooks: existing?.wishlistBooks || [],
         avatar: avatarUrl,
         avatar_url: avatarUrl,
+        google_avatar_url: googlePic,
+        age: existing?.age,
+        bio: existing?.bio,
+        telegramUsername: existing?.telegramUsername,
         role: existing?.role || 'user',
         provider: 'google',
         createdAt: existing?.createdAt || new Date().toISOString(),

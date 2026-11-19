@@ -142,7 +142,7 @@ export const BookClientView: React.FC<BookClientViewProps> = ({ initialBook, boo
             ) : (
               <button
                 onClick={() => loginWithGoogle()}
-                className="px-3 py-1.5 rounded-xl bg-stone-900 hover:bg-black dark:bg-stone-100 dark:hover:bg-white text-white dark:text-stone-900 text-xs font-semibold"
+                className="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white text-xs font-semibold"
               >
                 Kirish
               </button>
@@ -224,7 +224,7 @@ export const BookClientView: React.FC<BookClientViewProps> = ({ initialBook, boo
                         <>
                           <button
                             onClick={() => setIsSwapModalOpen(true)}
-                            className="flex-1 sm:flex-initial py-3 px-6 rounded-2xl bg-[#141413] hover:bg-black dark:bg-stone-100 dark:hover:bg-white text-white dark:text-stone-900 font-semibold text-xs tracking-wide shadow-tactile flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                            className="flex-1 sm:flex-initial py-3 px-6 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs tracking-wide shadow-md flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
                           >
                             <ArrowLeftRight className="w-4 h-4 stroke-[2.2]" />
                             <span>Almashishni taklif qilish</span>

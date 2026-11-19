@@ -214,7 +214,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
               id="profile-guest-login-btn"
               type="button"
               onClick={() => openAuthModal('Shaxsiy kabinetga kirish')}
-              className="w-full sm:w-auto min-w-[220px] flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 font-semibold text-xs tracking-wide shadow-tactile transition-all active:scale-95"
+              className="w-full sm:w-auto min-w-[220px] flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs tracking-wide shadow-md transition-all active:scale-95"
             >
               <UserIcon className="w-4 h-4" />
               <span>Tizimga kirish</span>
@@ -496,7 +496,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
               </button>
               <button
                 type="submit"
-                className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 text-xs font-semibold shadow-xs"
+                className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold shadow-xs"
               >
                 <Check className="w-3.5 h-3.5" />
                 <span>Saqlash</span>
@@ -575,7 +575,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
           <button
             type="submit"
             disabled={!wishlistInput.trim()}
-            className="px-4 py-2.5 rounded-xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 text-xs font-semibold shadow-xs transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+            className="px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold shadow-xs transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
           >
             + Qo&#39;shish
           </button>
@@ -826,7 +826,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             id="profile-add-book-btn"
             type="button"
             onClick={onOpenAddModal}
-            className="flex items-center justify-between p-4 rounded-2xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 transition-all text-left shadow-sm group"
+            className="flex items-center justify-between p-4 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white transition-all text-left shadow-sm group"
           >
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-white/15 dark:bg-black/10 flex items-center justify-center">
@@ -908,7 +908,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             </div>
             <a
               href={`tel:${SUPPORT_PHONE}`}
-              className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 font-semibold text-xs shadow-xs transition-all active:scale-95"
+              className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs shadow-xs transition-all active:scale-95"
             >
               <Phone className="w-3.5 h-3.5" />
               <span>{SUPPORT_PHONE}</span>

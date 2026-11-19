@@ -48,7 +48,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
             <button
               id="empty-shelf-login-btn"
               onClick={onOpenAuthModal}
-              className="flex items-center justify-center gap-2 py-3 px-6 rounded-xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 font-semibold text-xs tracking-wider uppercase shadow-md transition-all active:scale-95"
+              className="flex items-center justify-center gap-2 py-3 px-6 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs tracking-wider uppercase shadow-md transition-all active:scale-95"
             >
               <span>Tizimga kirish</span>
             </button>
@@ -76,7 +76,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         <button
           id="empty-shelf-add-btn"
           onClick={onOpenAddModal}
-          className="flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 font-semibold text-xs tracking-wide shadow-tactile transition-all active:scale-95"
+          className="flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs tracking-wide shadow-md transition-all active:scale-95"
         >
           <PlusCircle className="w-4 h-4" />
           <span>+ Kitob joylash</span>
@@ -104,7 +104,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           <button
             id="empty-saved-go-feed-btn"
             onClick={onGoToFeed}
-            className="flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 font-semibold text-xs tracking-wide shadow-tactile transition-all active:scale-95"
+            className="flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs tracking-wide shadow-md transition-all active:scale-95"
           >
             <BookOpen className="w-4 h-4" />
             <span>Kitoblarni ko&#39;rish</span>
@@ -134,7 +134,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
             <button
               id="empty-feed-add-btn"
               onClick={onOpenAddModal}
-              className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 font-semibold text-xs tracking-wide shadow-tactile transition-all active:scale-95"
+              className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs tracking-wide shadow-md transition-all active:scale-95"
             >
               <PlusCircle className="w-4 h-4" />
               <span>+ Kitob joylash</span>
@@ -144,7 +144,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           <div className="flex items-center justify-center w-full max-w-xs">
             <button
               onClick={onOpenAuthModal}
-              className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 font-semibold text-xs tracking-wide shadow-tactile transition-all active:scale-95"
+              className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs tracking-wide shadow-md transition-all active:scale-95"
             >
               <span>Tizimga kirish</span>
             </button>
@@ -195,7 +195,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         {isAuthenticated && (
           <button
             onClick={onOpenAddModal}
-            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 font-semibold text-xs tracking-wide shadow-tactile transition-all active:scale-95"
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs tracking-wide shadow-md transition-all active:scale-95"
           >
             <PlusCircle className="w-4 h-4" />
             <span>+ Kitob joylash</span>

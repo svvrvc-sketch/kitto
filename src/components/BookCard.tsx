@@ -372,10 +372,10 @@ export const BookCard: React.FC<BookCardProps> = ({
                   e.stopPropagation();
                   onClick(book);
                 }}
-                className="py-1 px-2.5 rounded-xl bg-[#141413] hover:bg-black dark:bg-stone-200 dark:hover:bg-white text-white dark:text-stone-900 text-[10px] sm:text-[11px] font-semibold flex items-center gap-1 shadow-xs transition-all active:scale-95 shrink-0"
+                className="py-1 px-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white text-[10px] sm:text-[11px] font-semibold flex items-center gap-1 shadow-xs transition-all shrink-0"
                 title="Vaqtincha o'qishga olish"
               >
-                <Clock className="w-3 h-3 text-amber-500" />
+                <Clock className="w-3 h-3 text-white" />
                 <span>O&#39;qishga olish</span>
               </button>
             ) : (
@@ -386,10 +386,10 @@ export const BookCard: React.FC<BookCardProps> = ({
                   e.stopPropagation();
                   onOpenSwapModal(book);
                 }}
-                className="py-1 px-2.5 rounded-xl bg-[#141413] hover:bg-black dark:bg-stone-200 dark:hover:bg-white text-white dark:text-stone-900 text-[10px] sm:text-[11px] font-semibold flex items-center gap-1 shadow-xs transition-all active:scale-95 shrink-0"
+                className="py-1 px-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white text-[10px] sm:text-[11px] font-semibold flex items-center gap-1 shadow-xs transition-all shrink-0"
                 title="Kitob almashish taklifini yuborish"
               >
-                <ArrowLeftRight className="w-3 h-3 text-amber-500" />
+                <ArrowLeftRight className="w-3 h-3 text-white" />
                 <span>Almashish</span>
               </button>
             )}

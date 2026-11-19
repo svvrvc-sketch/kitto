@@ -284,7 +284,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 id="header-google-login-btn"
                 onClick={handleGoogleLogin}
-                className="flex items-center gap-2 py-2 px-3.5 rounded-xl bg-stone-900 hover:bg-black dark:bg-stone-100 dark:hover:bg-white text-white dark:text-stone-900 font-semibold text-xs shadow-xs active:scale-95 transition-all"
+                className="flex items-center gap-2 py-2 px-3.5 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white font-semibold text-xs shadow-xs transition-all"
               >
                 <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />

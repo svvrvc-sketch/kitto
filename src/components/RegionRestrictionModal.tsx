@@ -97,7 +97,7 @@ export const RegionRestrictionModal: React.FC<RegionRestrictionModalProps> = ({
               onClose();
               onOpenVoting();
             }}
-            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 font-semibold text-xs tracking-wide shadow-tactile transition-all active:scale-[0.99]"
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs tracking-wide shadow-md transition-all active:scale-[0.99]"
           >
             <Vote className="w-4 h-4" />
             <span>Viloyat uchun ovoz berish</span>

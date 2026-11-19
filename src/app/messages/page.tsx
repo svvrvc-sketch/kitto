@@ -9,14 +9,15 @@ import {
   Send,
   BookOpen,
   CheckCheck,
+  Menu,
 } from 'lucide-react';
 import { useChat } from '@/context/ChatContext';
 import { useAuth } from '@/context/AuthContext';
+import { Sidebar } from '@/components/Sidebar';
 import { ExchangeProposalCard } from '@/components/chat/ExchangeProposalCard';
 import { SwapQRModal } from '@/components/SwapQRModal';
 import { booksService } from '@/services/db';
 import { Book } from '@/types/book';
-import { LogoIcon } from '@/components/Logo';
 
 function MessagesContent() {
   const router = useRouter();
@@ -34,6 +35,7 @@ function MessagesContent() {
     markAsRead,
   } = useChat();
 
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [inputText, setInputText] = useState('');
   const [allBooks, setAllBooks] = useState<Book[]>([]);
 
@@ -49,32 +51,35 @@ function MessagesContent() {
     booksService.getBooks().then((b) => setAllBooks(b)).catch(() => {});
   }, []);
 
-  // Filter threads belonging to current user
-  const userThreads = useMemo(() => {
-    if (!currentUserId) return [];
-    return threads.filter(
-      (t) => t.initiatorId === currentUserId || t.ownerId === currentUserId
-    );
-  }, [threads, currentUserId]);
-
-  // Sync active thread from query param or default to first
+  // Sync thread from query param
   useEffect(() => {
     if (threadParam && threads.some((t) => t.id === threadParam)) {
       setActiveThreadId(threadParam);
       markAsRead(threadParam);
-    } else if (!activeThreadId && userThreads.length > 0) {
-      setActiveThreadId(userThreads[0].id);
-      markAsRead(userThreads[0].id);
     }
-  }, [threadParam, threads, activeThreadId, userThreads, setActiveThreadId, markAsRead]);
+  }, [threadParam, threads, setActiveThreadId, markAsRead]);
 
-  const activeThread = userThreads.find((t) => t.id === activeThreadId) || null;
-  const messages = activeThreadId ? getMessages(activeThreadId) : [];
+  // Filter threads for current user
+  const userThreads = useMemo(() => {
+    if (!currentUserId) return [];
+    return threads.filter(
+      (t) => t.ownerId === currentUserId || t.initiatorId === currentUserId
+    );
+  }, [threads, currentUserId]);
 
-  // Scroll to bottom on new message
+  const activeThread = useMemo(() => {
+    return userThreads.find((t) => t.id === activeThreadId) || null;
+  }, [userThreads, activeThreadId]);
+
+  const messages = useMemo(() => {
+    if (!activeThreadId) return [];
+    return getMessages(activeThreadId);
+  }, [activeThreadId, getMessages]);
+
+  // Auto scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages.length]);
+  }, [messages]);
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,17 +98,15 @@ function MessagesContent() {
     await updateProposalStatus(activeThreadId, proposalId, 'declined');
   };
 
-  const handleOpenQR = () => {
-    if (activeThread?.bookId) {
-      const book = allBooks.find((b) => b.id === activeThread.bookId);
-      if (book) {
-        setQrSelectedBook(book);
-        setIsQRModalOpen(true);
-      }
+  const handleOpenQR = (bookId: string) => {
+    const target = allBooks.find((b) => b.id === bookId);
+    if (target) {
+      setQrSelectedBook(target);
+      setIsQRModalOpen(true);
     }
   };
 
-  // If unauthenticated
+  // If not authenticated
   if (!isAuthenticated || !user) {
     return (
       <div className="min-h-screen bg-[#F8F7F4] dark:bg-stone-950 flex flex-col justify-center items-center p-4">
@@ -120,7 +123,7 @@ function MessagesContent() {
 
           <button
             onClick={() => loginWithGoogle().catch(() => openAuthModal())}
-            className="w-full py-3.5 px-5 rounded-2xl bg-stone-900 hover:bg-black dark:bg-stone-100 dark:hover:bg-white text-white dark:text-stone-900 font-semibold text-xs tracking-wide shadow-md flex items-center justify-center gap-2.5 transition-all active:scale-[0.98]"
+            className="w-full py-3.5 px-5 rounded-2xl bg-amber-600 hover:bg-amber-700 active:scale-98 text-white font-semibold text-xs tracking-wide shadow-md flex items-center justify-center gap-2.5 transition-all"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -134,7 +137,7 @@ function MessagesContent() {
           <div className="mt-5">
             <Link
               href="/"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-500 hover:text-stone-900 transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-500 hover:text-stone-900 dark:hover:text-stone-200 transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Asosiy do&#39;konga qaytish</span>
@@ -147,17 +150,24 @@ function MessagesContent() {
 
   return (
     <div className="min-h-screen bg-[#F8F7F4] dark:bg-stone-950 text-stone-900 dark:text-stone-100 flex flex-col">
-      {/* Top Header */}
-      <header className="sticky top-0 z-30 w-full bg-[#FAF9F5]/90 dark:bg-stone-900/90 backdrop-blur-md border-b border-stone-200/80 dark:border-stone-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-2 group">
-              <div className="p-1.5 rounded-xl bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 shadow-2xs">
-                <LogoIcon size={20} />
-              </div>
-              <span className="font-serif text-lg font-bold">Kitto</span>
-            </Link>
-            <span className="text-stone-300 dark:text-stone-700">/</span>
+      {/* Sidebar for Desktop & Mobile */}
+      <Sidebar mobileOpen={mobileMenuOpen} onCloseMobile={() => setMobileMenuOpen(false)} />
+
+      <div className="lg:pl-64 flex flex-col flex-1 h-screen overflow-hidden">
+        {/* Top Header */}
+        <header className="sticky top-0 z-20 w-full bg-[#FAF9F5]/90 dark:bg-stone-900/90 backdrop-blur-md border-b border-stone-200/80 dark:border-stone-800 shrink-0">
+          <div className="px-4 sm:px-6 h-14 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setMobileMenuOpen(true)}
+                className="lg:hidden p-1.5 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors"
+                title="Menyu"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+              <span className="font-serif text-base sm:text-lg font-bold">Xabarlar va Takliflar</span>
+            </div>
+
             <Link
               href="/"
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 transition-colors"
@@ -166,38 +176,27 @@ function MessagesContent() {
               <span>Do&#39;konga qaytish</span>
             </Link>
           </div>
+        </header>
 
-          <div className="flex items-center gap-2">
-            <Link
-              href="/cabinet"
-              className="px-3 py-1.5 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 text-xs font-semibold"
-            >
-              Kabinetim
-            </Link>
-          </div>
-        </div>
-      </header>
-
-      <div className="flex flex-col flex-1 h-[calc(100vh-64px)] overflow-hidden">
         {/* Two-Pane Chat Shell */}
         <div className="flex-1 flex overflow-hidden">
           {/* Left Pane: Conversations List */}
           <div
-            className={`w-full lg:w-80 xl:w-96 border-r border-stone-200/80 dark:border-zinc-800 flex flex-col bg-white dark:bg-zinc-900 shrink-0 ${
+            className={`w-full lg:w-80 xl:w-96 border-r border-stone-200/80 dark:border-stone-800 flex flex-col bg-white dark:bg-stone-900 shrink-0 ${
               activeThreadId ? 'hidden lg:flex' : 'flex'
             }`}
           >
-            <div className="p-4 border-b border-stone-100 dark:border-zinc-800 flex items-center justify-between">
+            <div className="p-4 border-b border-stone-100 dark:border-stone-800 flex items-center justify-between">
               <div>
                 <h1 className="font-serif text-lg font-bold">Suhbatlar</h1>
-                <p className="text-[11px] text-stone-500">Kitobxonlar bilan yozishmalar</p>
+                <p className="text-[11px] text-stone-500 dark:text-stone-400">Kitobxonlar bilan yozishmalar</p>
               </div>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
                 {userThreads.length} ta
               </span>
             </div>
 
-            <div className="flex-1 overflow-y-auto divide-y divide-stone-100 dark:divide-zinc-800/60">
+            <div className="flex-1 overflow-y-auto divide-y divide-stone-100 dark:divide-stone-800/60">
               {userThreads.length > 0 ? (
                 userThreads.map((thread) => {
                   const isSelected = thread.id === activeThreadId;
@@ -214,12 +213,12 @@ function MessagesContent() {
                       }}
                       className={`p-3.5 sm:p-4 flex items-center gap-3 cursor-pointer transition-colors ${
                         isSelected
-                          ? 'bg-amber-50/70 dark:bg-zinc-800/80 border-l-4 border-amber-600'
-                          : 'hover:bg-stone-50 dark:hover:bg-zinc-850/50'
+                          ? 'bg-amber-500/10 dark:bg-stone-800 border-l-4 border-amber-600'
+                          : 'hover:bg-stone-50 dark:hover:bg-stone-800/50'
                       }`}
                     >
                       {/* Book Thumbnail */}
-                      <div className="w-11 h-14 rounded-lg overflow-hidden bg-stone-100 dark:bg-zinc-800 shrink-0 border border-stone-200 dark:border-zinc-700">
+                      <div className="w-11 h-14 rounded-lg overflow-hidden bg-stone-100 dark:bg-stone-800 shrink-0 border border-stone-200 dark:border-stone-700">
                         {thread.bookCover ? (
                           <img
                             src={thread.bookCover}
@@ -248,11 +247,11 @@ function MessagesContent() {
                           </span>
                         </div>
 
-                        <div className="text-[11px] font-semibold text-amber-800 dark:text-amber-400 truncate">
+                        <div className="text-[11px] font-semibold text-amber-700 dark:text-amber-400 truncate">
                           {thread.bookTitle}
                         </div>
 
-                        <p className="text-[11px] text-stone-500 dark:text-zinc-400 truncate mt-0.5">
+                        <p className="text-[11px] text-stone-500 dark:text-stone-400 truncate mt-0.5">
                           {thread.lastMessage || 'Yangi suhbat ochildi'}
                         </p>
                       </div>
@@ -277,18 +276,18 @@ function MessagesContent() {
 
           {/* Right Pane: Active Thread Chat */}
           <div
-            className={`flex-1 flex flex-col bg-[#F8F7F4] dark:bg-zinc-950 ${
+            className={`flex-1 flex flex-col bg-[#F8F7F4] dark:bg-stone-950 ${
               !activeThreadId ? 'hidden lg:flex' : 'flex'
             }`}
           >
             {activeThread ? (
               <>
                 {/* Chat Top Bar */}
-                <div className="px-4 py-3 bg-white dark:bg-zinc-900 border-b border-stone-200/80 dark:border-zinc-800 flex items-center justify-between shrink-0">
+                <div className="px-4 py-3 bg-white dark:bg-stone-900 border-b border-stone-200/80 dark:border-stone-800 flex items-center justify-between shrink-0">
                   <div className="flex items-center gap-3 min-w-0">
                     <button
                       onClick={() => setActiveThreadId(null)}
-                      className="lg:hidden p-1.5 rounded-xl hover:bg-stone-100 dark:hover:bg-zinc-800 text-stone-600"
+                      className="lg:hidden p-1.5 rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300"
                     >
                       <ArrowLeft className="w-5 h-5" />
                     </button>
@@ -300,12 +299,12 @@ function MessagesContent() {
                             ? activeThread.ownerName
                             : activeThread.initiatorName}
                         </h2>
-                        <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
+                        <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 dark:bg-emerald-950/40 dark:text-emerald-400 px-2 py-0.5 rounded-full">
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                           <span>Onlayn</span>
                         </span>
                       </div>
-                      <p className="text-[11px] text-stone-500 truncate">
+                      <p className="text-[11px] text-stone-500 dark:text-stone-400 truncate">
                         Kitob: <span className="font-semibold text-stone-700 dark:text-stone-300">{activeThread.bookTitle}</span>
                       </p>
                     </div>
@@ -313,7 +312,7 @@ function MessagesContent() {
 
                   <Link
                     href={`/book/${activeThread.bookId}`}
-                    className="flex items-center gap-1.5 py-1.5 px-3 rounded-xl border border-stone-200 dark:border-zinc-700 hover:bg-stone-50 text-[11px] font-semibold text-stone-700 dark:text-stone-300"
+                    className="flex items-center gap-1.5 py-1.5 px-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 text-[11px] font-semibold text-stone-700 dark:text-stone-200 transition-colors"
                   >
                     <BookOpen className="w-3.5 h-3.5" />
                     <span>Kitobni ko&#39;rish</span>
@@ -337,7 +336,7 @@ function MessagesContent() {
                             targetOwnerId={activeThread.ownerId}
                             onAccept={handleAcceptProposal}
                             onDecline={handleDeclineProposal}
-                            onOpenQRModal={handleOpenQR}
+                            onOpenQRModal={() => handleOpenQR(activeThread.bookId)}
                             onOpenBookDetail={(bId) => router.push(`/book/${bId}`)}
                           />
                         </div>
@@ -352,23 +351,25 @@ function MessagesContent() {
                         <div
                           className={`max-w-xs sm:max-w-md px-4 py-2.5 rounded-2xl text-xs sm:text-sm leading-relaxed shadow-xs ${
                             isMe
-                              ? 'bg-[#141413] text-white dark:bg-stone-100 dark:text-stone-900 rounded-tr-xs'
-                              : 'bg-white dark:bg-zinc-900 text-stone-900 dark:text-stone-100 border border-stone-200/80 dark:border-zinc-800 rounded-tl-xs'
+                              ? 'bg-amber-600 text-white rounded-tr-xs'
+                              : 'bg-white dark:bg-stone-850 text-stone-900 dark:text-stone-100 border border-stone-200/90 dark:border-stone-800 rounded-tl-xs'
                           }`}
                         >
-                          <p>{msg.text}</p>
+                          <p className="whitespace-pre-wrap">{msg.text}</p>
                           <div
-                            className={`flex items-center justify-end gap-1 text-[9px] mt-1 ${
-                              isMe ? 'text-stone-400 dark:text-stone-600' : 'text-stone-400'
+                            className={`flex items-center justify-end gap-1 mt-1 text-[10px] ${
+                              isMe ? 'text-amber-100' : 'text-stone-400'
                             }`}
                           >
                             <span>
-                              {new Date(msg.createdAt).toLocaleTimeString('uz-UZ', {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                              })}
+                              {msg.createdAt
+                                ? new Date(msg.createdAt).toLocaleTimeString('uz-UZ', {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                  })
+                                : ''}
                             </span>
-                            {isMe && <CheckCheck className="w-3 h-3 text-emerald-400" />}
+                            {isMe && <CheckCheck className="w-3 h-3 text-amber-200" />}
                           </div>
                         </div>
                       </div>
@@ -380,19 +381,19 @@ function MessagesContent() {
                 {/* Message Input Form */}
                 <form
                   onSubmit={handleSendMessage}
-                  className="p-3 sm:p-4 bg-white dark:bg-zinc-900 border-t border-stone-200/80 dark:border-zinc-800 flex items-center gap-2"
+                  className="p-3 sm:p-4 bg-white dark:bg-stone-900 border-t border-stone-200/80 dark:border-stone-800 flex items-center gap-2"
                 >
                   <input
                     type="text"
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
                     placeholder="Xabar yozing..."
-                    className="flex-1 px-4 py-2.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-xs sm:text-sm text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-stone-900"
+                    className="flex-1 px-4 py-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs sm:text-sm text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 transition-all"
                   />
                   <button
                     type="submit"
                     disabled={!inputText.trim()}
-                    className="p-2.5 rounded-xl bg-[#141413] hover:bg-black dark:bg-stone-100 dark:hover:bg-white text-white dark:text-stone-900 transition-all active:scale-95 disabled:opacity-40"
+                    className="p-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white transition-all disabled:opacity-40 shadow-xs"
                     title="Yuborish"
                   >
                     <Send className="w-4 h-4" />
@@ -434,7 +435,7 @@ export default function MessagesPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#F8F7F4] dark:bg-zinc-950 flex items-center justify-center">
+        <div className="min-h-screen bg-[#F8F7F4] dark:bg-stone-950 flex items-center justify-center">
           <div className="animate-pulse font-serif text-lg text-stone-600">Xabarlar yuklanmoqda...</div>
         </div>
       }

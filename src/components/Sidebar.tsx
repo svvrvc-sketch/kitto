@@ -159,12 +159,12 @@ const SidebarInner: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMobil
                       onClick={onCloseMobile}
                       className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                         active
-                          ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 shadow-xs'
+                          ? 'bg-amber-600 text-white dark:bg-amber-600 dark:text-white shadow-xs'
                           : 'text-stone-700 dark:text-stone-300 hover:bg-stone-200/60 dark:hover:bg-stone-800/80 hover:text-stone-900 dark:hover:text-stone-100'
                       }`}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <Icon className={`w-4 h-4 shrink-0 ${active ? 'text-amber-400 dark:text-amber-600' : 'text-stone-500'}`} />
+                        <Icon className={`w-4 h-4 shrink-0 ${active ? 'text-white' : 'text-stone-500 dark:text-stone-400'}`} />
                         <span className="truncate">{item.label}</span>
                       </div>
                       {item.badge && (
@@ -221,7 +221,7 @@ const SidebarInner: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMobil
         ) : (
           <button
             onClick={() => loginWithGoogle()}
-            className="w-full py-2.5 px-3 rounded-xl bg-stone-900 hover:bg-black dark:bg-stone-100 dark:hover:bg-white text-white dark:text-stone-900 font-semibold text-xs flex items-center justify-center gap-2 transition-all"
+            className="w-full py-2.5 px-3 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white font-semibold text-xs flex items-center justify-center gap-2 transition-all shadow-xs"
           >
             <span>Google orqali kirish</span>
           </button>

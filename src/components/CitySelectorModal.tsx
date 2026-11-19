@@ -310,7 +310,7 @@ export const CitySelectorModal: React.FC<CitySelectorModalProps> = ({
                             id={`vote-btn-${region.id}`}
                             type="button"
                             onClick={(e) => handleVote(region.id, e)}
-                            className="px-3 py-1.5 rounded-xl bg-[#141413] hover:bg-stone-800 dark:bg-stone-200 dark:hover:bg-white text-[#F8F7F4] dark:text-stone-900 text-xs font-semibold shadow-xs transition-all active:scale-95"
+                            className="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold shadow-xs transition-all active:scale-95"
                           >
                             Ovoz berish
                           </button>

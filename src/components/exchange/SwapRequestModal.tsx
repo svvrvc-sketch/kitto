@@ -526,7 +526,7 @@ export const SwapRequestModal: React.FC<SwapRequestModalProps> = ({
             type="button"
             disabled={isSubmitting || !selectedTargetBook || !selectedMyBook}
             onClick={handleSubmit}
-            className="w-full py-3.5 px-6 rounded-2xl bg-[#141413] hover:bg-black dark:bg-stone-100 dark:hover:bg-white text-white dark:text-stone-900 text-xs sm:text-sm font-semibold shadow-tactile transition-all active:scale-[0.99] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full py-3.5 px-6 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white text-xs sm:text-sm font-semibold shadow-md transition-all active:scale-[0.99] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {isSubmitting ? (
               <span className="flex items-center gap-2">

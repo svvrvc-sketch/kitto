@@ -52,7 +52,7 @@ export default function ErrorBoundary({
           <Link
             href="/"
             onClick={() => reset()}
-            className="w-full py-3.5 px-6 rounded-2xl bg-[#141413] hover:bg-black dark:bg-stone-100 dark:hover:bg-white text-white dark:text-stone-900 text-xs font-semibold shadow-xs flex items-center justify-center gap-2 transition-all active:scale-95"
+            className="w-full py-3.5 px-6 rounded-2xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white text-xs font-semibold shadow-md flex items-center justify-center gap-2 transition-all"
           >
             <span>Bosh sahifaga oʻtish</span>
             <ArrowRight className="w-4 h-4" />

@@ -363,8 +363,8 @@ function AddBookContent() {
                         onClick={() => setCondition(cond)}
                         className={`py-2 px-2 text-center rounded-xl text-xs font-semibold border transition-all ${
                           condition === cond
-                            ? 'bg-[#141413] text-white dark:bg-stone-100 dark:text-stone-900 border-[#141413]'
-                            : 'bg-stone-50 dark:bg-zinc-800 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-zinc-700'
+                            ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
+                            : 'bg-stone-50 dark:bg-stone-800 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-700'
                         }`}
                       >
                         {cond}
@@ -539,7 +539,7 @@ function AddBookContent() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-8 py-3.5 rounded-2xl bg-[#141413] hover:bg-black dark:bg-stone-100 dark:hover:bg-white text-white dark:text-stone-900 font-semibold text-xs tracking-wide shadow-tactile transition-all active:scale-[0.98] disabled:opacity-50 flex items-center gap-2"
+                className="px-8 py-3.5 rounded-2xl bg-amber-600 hover:bg-amber-700 active:scale-[0.98] text-white font-semibold text-xs tracking-wide shadow-md transition-all disabled:opacity-50 flex items-center gap-2"
               >
                 {isSubmitting ? (
                   <span>Joylashtirilmoqda...</span>

@@ -507,7 +507,7 @@ export const SwapQRModal: React.FC<SwapQRModalProps> = ({
               type="button"
               disabled={isSubmitting}
               onClick={() => completeAction()}
-              className="w-full mt-4 flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl bg-[#141413] hover:bg-black dark:bg-stone-200 dark:hover:bg-white text-white dark:text-stone-900 font-bold text-xs tracking-wide shadow-tactile transition-all active:scale-[0.98] disabled:opacity-50"
+              className="w-full mt-4 flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs tracking-wide shadow-md transition-all active:scale-[0.98] disabled:opacity-50"
             >
               <CheckCircle2 className="w-4 h-4 text-emerald-400 dark:text-emerald-600" />
               <span>
@@ -625,7 +625,7 @@ export const SwapQRModal: React.FC<SwapQRModalProps> = ({
                 <button
                   type="submit"
                   disabled={!manualCodeInput.trim() || isSubmitting}
-                  className="px-4 py-2.5 rounded-xl bg-[#141413] hover:bg-black dark:bg-stone-200 dark:hover:bg-white text-white dark:text-stone-900 text-xs font-bold transition-all active:scale-95 disabled:opacity-40"
+                  className="px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all active:scale-95 disabled:opacity-40"
                 >
                   Tasdiqlash
                 </button>

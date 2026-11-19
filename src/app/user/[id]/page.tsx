@@ -129,7 +129,7 @@ function UserProfileContent() {
             ) : (
               <Link
                 href="/login"
-                className="px-3 py-1.5 rounded-xl bg-stone-900 hover:bg-black dark:bg-stone-100 dark:hover:bg-white text-white dark:text-stone-900 text-xs font-semibold"
+                className="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white text-xs font-semibold"
               >
                 Kirish
               </Link>
@@ -188,7 +188,7 @@ function UserProfileContent() {
               {!isSelf && (
                 <button
                   onClick={handleDirectMessage}
-                  className="px-5 py-2.5 rounded-xl bg-[#141413] hover:bg-black dark:bg-stone-100 dark:hover:bg-white text-white dark:text-stone-900 font-semibold text-xs shadow-xs transition-all active:scale-95 self-start sm:self-center"
+                  className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs shadow-xs transition-all active:scale-95 self-start sm:self-center"
                 >
                   Xabar yozish
                 </button>
