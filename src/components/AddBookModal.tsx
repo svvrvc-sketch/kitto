@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Book, SwapType, DurationPreset, BookLocation, SwapTerm } from '@/types/book';
-import { compressBookImage } from '@/utils/imageCompressor';
+import { uploadImageToStorage } from '@/utils/storage';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import {
@@ -105,16 +105,16 @@ export const AddBookModal: React.FC<AddBookModalProps> = ({
 
     try {
       setIsCompressing(true);
-      const compressed = await compressBookImage(file, 800, 0.78);
-      setCoverUrl(compressed);
+      const uploadedUrl = await uploadImageToStorage(file, 'covers');
+      setCoverUrl(uploadedUrl);
       setErrors((prev) => {
         const next = { ...prev };
         delete next.cover;
         return next;
       });
-      showToast("Rasm yuklandi va optimallashtirildi", 'success');
+      showToast("Rasm muvaffaqiyatli yuklandi", 'success');
     } catch (err) {
-      console.error('Image compression error:', err);
+      console.error('Image upload error:', err);
       const errMsg = "Rasm yuklashda xatolik yuz berdi. Boshqa rasm tanlab ko'ring.";
       setErrors((prev) => ({
         ...prev,

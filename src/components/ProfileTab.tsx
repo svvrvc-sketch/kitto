@@ -4,7 +4,7 @@ import React, { useState, useRef } from 'react';
 import { Book } from '@/types/book';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
-import { compressBookImage } from '@/utils/imageCompressor';
+import { uploadImageToStorage } from '@/utils/storage';
 import { isValidUzbekPhone, formatUzbekPhone } from '@/utils/phone';
 import { UZBEKISTAN_REGIONS, normalizeRegionName } from '@/lib/regions';
 import {
@@ -105,9 +105,9 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
 
     setIsUploadingAvatar(true);
     try {
-      const compressed = await compressBookImage(file, 400, 0.82);
-      updateProfile({ avatar: compressed });
-      if (isEditing) setEditAvatar(compressed);
+      const avatarUrl = await uploadImageToStorage(file, 'avatars');
+      updateProfile({ avatar: avatarUrl });
+      if (isEditing) setEditAvatar(avatarUrl);
       showToast('Profil rasmi muvaffaqiyatli yuklandi', 'success');
     } catch {
       showToast('Rasmni yuklashda xatolik yuz berdi', 'error');
