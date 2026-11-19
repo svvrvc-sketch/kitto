@@ -10,9 +10,7 @@ import {
   ArrowLeftRight,
   Bookmark,
   ArrowLeft,
-  Menu,
 } from 'lucide-react';
-import { Sidebar } from '@/components/Sidebar';
 import { profilesService, booksService } from '@/services/db';
 import { UserProfile } from '@/types/auth';
 import { Book } from '@/types/book';
@@ -20,6 +18,7 @@ import { normalizeRegionName } from '@/lib/regions';
 import { useAuth } from '@/context/AuthContext';
 import { useChat } from '@/context/ChatContext';
 import { SwapRequestModal } from '@/components/exchange/SwapRequestModal';
+import { LogoIcon } from '@/components/Logo';
 
 function UserProfileContent() {
   const params = useParams();
@@ -29,7 +28,6 @@ function UserProfileContent() {
   const { user: currentUser } = useAuth();
   const { startConversation } = useChat();
 
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [userBooks, setUserBooks] = useState<Book[]>([]);
   const [allBooks, setAllBooks] = useState<Book[]>([]);
@@ -99,38 +97,50 @@ function UserProfileContent() {
   const genres = profile?.favoriteGenres || userBooks[0]?.ownerFavoriteGenres || [];
 
   return (
-    <div className="min-h-screen bg-[#F8F7F4] dark:bg-zinc-950 text-stone-900 dark:text-stone-100 flex flex-col">
-      <Sidebar mobileOpen={mobileMenuOpen} onCloseMobile={() => setMobileMenuOpen(false)} />
-
-      <div className="lg:pl-64 flex flex-col flex-1 min-h-screen">
-        {/* Mobile Top Bar */}
-        <div className="lg:hidden sticky top-0 z-20 flex items-center justify-between px-4 py-3 bg-[#FAF9F5]/90 dark:bg-zinc-900/90 backdrop-blur-md border-b border-stone-200/80 dark:border-zinc-800">
+    <div className="min-h-screen bg-[#F8F7F4] dark:bg-stone-950 text-stone-900 dark:text-stone-100 flex flex-col">
+      {/* Clean Store Header */}
+      <header className="sticky top-0 z-30 w-full bg-[#FAF9F5]/90 dark:bg-stone-900/90 backdrop-blur-md border-b border-stone-200/80 dark:border-stone-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => setMobileMenuOpen(true)}
-              className="p-2 rounded-xl bg-stone-100 dark:bg-zinc-800 text-stone-700 dark:text-stone-200"
+            <Link href="/" className="flex items-center gap-2 group">
+              <div className="p-1.5 rounded-xl bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 shadow-2xs">
+                <LogoIcon size={20} />
+              </div>
+              <span className="font-serif text-lg font-bold">Kitto</span>
+            </Link>
+            <span className="text-stone-300 dark:text-stone-700">/</span>
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 transition-colors"
             >
-              <Menu className="w-5 h-5" />
-            </button>
-            <div className="font-serif text-lg font-bold">Kitobxon profili</div>
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Do&#39;konga qaytish</span>
+            </Link>
           </div>
-          <button
-            onClick={() => router.back()}
-            className="p-2 rounded-xl hover:bg-stone-200/60 dark:hover:bg-zinc-800 text-stone-600"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </button>
-        </div>
 
+          <div className="flex items-center gap-2">
+            {currentUser ? (
+              <Link
+                href="/cabinet"
+                className="px-3 py-1.5 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 text-xs font-semibold"
+              >
+                Kabinetim
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                className="px-3 py-1.5 rounded-xl bg-stone-900 hover:bg-black dark:bg-stone-100 dark:hover:bg-white text-white dark:text-stone-900 text-xs font-semibold"
+              >
+                Kirish
+              </Link>
+            )}
+          </div>
+        </div>
+      </header>
+
+      <div className="flex flex-col flex-1 min-h-screen">
         {/* Content Pane */}
         <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
-          <button
-            onClick={() => router.back()}
-            className="hidden lg:inline-flex items-center gap-1.5 text-xs font-semibold text-stone-500 hover:text-stone-900 mb-2 transition-colors"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Orqaga</span>
-          </button>
 
           {/* User Hero Banner */}
           <div className="p-6 sm:p-7 rounded-3xl bg-white dark:bg-zinc-900 border border-stone-200/80 dark:border-zinc-800 shadow-editorial space-y-5">

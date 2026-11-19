@@ -16,7 +16,6 @@ import {
   ArrowLeftRight,
   Gift,
   MapPin,
-  Menu,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
@@ -24,7 +23,7 @@ import { Book, SwapType, DurationPreset, BookLocation, SwapTerm } from '@/types/
 import { booksService } from '@/services/db';
 import { uploadImageToStorage } from '@/utils/storage';
 import { YandexMapPicker, Coordinates } from '@/components/YandexMapPicker';
-import { Sidebar } from '@/components/Sidebar';
+import { LogoIcon } from '@/components/Logo';
 
 const BOOK_CATEGORIES = [
   'Badiiy adabiyot',
@@ -50,8 +49,6 @@ function AddBookContent() {
   const router = useRouter();
   const { user, openAuthModal, openPhonePrompt, hasValidPhone } = useAuth();
   const { showToast } = useToast();
-
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Form Fields
   const [title, setTitle] = useState('');
@@ -181,34 +178,41 @@ function AddBookContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F7F4] dark:bg-zinc-950 text-stone-900 dark:text-stone-100">
-      {/* Sidebar Navigation */}
-      <Sidebar mobileOpen={mobileMenuOpen} onCloseMobile={() => setMobileMenuOpen(false)} />
-
-      {/* Main Content Pane */}
-      <div className="lg:pl-64 flex flex-col min-h-screen">
-        {/* Mobile Top Bar */}
-        <div className="lg:hidden sticky top-0 z-20 flex items-center justify-between px-4 py-3 bg-[#FAF9F5]/90 dark:bg-zinc-900/90 backdrop-blur-md border-b border-stone-200/80 dark:border-zinc-800">
+    <div className="min-h-screen bg-[#F8F7F4] dark:bg-stone-950 text-stone-900 dark:text-stone-100 flex flex-col">
+      {/* Clean Store Header */}
+      <header className="sticky top-0 z-30 w-full bg-[#FAF9F5]/90 dark:bg-stone-900/90 backdrop-blur-md border-b border-stone-200/80 dark:border-stone-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => setMobileMenuOpen(true)}
-              className="p-2 rounded-xl bg-stone-100 dark:bg-zinc-800 text-stone-700 dark:text-stone-200"
-              title="Menyu"
+            <Link href="/" className="flex items-center gap-2 group">
+              <div className="p-1.5 rounded-xl bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 shadow-2xs">
+                <LogoIcon size={20} />
+              </div>
+              <span className="font-serif text-lg font-bold">Kitto</span>
+            </Link>
+            <span className="text-stone-300 dark:text-stone-700">/</span>
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 transition-colors"
             >
-              <Menu className="w-5 h-5" />
-            </button>
-            <div className="font-serif text-lg font-bold">Kitob joylash</div>
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Do&#39;konga qaytish</span>
+            </Link>
           </div>
-          <Link
-            href="/"
-            className="p-2 rounded-xl hover:bg-stone-200/60 dark:hover:bg-zinc-800 text-stone-600 dark:text-stone-300"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </Link>
-        </div>
 
+          <div className="flex items-center gap-2">
+            <Link
+              href="/cabinet"
+              className="px-3 py-1.5 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 text-xs font-semibold"
+            >
+              Kabinetim
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      <div className="flex flex-col flex-1 min-h-screen">
         {/* Content Body */}
-        <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+        <main className="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12">
           {/* Header */}
           <div className="mb-8">
             <Link

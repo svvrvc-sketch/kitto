@@ -5,7 +5,6 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Book, AppTab, FeedFilterType, BookStatus } from '@/types/book';
 import { Header } from '@/components/Header';
-import { Sidebar } from '@/components/Sidebar';
 import { BookCard } from '@/components/BookCard';
 import { BookDetailModal } from '@/components/BookDetailModal';
 import { AddBookModal } from '@/components/AddBookModal';
@@ -49,8 +48,6 @@ export default function HomePage() {
   const { user, openAuthModal, openPhonePrompt, hasValidPhone } = useAuth();
   const { showToast } = useToast();
   const { startConversation, totalUnreadCount } = useChat();
-
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Books and saved IDs state: Default [] on fresh start
   const [books, setBooks] = useState<Book[]>([]);
@@ -626,11 +623,8 @@ export default function HomePage() {
   }, [myListings]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8F7F4] dark:bg-zinc-950 text-stone-900 dark:text-stone-100 transition-colors duration-200">
-      {/* Desktop & Mobile Responsive Sidebar */}
-      <Sidebar mobileOpen={mobileMenuOpen} onCloseMobile={() => setMobileMenuOpen(false)} />
-
-      <div className="lg:pl-64 flex flex-col flex-1 min-h-screen">
+    <div className="min-h-screen flex flex-col bg-[#F8F7F4] dark:bg-stone-950 text-stone-900 dark:text-stone-100 transition-colors duration-200">
+      <div className="flex flex-col flex-1 min-h-screen">
         {/* Geolocation Banner / Prompt */}
         <GeolocationPrompt
           isOpen={isGeoPromptOpen}
@@ -674,7 +668,7 @@ export default function HomePage() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 pt-5 pb-24 sm:pb-12">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-24 sm:pb-16">
         {/* Outside Tashkent Notice Banner */}
         {isOutsideTashkent && (
           <div className="mb-5 p-3.5 sm:p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-900/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-amber-900 dark:text-amber-200 shadow-sm animate-in fade-in duration-200">
@@ -959,28 +953,7 @@ export default function HomePage() {
 
       {/* Bottom Navigation for Mobile */}
       <BottomNav
-        currentTab={currentTab}
-        onSelectTab={(tab) => {
-          if (tab === 'profile') {
-            router.push('/cabinet');
-            return;
-          }
-          if (tab === 'messages') {
-            router.push('/messages');
-            return;
-          }
-          if (tab === 'my_listings') {
-            router.push('/cabinet?tab=my_books');
-            return;
-          }
-          if (tab === 'saved') {
-            router.push('/cabinet?tab=wishlist');
-            return;
-          }
-          setCurrentTab(tab);
-        }}
         savedCount={savedBookIds.size}
-        myListingsCount={myListings.length}
         unreadChatCount={totalUnreadCount}
       />
       </div>
