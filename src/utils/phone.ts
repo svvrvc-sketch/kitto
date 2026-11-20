@@ -2,12 +2,23 @@
  * Phone formatting and validation utilities for Uzbekistan (+998)
  */
 
+export const UZBEK_OPERATOR_CODES = ['90', '91', '93', '94', '95', '97', '98', '99', '33', '88', '77', '50', '20'];
+
 export const extractUzbek9Digits = (raw?: string | null): string => {
   if (!raw) return '';
   let digits = String(raw).replace(/\D/g, '');
-  while (digits.startsWith('998')) {
+
+  // Case 1: Full international phone format provided (e.g. 998901234567, 12 digits or > 9 digits)
+  if (digits.length > 9 && digits.startsWith('998')) {
     digits = digits.substring(3);
+  } else if (digits.length >= 5 && digits.startsWith('998')) {
+    // Case 2: User started typing '998' followed by a valid operator code like '93' ('99893...')
+    const prospectiveOperator = digits.substring(3, 5);
+    if (UZBEK_OPERATOR_CODES.includes(prospectiveOperator)) {
+      digits = digits.substring(3);
+    }
   }
+
   return digits.substring(0, 9);
 };
 
@@ -19,7 +30,7 @@ export const isValidUzbekPhone = (contact?: string | null): boolean => {
   const digits = extractUzbek9Digits(contact);
   if (digits.length !== 9) return false;
   const code = digits.substring(0, 2);
-  return ['90', '91', '93', '94', '95', '97', '98', '99', '33', '88', '77', '50', '20'].includes(code);
+  return UZBEK_OPERATOR_CODES.includes(code);
 };
 
 export const formatLocalPhone = (raw: string): string => {

@@ -15,6 +15,8 @@ import {
   ShieldCheck,
   HelpCircle,
   X,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useChat } from '@/context/ChatContext';
@@ -23,9 +25,18 @@ import { LogoIcon } from './Logo';
 export interface SidebarProps {
   mobileOpen?: boolean;
   onCloseMobile?: () => void;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
+  standalone?: boolean;
 }
 
-const SidebarInner: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMobile }) => {
+const SidebarInner: React.FC<SidebarProps> = ({
+  mobileOpen = false,
+  onCloseMobile,
+  isCollapsed = false,
+  onToggleCollapse,
+  standalone = false,
+}) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const currentTab = searchParams.get('tab') || 'my_books';
@@ -101,8 +112,112 @@ const SidebarInner: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMobil
     },
   ];
 
+  // Collapsed (Slim 64px Icon Rail) Mode
+  if (isCollapsed) {
+    return (
+      <aside className="h-full w-16 flex flex-col justify-between py-3.5 px-2 bg-[#FAF9F5] dark:bg-stone-900 border-r border-stone-200/90 dark:border-stone-800 text-stone-900 dark:text-stone-100 select-none shrink-0 transition-all duration-200 z-30">
+        {/* Top: Logo & Quick Links */}
+        <div className="flex flex-col items-center gap-3">
+          <Link
+            href="/"
+            className="p-2 rounded-xl bg-amber-600 text-white shadow-xs hover:bg-amber-700 active:scale-95 transition-all"
+            title="Kitto — Bosh sahifa"
+          >
+            <LogoIcon size={20} />
+          </Link>
+
+          <Link
+            href="/"
+            className="p-2 rounded-xl text-stone-600 dark:text-stone-300 hover:bg-stone-200/70 dark:hover:bg-stone-800 transition-colors"
+            title="Asosiy katalogga o‘tish"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </Link>
+
+          <Link
+            href="/add-book"
+            className="p-2 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 hover:bg-amber-500/25 border border-amber-500/30 transition-colors"
+            title="Kitob qo‘shish"
+          >
+            <Plus className="w-4 h-4 stroke-[2.5]" />
+          </Link>
+
+          <div className="w-8 h-px bg-stone-200 dark:bg-stone-800 my-1" />
+
+          {/* Navigation Icon List */}
+          <nav className="flex flex-col items-center gap-1.5 w-full">
+            {navItems.flatMap((sec) => sec.items).map((item, idx) => {
+              const Icon = item.icon;
+              const active = item.active;
+
+              return (
+                <Link
+                  key={idx}
+                  href={item.href}
+                  className={`relative p-2.5 rounded-xl transition-all ${
+                    active
+                      ? 'bg-amber-600 text-white shadow-xs'
+                      : 'text-stone-600 dark:text-stone-400 hover:bg-stone-200/60 dark:hover:bg-stone-800/80 hover:text-stone-900 dark:hover:text-stone-100'
+                  }`}
+                  title={item.label}
+                >
+                  <Icon className="w-4 h-4 shrink-0" />
+                  {item.badge && (
+                    <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-stone-900 animate-pulse" />
+                  )}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* Bottom: User Avatar & Expand Toggle */}
+        <div className="flex flex-col items-center gap-2 pt-2 border-t border-stone-200/80 dark:border-stone-800">
+          {isAuthenticated && user ? (
+            <Link
+              href="/cabinet"
+              className="relative rounded-full ring-2 ring-stone-200 dark:ring-stone-700 hover:ring-amber-500 transition-all"
+              title={`${user.name || 'Kitobxon'} — Shaxsiy kabinet`}
+            >
+              {user.avatar ? (
+                <img
+                  src={user.avatar}
+                  alt={user.name || 'Kitobxon'}
+                  className="w-7 h-7 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-7 h-7 rounded-full bg-amber-600 text-white font-bold text-xs flex items-center justify-center">
+                  {(user.name || 'K').charAt(0).toUpperCase()}
+                </div>
+              )}
+            </Link>
+          ) : (
+            <button
+              onClick={() => loginWithGoogle()}
+              className="p-2 rounded-xl text-amber-600 hover:bg-amber-500/10 transition-colors"
+              title="Google orqali kirish"
+            >
+              <UserIcon className="w-4 h-4" />
+            </button>
+          )}
+
+          {onToggleCollapse && (
+            <button
+              onClick={onToggleCollapse}
+              className="p-2 rounded-xl hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-500 dark:text-stone-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
+              title="Menyuni kengaytirish (Yozuvlar bilan ko‘rish)"
+            >
+              <PanelLeftOpen className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+      </aside>
+    );
+  }
+
+  // Expanded (Full 256px) Mode
   const content = (
-    <aside className="h-full flex flex-col justify-between p-4 bg-[#FAF9F5] dark:bg-stone-900 border-r border-stone-200/90 dark:border-stone-800 text-stone-900 dark:text-stone-100 select-none">
+    <aside className="h-full w-64 flex flex-col justify-between p-4 bg-[#FAF9F5] dark:bg-stone-900 border-r border-stone-200/90 dark:border-stone-800 text-stone-900 dark:text-stone-100 select-none shrink-0 transition-all duration-200">
       <div className="space-y-4">
         {/* 1. Prominent "Asosiy do'konga qaytish" Button */}
         <Link
@@ -118,7 +233,7 @@ const SidebarInner: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMobil
           <span className="text-[10px] text-stone-500 dark:text-stone-400 font-medium">&rarr;</span>
         </Link>
 
-        {/* 2. Brand Header: Shaxsiy Kabinet */}
+        {/* 2. Brand Header: Shaxsiy Kabinet & Collapse Toggle */}
         <div className="flex items-center justify-between px-2 pt-1 pb-1">
           <div className="flex items-center gap-2.5">
             <div className="p-1.5 rounded-xl bg-amber-600 text-white shadow-xs">
@@ -135,15 +250,27 @@ const SidebarInner: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMobil
             </div>
           </div>
 
-          {onCloseMobile && (
-            <button
-              onClick={onCloseMobile}
-              className="lg:hidden p-1.5 rounded-xl hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-500"
-              title="Yopish"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          )}
+          <div className="flex items-center gap-1">
+            {onToggleCollapse && (
+              <button
+                onClick={onToggleCollapse}
+                className="hidden lg:flex p-1.5 rounded-xl hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 transition-colors"
+                title="Menyuni ixchamlash (faqat iconlar)"
+              >
+                <PanelLeftClose className="w-4 h-4" />
+              </button>
+            )}
+
+            {onCloseMobile && (
+              <button
+                onClick={onCloseMobile}
+                className="lg:hidden p-1.5 rounded-xl hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-500"
+                title="Yopish"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            )}
+          </div>
         </div>
 
         {/* 3. Action Button: Kitob joylash */}
@@ -248,6 +375,10 @@ const SidebarInner: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMobil
     </aside>
   );
 
+  if (standalone) {
+    return content;
+  }
+
   return (
     <>
       {/* Desktop Persistent Sidebar */}
@@ -275,7 +406,7 @@ export const Sidebar: React.FC<SidebarProps> = (props) => {
   return (
     <Suspense
       fallback={
-        <div className="hidden lg:block fixed inset-y-0 left-0 w-64 z-30 bg-[#FAF9F5] dark:bg-stone-900 border-r border-stone-200/90 dark:border-stone-800" />
+        <div className={`hidden lg:block ${props.isCollapsed ? 'w-16' : 'w-64'} bg-[#FAF9F5] dark:bg-stone-900 border-r border-stone-200/90 dark:border-stone-800`} />
       }
     >
       <SidebarInner {...props} />

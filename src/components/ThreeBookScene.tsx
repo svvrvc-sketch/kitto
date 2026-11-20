@@ -2,12 +2,17 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
-import { BookOpen, Sparkles } from 'lucide-react';
+import { BookOpen, Sparkles, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
 
 export const ThreeBookScene: React.FC<{ className?: string }> = ({ className = '' }) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const isOpenRef = useRef(false);
+
+  // Zoom and camera controls refs
+  const zoomInRef = useRef<() => void>(() => {});
+  const zoomOutRef = useRef<() => void>(() => {});
+  const resetViewRef = useRef<() => void>(() => {});
 
   // Sync ref with state for animation loop
   useEffect(() => {
@@ -18,62 +23,69 @@ export const ThreeBookScene: React.FC<{ className?: string }> = ({ className = '
     const container = mountRef.current;
     if (!container) return;
 
-    const width = container.clientWidth || 420;
-    const height = container.clientHeight || 460;
+    const width = container.clientWidth || 460;
+    const height = container.clientHeight || 520;
 
     // 1. Scene & Camera
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 100);
-    camera.position.set(0, 0.3, 7.2);
+    const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
+    camera.position.set(0, 0.2, 7.2);
+
+    let currentCameraDist = 7.2;
+    let targetCameraDist = 7.2;
+    let currentCameraY = 0.2;
+    let targetCameraY = 0.2;
 
     // 2. Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.5));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.25;
+    renderer.toneMappingExposure = 1.3;
     container.appendChild(renderer.domElement);
 
-    // 3. Lighting
-    const ambientLight = new THREE.AmbientLight(0xfff8ed, 1.4);
+    const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
+
+    // 3. Lighting - Balanced, clean reading lighting
+    const ambientLight = new THREE.AmbientLight(0xfffdf7, 1.8);
     scene.add(ambientLight);
 
-    const mainLight = new THREE.DirectionalLight(0xffe8ba, 2.8);
-    mainLight.position.set(4, 7, 5);
+    const mainLight = new THREE.DirectionalLight(0xfff5ea, 3.2);
+    mainLight.position.set(4, 8, 6);
     scene.add(mainLight);
 
-    const warmFillLight = new THREE.DirectionalLight(0xd97706, 1.8);
-    warmFillLight.position.set(-5, -3, 3);
+    const warmFillLight = new THREE.DirectionalLight(0xd97706, 1.5);
+    warmFillLight.position.set(-6, -2, 4);
     scene.add(warmFillLight);
 
-    const readingLight = new THREE.PointLight(0xfbbf24, 2.5, 12);
-    readingLight.position.set(0, 2.2, 3.5);
+    const readingLight = new THREE.PointLight(0xffedd5, 3.0, 15);
+    readingLight.position.set(0, 1.5, 4.5);
     scene.add(readingLight);
 
-    // 4. Procedural Textures
+    // 4. Ultra-Crisp Canvas Textures (2048 x 2880 for zero blur)
     // A. Front Cover Texture (Obsidian Leather + Gold Foil)
     const createFrontCoverTexture = () => {
       const canvas = document.createElement('canvas');
-      canvas.width = 1024;
-      canvas.height = 1440;
+      canvas.width = 2048;
+      canvas.height = 2880;
       const ctx = canvas.getContext('2d')!;
 
       // Leather background
-      const grad = ctx.createLinearGradient(0, 0, 1024, 1440);
+      const grad = ctx.createLinearGradient(0, 0, 2048, 2880);
       grad.addColorStop(0, '#1c1917');
       grad.addColorStop(0.5, '#0c0a09');
       grad.addColorStop(1, '#181412');
       ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, 1024, 1440);
+      ctx.fillRect(0, 0, 2048, 2880);
 
       // Gold borders
       ctx.strokeStyle = '#d97706';
-      ctx.lineWidth = 14;
-      ctx.strokeRect(36, 36, 952, 1368);
+      ctx.lineWidth = 26;
+      ctx.strokeRect(70, 70, 1908, 2740);
 
       ctx.strokeStyle = '#fbbf24';
-      ctx.lineWidth = 4;
-      ctx.strokeRect(52, 52, 920, 1336);
+      ctx.lineWidth = 8;
+      ctx.strokeRect(104, 104, 1840, 2672);
 
       // Corners
       const drawCorner = (x: number, y: number, fx = 1, fy = 1) => {
@@ -81,271 +93,342 @@ export const ThreeBookScene: React.FC<{ className?: string }> = ({ className = '
         ctx.translate(x, y);
         ctx.scale(fx, fy);
         ctx.strokeStyle = '#f59e0b';
-        ctx.lineWidth = 5;
+        ctx.lineWidth = 10;
         ctx.beginPath();
-        ctx.moveTo(0, 36);
+        ctx.moveTo(0, 72);
         ctx.lineTo(0, 0);
-        ctx.lineTo(36, 0);
+        ctx.lineTo(72, 0);
         ctx.stroke();
         ctx.restore();
       };
-      drawCorner(70, 70, 1, 1);
-      drawCorner(954, 70, -1, 1);
-      drawCorner(70, 1370, 1, -1);
-      drawCorner(954, 1370, -1, -1);
+      drawCorner(140, 140, 1, 1);
+      drawCorner(1908, 140, -1, 1);
+      drawCorner(140, 2740, 1, -1);
+      drawCorner(1908, 2740, -1, -1);
 
       // Emblem
       ctx.fillStyle = '#f59e0b';
       ctx.beginPath();
-      ctx.arc(512, 430, 115, 0, Math.PI * 2);
+      ctx.arc(1024, 840, 230, 0, Math.PI * 2);
       ctx.fill();
 
       ctx.fillStyle = '#0c0a09';
       ctx.beginPath();
-      ctx.arc(512, 430, 105, 0, Math.PI * 2);
+      ctx.arc(1024, 840, 210, 0, Math.PI * 2);
       ctx.fill();
 
       // Kitto book icon in emblem
       ctx.strokeStyle = '#fbbf24';
-      ctx.lineWidth = 12;
+      ctx.lineWidth = 24;
       ctx.lineCap = 'round';
       ctx.beginPath();
-      ctx.moveTo(460, 410);
-      ctx.quadraticCurveTo(512, 385, 564, 410);
-      ctx.moveTo(460, 445);
-      ctx.quadraticCurveTo(512, 420, 564, 445);
+      ctx.moveTo(920, 800);
+      ctx.quadraticCurveTo(1024, 750, 1128, 800);
+      ctx.moveTo(920, 870);
+      ctx.quadraticCurveTo(1024, 820, 1128, 870);
       ctx.stroke();
 
       // Typography
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 96px "Plus Jakarta Sans", sans-serif';
+      ctx.font = 'bold 180px "Plus Jakarta Sans", sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('Kitto', 512, 680);
+      ctx.fillText('Kitto', 1024, 1340);
 
       ctx.fillStyle = '#fbbf24';
-      ctx.font = '600 28px "Plus Jakarta Sans", sans-serif';
-      ctx.fillText('TOSHKENT P2P KUTUBXONASI', 512, 740);
+      ctx.font = '700 56px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('TOSHKENT P2P KUTUBXONASI', 1024, 1460);
 
-      ctx.fillStyle = '#a8a29e';
-      ctx.font = '500 24px "Plus Jakarta Sans", sans-serif';
-      ctx.fillText('100% BEPUL KITOB ALMASHUV', 512, 800);
+      ctx.fillStyle = '#cbd5e1';
+      ctx.font = '600 48px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('100% BEPUL KITOB ALMASHUV', 1024, 1570);
 
       // Ribbon deco
       ctx.fillStyle = '#d97706';
-      ctx.fillRect(412, 850, 200, 3);
+      ctx.fillRect(824, 1660, 400, 6);
 
       ctx.fillStyle = '#fbbf24';
-      ctx.font = '600 22px "Plus Jakarta Sans", sans-serif';
-      ctx.fillText('MUTOLAA MADANIYATI • 2024', 512, 910);
+      ctx.font = '700 42px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('MUTOLAA MADANIYATI • 2024', 1024, 1780);
 
       // Click to open hint
       ctx.fillStyle = '#f59e0b';
-      ctx.font = 'bold 24px "Plus Jakarta Sans", sans-serif';
-      ctx.fillText('📖 Ochish uchun bosing', 512, 1300);
+      ctx.font = 'bold 50px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('📖 Ochish uchun bosing yoki tugmani bosing', 1024, 2560);
 
       const tex = new THREE.CanvasTexture(canvas);
       tex.colorSpace = THREE.SRGBColorSpace;
+      tex.minFilter = THREE.LinearFilter;
+      tex.magFilter = THREE.LinearFilter;
+      tex.generateMipmaps = false;
+      tex.anisotropy = maxAnisotropy;
       return tex;
     };
 
-    // B. Left Open Page Texture (Manifesto & Rules)
+    // B. Left Open Page Texture (Manifesto & Rules - Razor Sharp)
     const createLeftPageTexture = () => {
       const canvas = document.createElement('canvas');
-      canvas.width = 1024;
-      canvas.height = 1440;
+      canvas.width = 2048;
+      canvas.height = 2880;
       const ctx = canvas.getContext('2d')!;
 
-      // Aged paper texture
+      // Crisp Parchment Paper
       ctx.fillStyle = '#FAF7F0';
-      ctx.fillRect(0, 0, 1024, 1440);
+      ctx.fillRect(0, 0, 2048, 2880);
 
-      // Faint page margin & watermark
-      ctx.strokeStyle = '#e7e0d3';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(60, 60, 904, 1320);
+      // Page border
+      ctx.strokeStyle = '#d6cebf';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(120, 120, 1808, 2640);
 
-      // Spine shadow gradient on right side of left page
-      const spineGrad = ctx.createLinearGradient(900, 0, 1024, 0);
+      // Subtle spine inner shadow
+      const spineGrad = ctx.createLinearGradient(1800, 0, 2048, 0);
       spineGrad.addColorStop(0, 'rgba(0,0,0,0)');
-      spineGrad.addColorStop(1, 'rgba(0,0,0,0.18)');
+      spineGrad.addColorStop(1, 'rgba(0,0,0,0.14)');
       ctx.fillStyle = spineGrad;
-      ctx.fillRect(900, 0, 124, 1440);
+      ctx.fillRect(1800, 0, 248, 2880);
 
       // Page Title
       ctx.fillStyle = '#b45309';
-      ctx.font = 'bold 32px "Plus Jakarta Sans", sans-serif';
+      ctx.font = 'bold 60px "Plus Jakarta Sans", sans-serif';
       ctx.textAlign = 'left';
-      ctx.fillText('KITTO MANIFESTI', 100, 150);
+      ctx.fillText('KITTO MANIFESTI • RASMIY NIZOM', 180, 280);
 
-      ctx.fillStyle = '#1c1917';
-      ctx.font = '800 52px "Plus Jakarta Sans", sans-serif';
-      ctx.fillText('Kitoblarga erkinlik!', 100, 220);
+      ctx.fillStyle = '#0f172a';
+      ctx.font = '900 100px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('Kitoblarga erkinlik!', 180, 420);
 
-      ctx.fillStyle = '#78716c';
-      ctx.font = 'italic 26px "Plus Jakarta Sans", sans-serif';
-      ctx.fillText('“O‘qilgan kitob tokchada qolmasin.”', 100, 275);
+      ctx.fillStyle = '#64748b';
+      ctx.font = 'italic 52px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('“O‘qilgan kitob tokchada chang bosib qolmasin.”', 180, 520);
 
       // Divider line
       ctx.strokeStyle = '#d97706';
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 6;
       ctx.beginPath();
-      ctx.moveTo(100, 310);
-      ctx.lineTo(924, 310);
+      ctx.moveTo(180, 580);
+      ctx.lineTo(1868, 580);
       ctx.stroke();
 
-      // Rule Points
+      // 4 Core Rules
       const rules = [
         {
           num: '01',
           title: '100% Notijorat ekotizim',
-          desc: 'Kitto platformasida kitoblar sotilmaydi va ijaraga berilmaydi. Faqat xolis almashuv va hadya.',
+          desc: 'Kitto platformasida kitoblar sotilmaydi va ijaraga berilmaydi. Faqat xolis almashuv, hadya va bepul mutolaa.',
         },
         {
           num: '02',
           title: 'Toshkent Metro Qulayligi',
-          desc: 'Shaharning barcha 48 metro bekatlarida kitobxonlar bevosita uchrashib mutolaa almashadilar.',
+          desc: 'Shaharning barcha 48 metro bekatlarida kitobxonlar bevosita uchrashib mutolaa almashadilar. Yo‘ldan qolmaysiz.',
         },
         {
           num: '03',
           title: 'QR-kod & Shaxsiy Kafolat',
-          desc: 'Har bir topshirish va qaytarish shaxsiy QR-kod orqali tasdiqlanadi. Kitobingiz yo‘qolmaydi.',
+          desc: 'Har bir topshirish va qaytarish shaxsiy QR-kod orqali tasdiqlanadi. Kitobingiz yo‘qolmaydi, holati kafolatlanadi.',
         },
         {
           num: '04',
-          title: 'Kitobxonlar Hamjamiyati',
-          desc: 'Yangi do‘stlar, adabiy suhbatlar va foydali muloqotlar maydoni.',
+          title: 'Haqiqiy Kitobxonlar Hamjamiyati',
+          desc: 'Adabiy suhbatlar, yangi do‘stlar va o‘zaro ishonchga asoslangan Toshkent kitobxonlar birlashmasi.',
         },
       ];
 
-      let startY = 370;
+      let startY = 700;
       rules.forEach((r) => {
-        // Number badge
-        ctx.fillStyle = '#f59e0b';
-        ctx.font = 'bold 36px "Plus Jakarta Sans", sans-serif';
-        ctx.fillText(r.num, 100, startY + 36);
+        // Number badge box
+        ctx.fillStyle = '#fef3c7';
+        ctx.beginPath();
+        ctx.roundRect(180, startY, 120, 100, 20);
+        ctx.fill();
+        ctx.strokeStyle = '#f59e0b';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        ctx.fillStyle = '#b45309';
+        ctx.font = 'bold 54px "Plus Jakarta Sans", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(r.num, 240, startY + 70);
 
         // Title
-        ctx.fillStyle = '#1c1917';
-        ctx.font = 'bold 32px "Plus Jakarta Sans", sans-serif';
-        ctx.fillText(r.title, 175, startY + 36);
+        ctx.fillStyle = '#0f172a';
+        ctx.font = 'bold 58px "Plus Jakarta Sans", sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(r.title, 340, startY + 68);
 
-        // Desc
-        ctx.fillStyle = '#44403c';
-        ctx.font = '400 24px "Plus Jakarta Sans", sans-serif';
-        ctx.fillText(r.desc, 175, startY + 80);
+        // Description
+        ctx.fillStyle = '#334155';
+        ctx.font = '500 44px "Plus Jakarta Sans", sans-serif';
+        
+        // Multi-line word wrap
+        const words = r.desc.split(' ');
+        let line = '';
+        let lineY = startY + 140;
+        const maxLineWidth = 1500;
 
-        startY += 150;
+        for (let n = 0; n < words.length; n++) {
+          const testLine = line + words[n] + ' ';
+          const metrics = ctx.measureText(testLine);
+          if (metrics.width > maxLineWidth && n > 0) {
+            ctx.fillText(line, 340, lineY);
+            line = words[n] + ' ';
+            lineY += 60;
+          } else {
+            line = testLine;
+          }
+        }
+        ctx.fillText(line, 340, lineY);
+
+        startY += 360;
       });
 
       // Page Number
-      ctx.fillStyle = '#a8a29e';
-      ctx.font = '600 24px "Plus Jakarta Sans", sans-serif';
+      ctx.fillStyle = '#64748b';
+      ctx.font = 'bold 46px "Plus Jakarta Sans", sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('— 1 —', 512, 1340);
+      ctx.fillText('— 1 —', 1024, 2680);
 
       const tex = new THREE.CanvasTexture(canvas);
       tex.colorSpace = THREE.SRGBColorSpace;
+      tex.minFilter = THREE.LinearFilter;
+      tex.magFilter = THREE.LinearFilter;
+      tex.generateMipmaps = false;
+      tex.anisotropy = maxAnisotropy;
       return tex;
     };
 
-    // C. Right Open Page Texture (Call to Action & Welcome)
+    // C. Right Open Page Texture (Steps & Certified Seal - Razor Sharp)
     const createRightPageTexture = () => {
       const canvas = document.createElement('canvas');
-      canvas.width = 1024;
-      canvas.height = 1440;
+      canvas.width = 2048;
+      canvas.height = 2880;
       const ctx = canvas.getContext('2d')!;
 
       // Paper
       ctx.fillStyle = '#FAF7F0';
-      ctx.fillRect(0, 0, 1024, 1440);
+      ctx.fillRect(0, 0, 2048, 2880);
 
-      // Spine shadow gradient on left side of right page
-      const spineGrad = ctx.createLinearGradient(0, 0, 124, 0);
-      spineGrad.addColorStop(0, 'rgba(0,0,0,0.18)');
+      // Spine shadow gradient on left edge
+      const spineGrad = ctx.createLinearGradient(0, 0, 248, 0);
+      spineGrad.addColorStop(0, 'rgba(0,0,0,0.14)');
       spineGrad.addColorStop(1, 'rgba(0,0,0,0)');
       ctx.fillStyle = spineGrad;
-      ctx.fillRect(0, 0, 124, 1440);
+      ctx.fillRect(0, 0, 248, 2880);
 
-      ctx.strokeStyle = '#e7e0d3';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(60, 60, 904, 1320);
+      ctx.strokeStyle = '#d6cebf';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(120, 120, 1808, 2640);
 
       // Header
-      ctx.fillStyle = '#d97706';
-      ctx.font = 'bold 30px "Plus Jakarta Sans", sans-serif';
+      ctx.fillStyle = '#b45309';
+      ctx.font = 'bold 56px "Plus Jakarta Sans", sans-serif';
       ctx.textAlign = 'right';
-      ctx.fillText('TOSHKENT • 2024', 924, 150);
+      ctx.fillText('TOSHKENT • 2024', 1868, 280);
 
-      ctx.fillStyle = '#1c1917';
-      ctx.font = '800 48px "Plus Jakarta Sans", sans-serif';
+      ctx.fillStyle = '#0f172a';
+      ctx.font = '900 96px "Plus Jakarta Sans", sans-serif';
       ctx.textAlign = 'left';
-      ctx.fillText('Sizning navbatingiz!', 100, 240);
+      ctx.fillText('Sizning navbatingiz!', 180, 420);
 
-      // Illustration Box
+      // Big Amber Callout Card
       ctx.fillStyle = '#fef3c7';
       ctx.beginPath();
-      ctx.roundRect(100, 300, 824, 460, 32);
+      ctx.roundRect(180, 520, 1688, 620, 40);
       ctx.fill();
       ctx.strokeStyle = '#f59e0b';
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 6;
       ctx.stroke();
 
-      // Inner Illustration Elements
+      // Emblem inside card
       ctx.fillStyle = '#d97706';
       ctx.beginPath();
-      ctx.arc(512, 480, 75, 0, Math.PI * 2);
+      ctx.arc(1024, 690, 100, 0, Math.PI * 2);
       ctx.fill();
 
       // Open book icon inside circle
       ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 8;
+      ctx.lineWidth = 14;
       ctx.lineCap = 'round';
       ctx.beginPath();
-      ctx.moveTo(475, 470);
-      ctx.quadraticCurveTo(512, 455, 549, 470);
-      ctx.moveTo(475, 495);
-      ctx.quadraticCurveTo(512, 480, 549, 495);
+      ctx.moveTo(970, 680);
+      ctx.quadraticCurveTo(1024, 660, 1078, 680);
+      ctx.moveTo(970, 715);
+      ctx.quadraticCurveTo(1024, 695, 1078, 715);
       ctx.stroke();
 
-      ctx.fillStyle = '#92400e';
-      ctx.font = 'bold 34px "Plus Jakarta Sans", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('1,200+ kitob almashishga tayyor', 512, 620);
-
       ctx.fillStyle = '#78350f';
-      ctx.font = '500 24px "Plus Jakarta Sans", sans-serif';
-      ctx.fillText('Katalogga kiring va istalgan kitobni tanlang', 512, 670);
-
-      // Quote
-      ctx.fillStyle = '#292524';
-      ctx.font = 'italic 28px "Plus Jakarta Sans", sans-serif';
+      ctx.font = 'bold 64px "Plus Jakarta Sans", sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('“Bilim ulashilganda ko‘payadi.”', 512, 850);
+      ctx.fillText('1,200+ kitob almashishga tayyor', 1024, 880);
 
-      // Steps summary
-      ctx.fillStyle = '#57534e';
-      ctx.font = '500 24px "Plus Jakarta Sans", sans-serif';
-      ctx.fillText('1. Kitob tanlang  •  2. Taklif yuboring  •  3. Metroda oling', 512, 920);
+      ctx.fillStyle = '#92400e';
+      ctx.font = '600 46px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('Katalogga kiring va istalgan kitobni bepul tanlang', 1024, 960);
 
-      // Golden seal
+      ctx.fillStyle = '#a16207';
+      ctx.font = '500 40px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('Toshkent shahrining 12 ta tumanida faol kitobxonlar', 1024, 1030);
+
+      // Steps Title
+      ctx.fillStyle = '#0f172a';
+      ctx.font = 'bold 60px "Plus Jakarta Sans", sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText('Qanday boshlash kerak?', 180, 1260);
+
+      const steps = [
+        { title: '1. Kitobingizni qo‘shing', sub: 'Suratini oling va 1 daqiqada e’lon bering' },
+        { title: '2. Istalgan kitobni tanlang', sub: 'Katalogdan yoqqan asarni topib taklif yuboring' },
+        { title: '3. Suhbatlashing & Uchrashing', sub: 'Telegram kabi qulay chatda metro bekatini kelishing' },
+        { title: '4. QR-kod bilan qabul qiling', sub: 'Uchrashuvda QR-kodni ko‘rsatib almashuvni yakunlang' },
+      ];
+
+      let stepY = 1360;
+      steps.forEach((s) => {
+        ctx.fillStyle = '#f59e0b';
+        ctx.beginPath();
+        ctx.arc(220, stepY + 10, 14, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#0f172a';
+        ctx.font = 'bold 50px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText(s.title, 260, stepY + 20);
+
+        ctx.fillStyle = '#475569';
+        ctx.font = '500 42px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText(s.sub, 260, stepY + 75);
+
+        stepY += 140;
+      });
+
+      // Golden Seal of Guarantee
       ctx.strokeStyle = '#d97706';
-      ctx.lineWidth = 4;
-      ctx.strokeRect(312, 1000, 400, 160);
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.roundRect(424, 2060, 1200, 280, 30);
+      ctx.stroke();
+
+      ctx.fillStyle = '#fffbeb';
+      ctx.fill();
 
       ctx.fillStyle = '#b45309';
-      ctx.font = 'bold 28px "Plus Jakarta Sans", sans-serif';
-      ctx.fillText('KITTO RASMIY', 512, 1060);
-      ctx.font = '600 22px "Plus Jakarta Sans", sans-serif';
-      ctx.fillStyle = '#78716c';
-      ctx.fillText('KAFOLATLANGAN ALMASHUV', 512, 1105);
+      ctx.font = 'bold 56px "Plus Jakarta Sans", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('★ KITTO RASMIY EKOTIZIMI ★', 1024, 2160);
+
+      ctx.fillStyle = '#0f172a';
+      ctx.font = 'bold 44px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('100% KAFOLATLANGAN VA ISHONCHLI ALMASHUV', 1024, 2240);
 
       // Page Number
-      ctx.fillStyle = '#a8a29e';
-      ctx.font = '600 24px "Plus Jakarta Sans", sans-serif';
-      ctx.fillText('— 2 —', 512, 1340);
+      ctx.fillStyle = '#64748b';
+      ctx.font = 'bold 46px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('— 2 —', 1024, 2680);
 
       const tex = new THREE.CanvasTexture(canvas);
       tex.colorSpace = THREE.SRGBColorSpace;
+      tex.minFilter = THREE.LinearFilter;
+      tex.magFilter = THREE.LinearFilter;
+      tex.generateMipmaps = false;
+      tex.anisotropy = maxAnisotropy;
       return tex;
     };
 
@@ -441,31 +524,29 @@ export const ThreeBookScene: React.FC<{ className?: string }> = ({ className = '
     frontCoverPivot.add(innerLeftPageMesh);
 
     // --- E. FLOATING PARTICLES ---
-    const particleCount = 200;
+    const particleCount = 180;
     const particleGeo = new THREE.BufferGeometry();
     const positions = new Float32Array(particleCount * 3);
-    const scales = new Float32Array(particleCount);
 
     for (let i = 0; i < particleCount; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 11;
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 11;
+      positions[i * 3] = (Math.random() - 0.5) * 12;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 12;
       positions[i * 3 + 2] = (Math.random() - 0.5) * 8;
-      scales[i] = Math.random() * 0.8 + 0.3;
     }
 
     particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     const particleMat = new THREE.PointsMaterial({
       color: 0xf59e0b,
-      size: 0.065,
+      size: 0.055,
       transparent: true,
-      opacity: 0.65,
+      opacity: 0.55,
       blending: THREE.AdditiveBlending,
     });
 
     const particles = new THREE.Points(particleGeo, particleMat);
     scene.add(particles);
 
-    // 7. Mouse/Touch Interactivity & Drag Rotation
+    // 7. Mouse/Touch Interactivity & Drag Rotation & Zooming
     let isDragging = false;
     let prevMouseX = 0;
     let prevMouseY = 0;
@@ -520,8 +601,28 @@ export const ThreeBookScene: React.FC<{ className?: string }> = ({ className = '
       isDragging = false;
     };
 
-    const onCanvasClick = () => {
-      setIsOpen((prev) => !prev);
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      targetCameraDist = Math.max(3.2, Math.min(8.5, targetCameraDist + e.deltaY * 0.004));
+    };
+
+    // Zoom and reset buttons callbacks
+    zoomInRef.current = () => {
+      targetCameraDist = Math.max(3.2, targetCameraDist - 0.8);
+    };
+    zoomOutRef.current = () => {
+      targetCameraDist = Math.min(8.5, targetCameraDist + 0.8);
+    };
+    resetViewRef.current = () => {
+      if (isOpenRef.current) {
+        targetCameraDist = 4.8;
+        targetRotX = 0.02;
+        targetRotY = 0;
+      } else {
+        targetCameraDist = 7.2;
+        targetRotX = 0.18;
+        targetRotY = -0.35;
+      }
     };
 
     const dom = renderer.domElement;
@@ -532,7 +633,7 @@ export const ThreeBookScene: React.FC<{ className?: string }> = ({ className = '
     dom.addEventListener('touchstart', onTouchStart, { passive: true });
     window.addEventListener('touchmove', onTouchMove, { passive: true });
     window.addEventListener('touchend', onTouchEnd);
-    dom.addEventListener('click', onCanvasClick);
+    dom.addEventListener('wheel', onWheel, { passive: false });
 
     // 8. Animation Loop
     let animId = 0;
@@ -542,26 +643,45 @@ export const ThreeBookScene: React.FC<{ className?: string }> = ({ className = '
       animId = requestAnimationFrame(animate);
       const elapsed = clock.getElapsedTime();
 
-      // Cover rotation angle
-      targetCoverAngle = isOpenRef.current ? -2.7 : 0;
-      currentCoverAngle += (targetCoverAngle - currentCoverAngle) * 0.06;
+      // Smooth cover opening (~175.5 degrees so both pages lay flat)
+      targetCoverAngle = isOpenRef.current ? -3.06 : 0;
+      currentCoverAngle += (targetCoverAngle - currentCoverAngle) * 0.07;
       frontCoverPivot.rotation.y = currentCoverAngle;
 
-      // Adjust horizontal center when open
-      const targetPosX = isOpenRef.current ? 1.0 : 0;
-      bookGroup.position.x += (targetPosX - bookGroup.position.x) * 0.05;
+      // Adjust camera distance: when open, zoom in automatically so text is big & legible!
+      const defaultDist = isOpenRef.current ? 4.8 : 7.2;
+      const defaultY = isOpenRef.current ? 0.0 : 0.2;
+      
+      // If user hasn't explicitly scrolled to another distance, guide to default
+      if (!isDragging) {
+        if (isOpenRef.current && targetCameraDist > 6.0) {
+          targetCameraDist = 4.8;
+        } else if (!isOpenRef.current && targetCameraDist < 5.5) {
+          targetCameraDist = 7.2;
+        }
+      }
+
+      currentCameraDist += (targetCameraDist - currentCameraDist) * 0.08;
+      currentCameraY += (defaultY - currentCameraY) * 0.08;
+      camera.position.z = currentCameraDist;
+      camera.position.y = currentCameraY;
+
+      // Center the two pages in the viewport when opened
+      const targetPosX = isOpenRef.current ? 1.18 : 0;
+      bookGroup.position.x += (targetPosX - bookGroup.position.x) * 0.07;
 
       // Gentle floating levitation
-      bookGroup.position.y = -0.1 + Math.sin(elapsed * 1.5) * 0.07;
+      bookGroup.position.y = -0.05 + Math.sin(elapsed * 1.5) * 0.05;
 
       // Smooth rotation damping
       if (!isDragging) {
         if (!isOpenRef.current) {
-          targetRotY = -0.35 + Math.sin(elapsed * 0.4) * 0.25;
-          targetRotX = 0.18 + Math.cos(elapsed * 0.5) * 0.08;
+          targetRotY = -0.35 + Math.sin(elapsed * 0.4) * 0.18;
+          targetRotX = 0.18 + Math.cos(elapsed * 0.5) * 0.06;
         } else {
+          // Face directly at the viewer for perfect crystal-clear reading
           targetRotY = 0;
-          targetRotX = 0.12;
+          targetRotX = 0.02;
         }
       }
 
@@ -571,14 +691,14 @@ export const ThreeBookScene: React.FC<{ className?: string }> = ({ className = '
       bookGroup.rotation.x = currentRotX;
 
       // Animate particles
-      particles.rotation.y = elapsed * 0.04;
-      particles.rotation.x = elapsed * 0.02;
+      particles.rotation.y = elapsed * 0.03;
+      particles.rotation.x = elapsed * 0.015;
 
       // Reading light pulses slightly when open
       if (isOpenRef.current) {
-        readingLight.intensity = 2.4 + Math.sin(elapsed * 2) * 0.3;
+        readingLight.intensity = 3.2 + Math.sin(elapsed * 2) * 0.3;
       } else {
-        readingLight.intensity = 1.6;
+        readingLight.intensity = 1.8;
       }
 
       renderer.render(scene, camera);
@@ -589,8 +709,8 @@ export const ThreeBookScene: React.FC<{ className?: string }> = ({ className = '
     // 9. Resize handler
     const handleResize = () => {
       if (!container) return;
-      const w = container.clientWidth || 360;
-      const h = container.clientHeight || 420;
+      const w = container.clientWidth || 460;
+      const h = container.clientHeight || 520;
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
@@ -607,7 +727,7 @@ export const ThreeBookScene: React.FC<{ className?: string }> = ({ className = '
       dom.removeEventListener('touchstart', onTouchStart);
       window.removeEventListener('touchmove', onTouchMove);
       window.removeEventListener('touchend', onTouchEnd);
-      dom.removeEventListener('click', onCanvasClick);
+      dom.removeEventListener('wheel', onWheel);
 
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
@@ -637,27 +757,56 @@ export const ThreeBookScene: React.FC<{ className?: string }> = ({ className = '
       {/* 3D Canvas Mounting Container */}
       <div
         ref={mountRef}
-        className="w-full h-[400px] sm:h-[480px] md:h-[520px] cursor-grab active:cursor-grabbing transition-transform duration-300"
+        className="w-full h-[420px] sm:h-[500px] md:h-[540px] cursor-grab active:cursor-grabbing transition-transform duration-300"
       />
 
-      {/* Interactive Controls & Hint Below the 3D Book */}
-      <div className="mt-2 flex flex-col sm:flex-row items-center gap-2.5 z-10 animate-in fade-in duration-300">
+      {/* Floating Control Toolbar (Open/Close, Zoom In/Out, Reset View) */}
+      <div className="mt-3 flex flex-wrap items-center justify-center gap-2.5 z-10 animate-in fade-in duration-300">
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
           className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-xs shadow-lg transition-all duration-300 active:scale-95 border ${
             isOpen
-              ? 'bg-amber-600 text-white border-amber-500 shadow-amber-500/20'
-              : 'bg-white/90 dark:bg-stone-900/90 text-stone-900 dark:text-stone-100 border-amber-500/40 hover:border-amber-500 shadow-stone-900/10'
+              ? 'bg-amber-600 text-white border-amber-500 shadow-amber-500/25 ring-2 ring-amber-500/30'
+              : 'bg-white/95 dark:bg-stone-900/95 text-stone-900 dark:text-stone-100 border-amber-500/40 hover:border-amber-500 shadow-stone-900/10'
           }`}
         >
           <BookOpen className={`w-4 h-4 ${isOpen ? 'animate-pulse' : 'text-amber-500'}`} />
-          <span>{isOpen ? 'Kitobni yopish ✕' : '📖 Kitobni ochish va varaqlash'}</span>
+          <span>{isOpen ? 'Kitobni yopish ✕' : '📖 Kitobni ochish va o‘qish'}</span>
         </button>
 
-        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-100/80 dark:bg-stone-900/80 backdrop-blur-xs border border-stone-200/60 dark:border-stone-800 text-[11px] text-stone-500 dark:text-stone-400">
+        {/* Zoom & View Controls */}
+        <div className="flex items-center gap-1 p-1 rounded-2xl bg-white/90 dark:bg-stone-900/90 backdrop-blur-md border border-stone-200/80 dark:border-stone-800 shadow-sm">
+          <button
+            type="button"
+            onClick={() => zoomInRef.current()}
+            className="p-1.5 rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300 transition-colors"
+            title="Yaqinlashtirish (+)"
+          >
+            <ZoomIn className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => zoomOutRef.current()}
+            className="p-1.5 rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300 transition-colors"
+            title="Uzoqlashtirish (-)"
+          >
+            <ZoomOut className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => resetViewRef.current()}
+            className="p-1.5 rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300 transition-colors"
+            title="Ko‘rinishni tiklash"
+          >
+            <RotateCcw className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Interactive guidance tag */}
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-100/90 dark:bg-stone-900/90 backdrop-blur-xs border border-stone-200/60 dark:border-stone-800 text-[11px] text-stone-600 dark:text-stone-400 font-medium">
           <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-          <span>{isOpen ? 'Kitob ochildi! Sichqoncha bilan aylantiring' : 'Kitob ustiga bosing yoki aylantiring'}</span>
+          <span>{isOpen ? 'Kitob ochildi! Sichqoncha bilan aylantiring va o‘qing' : 'Kitobni sichqoncha bilan aylantiring'}</span>
         </div>
       </div>
     </div>

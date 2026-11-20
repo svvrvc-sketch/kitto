@@ -652,7 +652,6 @@ export default function CatalogPage() {
           savedCount={savedBookIds.size}
           myListingsCount={myListings.length}
         unreadChatCount={totalUnreadCount}
-        onOpenCitySelector={() => setIsCityModalOpen(true)}
         onOpenSupport={() => setIsSupportModalOpen(true)}
       />
 

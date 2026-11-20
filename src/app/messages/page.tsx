@@ -108,6 +108,7 @@ function MessagesContent() {
   const [showMetroPicker, setShowMetroPicker] = useState(false);
   const [isNewChatModalOpen, setIsNewChatModalOpen] = useState(false);
   const [showSidebarDrawer, setShowSidebarDrawer] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [newChatSearch, setNewChatSearch] = useState('');
   const [allBooks, setAllBooks] = useState<Book[]>([]);
 
@@ -379,11 +380,17 @@ function MessagesContent() {
 
         {/* Right: Actions */}
         <div className="flex items-center gap-2">
-          {/* Sidebar Drawer Toggle */}
+          {/* Sidebar Drawer Toggle (Mobile opens drawer, Desktop toggles collapse) */}
           <button
-            onClick={() => setShowSidebarDrawer(true)}
+            onClick={() => {
+              if (window.innerWidth < 768) {
+                setShowSidebarDrawer(true);
+              } else {
+                setIsSidebarCollapsed(!isSidebarCollapsed);
+              }
+            }}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-stone-200/90 dark:border-stone-800 bg-white/80 dark:bg-stone-800/80 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 text-xs font-semibold shadow-2xs transition-all"
-            title="Kabinet menyusini ochish"
+            title="Kabinet menyusini ochish/yig‘ish"
           >
             <Menu className="w-4 h-4 text-amber-500" />
             <span className="hidden sm:inline">Kabinetim</span>
@@ -423,6 +430,15 @@ function MessagesContent() {
 
       {/* 2. Main Two-Column Layout (Zero Squishing, Wide & Dignified) */}
       <div className="flex-1 flex overflow-hidden">
+        {/* Collapsible Sidebar for Desktop */}
+        <div className="hidden md:flex shrink-0">
+          <Sidebar
+            standalone
+            isCollapsed={isSidebarCollapsed}
+            onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+          />
+        </div>
+
         {/* Left Pane: Conversations List */}
         <div
           className={`w-full md:w-80 lg:w-96 border-r border-stone-200/80 dark:border-stone-800 flex flex-col bg-white dark:bg-stone-900 shrink-0 ${
@@ -944,7 +960,7 @@ function MessagesContent() {
               </button>
             </div>
             <div className="flex-1 overflow-y-auto">
-              <Sidebar onCloseMobile={() => setShowSidebarDrawer(false)} />
+              <Sidebar standalone onCloseMobile={() => setShowSidebarDrawer(false)} />
             </div>
           </div>
         </div>

@@ -9,7 +9,6 @@ import {
   User as UserIcon,
   LogOut,
   ChevronDown,
-  MapPin,
   Menu,
   X,
   Shield,
@@ -35,7 +34,6 @@ interface HeaderProps {
   savedCount?: number;
   myListingsCount?: number;
   unreadChatCount?: number;
-  onOpenCitySelector?: () => void;
   onOpenSupport?: () => void;
 }
 
@@ -47,7 +45,6 @@ export const Header: React.FC<HeaderProps> = ({
   savedCount = 0,
   myListingsCount = 0,
   unreadChatCount = 0,
-  onOpenCitySelector,
   onOpenSupport,
 }) => {
   const router = useRouter();
@@ -66,13 +63,6 @@ export const Header: React.FC<HeaderProps> = ({
   const isCatalogActive = pathname === '/catalog' || pathname?.startsWith('/catalog');
   const isHowItWorksActive = pathname === '/how-it-works';
   const isSafetyActive = pathname === '/safety';
-
-  const userCityDisplay = user?.city
-    ? user.city.includes('Toshkent')
-      ? 'Toshkent'
-      : user.city.replace(' viloyati', '').replace(' Respublikasi', '')
-    : 'Toshkent';
-  const isCityActive = !user?.city || user.city.includes('Toshkent');
 
   const handleLogout = () => {
     logout();
@@ -101,25 +91,11 @@ export const Header: React.FC<HeaderProps> = ({
     <>
       <header className="sticky top-0 z-30 w-full bg-[#FAF9F5]/90 dark:bg-stone-900/90 backdrop-blur-md border-b border-stone-200/80 dark:border-stone-800 transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
-          {/* 1. Left: Brand & City Selector */}
+          {/* 1. Left: Brand */}
           <div className="flex items-center gap-3 sm:gap-5 shrink-0">
             <Link href="/" className="cursor-pointer group text-left focus:outline-none">
               <Logo showTagline={false} />
             </Link>
-
-            {/* City Selector Pill */}
-            {onOpenCitySelector && (
-              <button
-                id="city-selector-btn"
-                onClick={onOpenCitySelector}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-stone-200/90 dark:border-stone-800 bg-white/80 dark:bg-stone-800/80 hover:bg-stone-100 dark:hover:bg-stone-700 text-xs font-semibold text-stone-800 dark:text-stone-200 transition-all shadow-2xs"
-                title={`Hudud: ${user?.city || 'Toshkent shahri'}`}
-              >
-                <span className={`w-2 h-2 rounded-full ${isCityActive ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'} shrink-0`} />
-                <MapPin className="w-3.5 h-3.5 text-stone-600 dark:text-stone-300 shrink-0" />
-                <span className="truncate max-w-[80px] sm:max-w-none">{userCityDisplay}</span>
-              </button>
-            )}
           </div>
 
           {/* 2. Center: Store Navigation Links */}
