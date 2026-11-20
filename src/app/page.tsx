@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { ThreeBookScene } from '@/components/ThreeBookScene';
+import { HeroExchangeShowcase } from '@/components/HeroExchangeShowcase';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 
@@ -162,9 +162,9 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              {/* Right Column: Three.js Interactive 3D Opening Book Experience */}
+              {/* Right Column: Visual P2P Book Exchange Showcase (Modern, Lightweight & Fluid) */}
               <div className="lg:col-span-5 flex items-center justify-center relative">
-                <ThreeBookScene className="w-full max-w-[500px]" />
+                <HeroExchangeShowcase className="w-full" />
               </div>
             </div>
 

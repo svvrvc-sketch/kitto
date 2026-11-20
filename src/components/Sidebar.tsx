@@ -17,9 +17,12 @@ import {
   X,
   PanelLeftClose,
   PanelLeftOpen,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useChat } from '@/context/ChatContext';
+import { useTheme } from '@/context/ThemeContext';
 import { LogoIcon } from './Logo';
 
 export interface SidebarProps {
@@ -42,6 +45,7 @@ const SidebarInner: React.FC<SidebarProps> = ({
   const currentTab = searchParams.get('tab') || 'my_books';
   const { user, isAuthenticated, logout, loginWithGoogle } = useAuth();
   const { totalUnreadCount } = useChat();
+  const { isDark, toggleTheme } = useTheme();
 
   const isLinkActive = (path: string, tab?: string) => {
     if (tab) {
@@ -201,6 +205,14 @@ const SidebarInner: React.FC<SidebarProps> = ({
             </button>
           )}
 
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-xl hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-500 dark:text-stone-400 hover:text-amber-500 transition-colors"
+            title="Mavzuni almashtirish"
+          >
+            {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
+          </button>
+
           {onToggleCollapse && (
             <button
               onClick={onToggleCollapse}
@@ -354,22 +366,40 @@ const SidebarInner: React.FC<SidebarProps> = ({
                 </div>
               </div>
 
-              <button
-                onClick={logout}
-                className="p-1.5 rounded-lg hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-500 hover:text-red-600 transition-colors shrink-0"
-                title="Chiqish"
-              >
-                <LogOut className="w-4 h-4" />
-              </button>
+              <div className="flex items-center gap-1 shrink-0">
+                <button
+                  onClick={toggleTheme}
+                  className="p-1.5 rounded-lg hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-500 hover:text-amber-500 transition-colors"
+                  title="Mavzuni almashtirish"
+                >
+                  {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
+                </button>
+                <button
+                  onClick={logout}
+                  className="p-1.5 rounded-lg hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-500 hover:text-red-600 transition-colors"
+                  title="Chiqish"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
         ) : (
-          <button
-            onClick={() => loginWithGoogle()}
-            className="w-full py-2.5 px-3 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white font-semibold text-xs flex items-center justify-center gap-2 transition-all shadow-xs"
-          >
-            <span>Google orqali kirish</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => loginWithGoogle()}
+              className="flex-1 py-2.5 px-3 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white font-semibold text-xs flex items-center justify-center gap-2 transition-all shadow-xs"
+            >
+              <span>Google orqali kirish</span>
+            </button>
+            <button
+              onClick={toggleTheme}
+              className="p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors shrink-0"
+              title="Mavzuni almashtirish"
+            >
+              {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
+            </button>
+          </div>
         )}
       </div>
     </aside>

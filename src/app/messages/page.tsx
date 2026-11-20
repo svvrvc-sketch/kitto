@@ -291,75 +291,84 @@ function MessagesContent() {
 
   return (
     <div className="h-screen flex flex-col bg-[#FAF9F5] dark:bg-stone-950 text-stone-900 dark:text-stone-100 font-sans transition-colors overflow-hidden">
-      {/* 1. Dedicated Full-Width Header (NO cramped sidebar!) */}
-      <header className="h-14 sm:h-16 px-4 sm:px-6 bg-white/95 dark:bg-stone-900/95 backdrop-blur-md border-b border-stone-200/80 dark:border-stone-800 flex items-center justify-between shrink-0 z-20">
-        <div className="flex items-center gap-3 sm:gap-5">
-          <Link href="/" className="cursor-pointer group focus:outline-none" title="Bosh sahifa">
-            <Logo showTagline={false} size={28} />
+      {/* 1. Dedicated Full-Width Header (Clean & Uncrowded on Mobile & Desktop) */}
+      <header className="h-14 sm:h-16 px-3 sm:px-6 bg-white/95 dark:bg-stone-900/95 backdrop-blur-md border-b border-stone-200/80 dark:border-stone-800 flex items-center justify-between shrink-0 z-20">
+        <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+          {/* Mobile Back Button to Catalog */}
+          <Link
+            href="/catalog"
+            className="p-1.5 -ml-1 rounded-xl text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors flex sm:hidden items-center justify-center shrink-0"
+            title="Katalogga qaytish"
+          >
+            <ArrowLeft className="w-5 h-5 text-stone-700 dark:text-stone-200" />
+          </Link>
+
+          <Link href="/catalog" className="flex items-center gap-2 group focus:outline-none shrink-0" title="Kitto">
+            <Logo showTagline={false} size={26} />
           </Link>
 
           <span className="hidden sm:inline text-stone-300 dark:text-stone-700">|</span>
 
           <Link
             href="/catalog"
-            className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold text-stone-600 dark:text-stone-300 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
+            className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold text-stone-600 dark:text-stone-300 hover:text-amber-600 dark:hover:text-amber-400 transition-colors shrink-0"
           >
             <Compass className="w-3.5 h-3.5" />
             <span>Katalog</span>
           </Link>
         </div>
 
-        {/* Center: Title */}
-        <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="font-sans text-sm sm:text-base font-bold text-stone-900 dark:text-stone-100">
+        {/* Center: Title with live pulse */}
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <span className="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="font-sans text-xs sm:text-base font-bold text-stone-900 dark:text-stone-100">
             Xabarlar
           </span>
         </div>
 
         {/* Right: Actions */}
-        <div className="flex items-center gap-2">
-          {/* Sidebar Drawer Toggle (Opens sliding cabinet drawer on tablet/mobile, toggles rail on desktop) */}
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          {/* New Chat Button */}
+          <button
+            onClick={() => setIsNewChatModalOpen(true)}
+            className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white font-bold text-xs shadow-xs transition-all flex items-center gap-1.5"
+            title="Yangi kitobxon bilan suhbat ochish"
+          >
+            <UserPlus className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
+            <span className="hidden sm:inline">+ Yangi suhbat</span>
+          </button>
+
+          {/* Sidebar Drawer Toggle */}
           <button
             onClick={() => {
-              if (window.innerWidth < 1024) {
+              if (typeof window !== 'undefined' && window.innerWidth < 1024) {
                 setShowSidebarDrawer(true);
               } else {
                 setIsSidebarCollapsed(!isSidebarCollapsed);
               }
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-stone-200/90 dark:border-stone-800 bg-white/80 dark:bg-stone-800/80 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 text-xs font-semibold shadow-2xs transition-all"
+            className="p-2 sm:px-3 sm:py-1.5 rounded-xl border border-stone-200/90 dark:border-stone-800 bg-white/80 dark:bg-stone-800/80 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 text-xs font-semibold shadow-2xs transition-all flex items-center gap-1.5"
             title="Kabinet menyusini ochish"
           >
             <Menu className="w-4 h-4 text-amber-500" />
             <span className="hidden sm:inline">Kabinetim</span>
           </button>
 
-          {/* New Chat Button */}
-          <button
-            onClick={() => setIsNewChatModalOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white font-bold text-xs shadow-xs transition-all"
-            title="Yangi kitobxon bilan suhbat ochish"
-          >
-            <UserPlus className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">+ Yangi suhbat</span>
-          </button>
-
-          {/* Clear Chats Button */}
+          {/* Clear Chats Button (Desktop only on top bar; mobile has it inside chat list header) */}
           {userThreads.length > 0 && (
             <button
               onClick={handleClearAllChatsConfirm}
-              className="p-2 rounded-xl border border-stone-200/80 dark:border-stone-800 bg-white/80 dark:bg-stone-800/80 hover:bg-red-50 dark:hover:bg-red-950/40 text-stone-500 hover:text-red-600 transition-colors shadow-2xs"
+              className="hidden sm:flex p-2 rounded-xl border border-stone-200/80 dark:border-stone-800 bg-white/80 dark:bg-stone-800/80 hover:bg-red-50 dark:hover:bg-red-950/40 text-stone-500 hover:text-red-600 transition-colors shadow-2xs"
               title="Suhbatlar tarixini tozalash"
             >
               <Trash2 className="w-4 h-4" />
             </button>
           )}
 
-          {/* Theme Toggle */}
+          {/* Theme Toggle (Desktop only on top bar; mobile in drawer) */}
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-xl border border-stone-200/80 dark:border-stone-800 bg-white/80 dark:bg-stone-800/80 text-stone-600 dark:text-stone-300 hover:bg-stone-100 transition-colors shadow-2xs"
+            className="hidden sm:flex p-2 rounded-xl border border-stone-200/80 dark:border-stone-800 bg-white/80 dark:bg-stone-800/80 text-stone-600 dark:text-stone-300 hover:bg-stone-100 transition-colors shadow-2xs"
             title="Mavzuni almashtirish"
           >
             {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
@@ -396,9 +405,20 @@ function MessagesContent() {
                 </p>
               </div>
 
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
-                {userThreads.length} ta
-              </span>
+              <div className="flex items-center gap-1.5">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
+                  {userThreads.length} ta
+                </span>
+                {userThreads.length > 0 && (
+                  <button
+                    onClick={handleClearAllChatsConfirm}
+                    className="p-1 rounded-lg border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 hover:bg-red-50 dark:hover:bg-red-950/40 text-stone-400 hover:text-red-500 transition-colors"
+                    title="Barcha suhbatlarni tozalash"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Search Input */}
