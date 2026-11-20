@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ArrowLeft, BookOpen, MessageSquare, QrCode, Repeat, ShieldCheck, Sparkles, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, BookOpen, MessageSquare, Repeat, ShieldCheck, Sparkles, CheckCircle2 } from 'lucide-react';
 import { Header } from '@/components/Header';
 
 export default function HowItWorksPage() {
@@ -23,10 +23,10 @@ export default function HowItWorksPage() {
     },
     {
       num: '03',
-      title: 'Uchrashing va QR-kod orqali tasdiqlang',
-      desc: 'Belgilangan jamoat joyida (metro, qahvaxona yoki xiyobonda) ko‘rishib, kitobni oling. Tomonlar shaxsiy QR-kodni skanerlab almashuvni rasmiylashtiradi — bu orqali hech bir kitob yo‘qolmaydi.',
-      icon: QrCode,
-      badge: 'QR Kafolat',
+      title: 'Uchrashing va chatda tasdiqlang',
+      desc: 'Belgilangan jamoat joyida (metro, qahvaxona yoki xiyobonda) ko‘rishib, kitobni oling. Tomonlar chat orqali almashuv yakunlanganini tasdiqlaydi — bu orqali hech bir kitob yo‘qolmaydi.',
+      icon: ShieldCheck,
+      badge: 'Ishonch & Kafolat',
     },
     {
       num: '04',

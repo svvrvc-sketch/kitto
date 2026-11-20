@@ -21,7 +21,6 @@ interface MessagesTabProps {
   onOpenBookDetail?: (bookId: string) => void;
   onGoToFeed?: () => void;
   onOpenUserProfile?: (userId: string) => void;
-  onOpenQRModal?: (targetBook: Book, mode?: 'handover' | 'return') => void;
   onOpenAddModal?: () => void;
   books?: Book[];
 }
@@ -30,7 +29,6 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({
   onOpenBookDetail,
   onGoToFeed,
   onOpenUserProfile,
-  onOpenQRModal,
   onOpenAddModal,
   books = [],
 }) => {
@@ -125,40 +123,6 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({
 
     setIsProposalModalOpen(false);
     setSelectedMyBookId(null);
-  };
-
-  const handleOpenQRForProposal = (msgBookId?: string) => {
-    if (!activeThread) return;
-    const targetBookId = msgBookId || activeThread.bookId;
-    const bookObj =
-      books.find((b) => b.id === targetBookId) ||
-      ({
-        id: targetBookId,
-        title: activeThread.bookTitle,
-        author: activeThread.bookAuthor || 'Muallif',
-        category: 'Badiiy',
-        condition: 'yaxshi',
-        coverUrl: activeThread.bookCover,
-        ownerId: activeThread.ownerId,
-        ownerName: activeThread.ownerName,
-        ownerContact: '+998 90 000 00 00',
-        city: 'Toshkent',
-        location: {
-          lat: 41.311081,
-          lng: 69.240562,
-          addressText: activeThread.exactLocation || 'Toshkent',
-        },
-        swapTerm: {
-          type: 'permanent',
-          durationLabel: activeThread.bookSwapLabel,
-        },
-        status: 'swapped',
-        createdAt: new Date().toISOString(),
-      } as Book);
-
-    if (onOpenQRModal) {
-      onOpenQRModal(bookObj, 'handover');
-    }
   };
 
   const formatTime = (isoString: string) => {
@@ -346,9 +310,6 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({
                       onDecline={async (propId) => {
                         await updateProposalStatus(activeThread.id, propId, 'declined');
                       }}
-                      onOpenQRModal={() =>
-                        handleOpenQRForProposal(msg.proposal?.requested_book?.id)
-                      }
                       onOpenBookDetail={onOpenBookDetail}
                     />
                     <div

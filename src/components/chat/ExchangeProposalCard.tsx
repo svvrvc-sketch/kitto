@@ -8,7 +8,6 @@ import {
   CheckCircle2,
   X,
   Check,
-  QrCode,
 } from 'lucide-react';
 import { ExchangeProposalPayload } from '@/types/chat';
 
@@ -20,7 +19,7 @@ interface ExchangeProposalCardProps {
   currentUserId: string;
   onAccept?: (proposalId: string) => Promise<void> | void;
   onDecline?: (proposalId: string) => Promise<void> | void;
-  onOpenQRModal?: () => void;
+  onComplete?: (proposalId: string) => Promise<void> | void;
   onOpenBookDetail?: (bookId: string) => void;
   targetOwnerId?: string;
 }
@@ -32,7 +31,7 @@ export const ExchangeProposalCard: React.FC<ExchangeProposalCardProps> = ({
   currentUserId,
   onAccept,
   onDecline,
-  onOpenQRModal,
+  onComplete,
   onOpenBookDetail,
   targetOwnerId,
 }) => {
@@ -58,6 +57,7 @@ export const ExchangeProposalCard: React.FC<ExchangeProposalCardProps> = ({
   const isPending = status === 'pending';
   const isAccepted = status === 'accepted';
   const isDeclined = status === 'declined';
+  const isCompleted = status === 'completed';
 
   const offeredCover = proposal.offered_book?.cover_url || proposal.offered_book?.coverUrl;
   const requestedCover = proposal.requested_book?.cover_url || proposal.requested_book?.coverUrl;
@@ -88,6 +88,20 @@ export const ExchangeProposalCard: React.FC<ExchangeProposalCardProps> = ({
     }
   };
 
+  const handleCompleteClick = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isSubmitting || !onComplete) return;
+    if (!window.confirm('Kitoblar muvaffaqiyatli topshirilganini tasdiqlaysizmi? Bu amal almashuvni yakunlaydi va profilingizga +1 ishonch bali beradi.')) {
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      await onComplete(proposal.proposal_id);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div
       id={`exchange-proposal-card-${proposal.proposal_id}`}
@@ -113,6 +127,12 @@ export const ExchangeProposalCard: React.FC<ExchangeProposalCardProps> = ({
             <span>Qabul qilindi</span>
           </span>
         )}
+        {isCompleted && (
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-600 text-white shadow-2xs">
+            <Check className="w-3 h-3 stroke-[3]" />
+            <span>Yakunlandi</span>
+          </span>
+        )}
         {isDeclined && (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-stone-200/80 text-stone-600 dark:bg-zinc-800 dark:text-zinc-400 border border-stone-300 dark:border-zinc-700">
             <X className="w-3 h-3" />
@@ -121,12 +141,18 @@ export const ExchangeProposalCard: React.FC<ExchangeProposalCardProps> = ({
         )}
       </div>
 
-      {/* Proposer note */}
-      <p className="text-xs text-stone-700 dark:text-stone-300 font-medium my-2.5">
-        {senderName
-          ? `${senderName} ushbu kitobni almashishni taklif qilmoqda`
-          : 'Ushbu kitobni almashish taklif qilinmoqda'}
-      </p>
+      {/* Proposer note & Swap Type Badge */}
+      <div className="my-2.5 flex items-center justify-between gap-2">
+        <p className="text-xs text-stone-700 dark:text-stone-300 font-medium">
+          {senderName
+            ? `${senderName} kitob almashishni taklif qilmoqda`
+            : 'Kitob almashish taklif qilinmoqda'}
+        </p>
+
+        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold shrink-0 bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60">
+          {proposal.swap_agreement_type === 'temporary' ? 'Vaqtincha mutolaa' : 'Doimiy almashish'}
+        </span>
+      </div>
 
       {/* Dual-Book Mini Cards (Side-by-Side) */}
       <div className="relative grid grid-cols-2 gap-2.5 sm:gap-3 my-3 items-stretch">
@@ -233,28 +259,42 @@ export const ExchangeProposalCard: React.FC<ExchangeProposalCardProps> = ({
         </div>
       )}
 
-      {/* Automatically render the «QR-kod orqali topshirish» CTA button right inside the chat card */}
+      {/* If Accepted: Show completion button (NO QR CODE!) */}
       {isAccepted && (
         <div className="mt-3 pt-3 border-t border-[#E5E7EB]/80 dark:border-zinc-800 space-y-2.5 animate-in fade-in duration-200">
           <div className="flex items-center gap-1.5 text-xs text-emerald-800 dark:text-emerald-300 font-medium">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
             <span>Almashish taklifi qabul qilindi!</span>
           </div>
+          <p className="text-[11px] text-stone-500 dark:text-zinc-400 leading-relaxed">
+            Metroda yoki kelishilgan joyda kitoblarni topshirgach, quyidagi tugmani bosing:
+          </p>
 
-          {onOpenQRModal && (
+          {onComplete && (
             <button
-              id={`exchange-qr-btn-${proposal.proposal_id}`}
+              id={`exchange-complete-btn-${proposal.proposal_id}`}
               type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onOpenQRModal();
-              }}
-              className="w-full py-2.5 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold shadow-xs flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+              disabled={isSubmitting}
+              onClick={handleCompleteClick}
+              className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50"
             >
-              <QrCode className="w-4 h-4" />
-              <span>QR-kod orqali topshirish</span>
+              <Check className="w-4 h-4 stroke-[2.5]" />
+              <span>{isSubmitting ? 'Tasdiqlanmoqda...' : 'Kitoblar topshirildi deb yakunlash ✓'}</span>
             </button>
           )}
+        </div>
+      )}
+
+      {/* If Completed: Permanently sealed success card with NO MORE clickable buttons */}
+      {isCompleted && (
+        <div className="mt-3 pt-3 border-t border-emerald-500/30 dark:border-emerald-500/20 bg-emerald-50/80 dark:bg-emerald-950/40 -mx-4 -mb-4 p-3.5 rounded-b-2xl">
+          <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <span>Almashuv muvaffaqiyatli yakunlandi!</span>
+          </div>
+          <p className="text-[11px] text-emerald-600/90 dark:text-emerald-400/80 text-center mt-0.5">
+            Kitoblar topshirildi va profilingizga +1 ishonch bali qo&#39;shildi
+          </p>
         </div>
       )}
 

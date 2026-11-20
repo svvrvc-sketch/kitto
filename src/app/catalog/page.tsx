@@ -19,7 +19,6 @@ import { UserProfileModal } from '@/components/UserProfileModal';
 import { GeolocationPrompt } from '@/components/GeolocationPrompt';
 import { RegionRestrictionModal } from '@/components/RegionRestrictionModal';
 import { SupportModal } from '@/components/SupportModal';
-import { SwapQRModal } from '@/components/SwapQRModal';
 import { SwapRequestModal } from '@/components/exchange/SwapRequestModal';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
@@ -78,9 +77,6 @@ export default function CatalogPage() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isRegionBlockedModalOpen, setIsRegionBlockedModalOpen] = useState(false);
   const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
-  const [isQRModalOpen, setIsQRModalOpen] = useState(false);
-  const [qrModalBook, setQrModalBook] = useState<Book | null>(null);
-  const [qrModalMode, setQrModalMode] = useState<'handover' | 'return'>('handover');
   const [isSwapModalOpen, setIsSwapModalOpen] = useState(false);
   const [swapModalTargetBook, setSwapModalTargetBook] = useState<Book | null>(null);
   const [pendingSwapTargetBook, setPendingSwapTargetBook] = useState<Book | null>(null);
@@ -108,12 +104,6 @@ export default function CatalogPage() {
       )
       .slice(0, 6);
   }, [books, searchQuery]);
-
-  const handleOpenQRModal = useCallback((targetBook: Book, mode: 'handover' | 'return' = 'handover') => {
-    setQrModalBook(targetBook);
-    setQrModalMode(mode);
-    setIsQRModalOpen(true);
-  }, []);
 
   const handleOpenSwapModal = useCallback((targetBook: Book) => {
     // If book is a gift, do not demand a reciprocal book swap
@@ -195,11 +185,6 @@ export default function CatalogPage() {
               setSelectedBook(found);
               setIsDetailModalOpen(true);
             }
-          } else if (verifySwapParam && fetchedBooks.length > 0) {
-            const found = fetchedBooks.find((b) => b.id === verifySwapParam);
-            if (found) {
-              handleOpenQRModal(found, 'handover');
-            }
           }
         })
         .catch((err) => {
@@ -211,7 +196,7 @@ export default function CatalogPage() {
       setIsLoadingBooks(false);
     }
     setIsHydrated(true);
-  }, [handleOpenQRModal]);
+  }, []);
 
   // Real-time Cloud Synchronization for Books table
   useEffect(() => {
@@ -693,7 +678,6 @@ export default function CatalogPage() {
             onOpenBookDetail={handleOpenDetail}
             onOpenAddModal={handleOpenAddBookModal}
             onOpenSupport={() => setIsSupportModalOpen(true)}
-            onOpenQRModal={handleOpenQRModal}
           />
         ) : currentTab === 'messages' ? (
           /* Messages Tab View */
@@ -704,7 +688,6 @@ export default function CatalogPage() {
             }}
             onGoToFeed={() => setCurrentTab('home')}
             onOpenUserProfile={handleOpenUserProfile}
-            onOpenQRModal={handleOpenQRModal}
             onOpenAddModal={handleOpenAddBookModal}
             books={books}
           />
@@ -915,7 +898,6 @@ export default function CatalogPage() {
                     onDeleteBook={handleDeleteBook}
                     userCoordinates={userCoordinates}
                     onOpenUserProfile={handleOpenUserProfile}
-                    onOpenQRModal={handleOpenQRModal}
                     onOpenSwapModal={handleOpenSwapModal}
                   />
                 ))}
@@ -965,7 +947,6 @@ export default function CatalogPage() {
         onStartChat={handleStartChatFromDetail}
         onGoToMyListings={() => setCurrentTab('my_listings')}
         onOpenUserProfile={handleOpenUserProfile}
-        onOpenQRModal={handleOpenQRModal}
         onOpenSwapModal={handleOpenSwapModal}
         isSaved={selectedBook ? savedBookIds.has(selectedBook.id) : false}
         userCoordinates={userCoordinates}
@@ -1010,23 +991,6 @@ export default function CatalogPage() {
       <SupportModal
         isOpen={isSupportModalOpen}
         onClose={() => setIsSupportModalOpen(false)}
-      />
-
-      {/* QR Code Handover & Return Modal (+1 Trust Score / Karma) */}
-      <SwapQRModal
-        isOpen={isQRModalOpen}
-        onClose={() => {
-          setIsQRModalOpen(false);
-          setQrModalBook(null);
-        }}
-        book={qrModalBook}
-        mode={qrModalMode}
-        onConfirmSuccess={(bookId, newStatus) => {
-          handleToggleStatus(bookId);
-          if (selectedBook && selectedBook.id === bookId) {
-            setSelectedBook((prev) => (prev ? { ...prev, status: newStatus } : null));
-          }
-        }}
       />
 
       {/* Dual-Catalog Peer-to-Peer Swap Request Modal */}

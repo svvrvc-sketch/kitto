@@ -7,7 +7,6 @@ import {
   BookOpen,
   ArrowRight,
   ShieldCheck,
-  QrCode,
   Users,
   Sparkles,
   MapPin,
@@ -58,7 +57,7 @@ export default function LandingPage() {
     },
     {
       q: 'Agar kimdir kitobimni qaytarmasa nima bo‘ladi?',
-      a: 'Kitto’da har bir almashuv shaxsiy QR-kod va tekshirilgan telefon raqami orqali kafolatlanadi. Qaytarish muddati yaqinlashganda eslatmalar yuboriladi. Agar kimdir kitobni qaytarishdan bosh tortsa, uning akkaunti butunlay bloklanadi va telefon raqami "Ishonchsizlar qora ro‘yxati"ga kiritiladi.',
+      a: 'Kitto’da har bir almashuv tekshirilgan profil va haqiqiy telefon raqamlari orqali kafolatlanadi. Qaytarish muddati yaqinlashganda eslatmalar yuboriladi. Agar kimdir kitobni qaytarishdan bosh tortsa, uning akkaunti butunlay bloklanadi va telefon raqami "Ishonchsizlar qora ro‘yxati"ga kiritiladi.',
     },
     {
       q: 'Toshkentdan boshqa viloyatlar ham bormi?',
@@ -121,7 +120,7 @@ export default function LandingPage() {
                   </span>
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-stone-100/90 dark:bg-stone-900/90 border border-stone-200/70 dark:border-stone-800">
                     <ShieldCheck className="w-3.5 h-3.5 text-blue-500" />
-                    <span>QR-kodli kafolat</span>
+                    <span>Ishonchli kafolat</span>
                   </span>
                 </div>
 
@@ -202,19 +201,19 @@ export default function LandingPage() {
                 </p>
               </div>
 
-              {/* Card 3: QR-kod Kafolati */}
+              {/* Card 3: Ishonchli Kafolat */}
               <div className="p-6 rounded-3xl bg-white/90 dark:bg-stone-900/90 border border-stone-200/90 dark:border-stone-800 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
                 <div className="w-14 h-14 rounded-2xl bg-sky-500/10 text-sky-600 dark:text-sky-400 flex items-center justify-center mb-4 border border-sky-500/20 group-hover:scale-110 transition-transform">
-                  <QrCode className="w-7 h-7 stroke-[2]" />
+                  <ShieldCheck className="w-7 h-7 stroke-[2]" />
                 </div>
                 <div className="text-2xl sm:text-3xl font-black text-sky-600 dark:text-sky-400 tracking-tight">
-                  QR-kod
+                  Kafolat
                 </div>
                 <div className="text-sm font-bold text-stone-900 dark:text-stone-100 mt-1">
                   Xavfsiz topshirish
                 </div>
                 <p className="text-xs text-stone-500 dark:text-stone-400 mt-1.5 leading-relaxed">
-                  Har bir topshirish va qabul qilish shaxsiy QR-kod orqali tasdiqlanadi. Kitobingiz yo‘qolmaydi.
+                  Har bir topshirish va qabul qilish tizimda bir martalik tasdiq orqali muhrlanadi. Kitobingiz yo‘qolmaydi.
                 </p>
               </div>
 
@@ -324,14 +323,14 @@ export default function LandingPage() {
                     {/* Rule 3 */}
                     <div className="flex items-start gap-4">
                       <div className="w-12 h-12 rounded-2xl bg-sky-500/10 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0 border border-sky-500/20">
-                        <QrCode className="w-6 h-6 stroke-[2]" />
+                        <ShieldCheck className="w-6 h-6 stroke-[2]" />
                       </div>
                       <div>
                         <h4 className="font-bold text-sm text-stone-900 dark:text-stone-100">
-                          QR-kod & Shaxsiy Kafolat
+                          Shaxsiy Mas&#39;uliyat & Kafolat
                         </h4>
                         <p className="text-xs text-stone-500 dark:text-stone-400 mt-1 leading-relaxed">
-                          Hech bir kitob yo‘qolmaydi yoki o‘zlashtirilmaydi. Har bir qadam shaxsiy QR-kod orqali tizimda muhrlanadi.
+                          Hech bir kitob yo‘qolmaydi yoki o‘zlashtirilmaydi. Har bir a&#39;zo tekshirilgan profil va telefon raqami orqali javobgardir.
                         </p>
                       </div>
                     </div>
@@ -403,10 +402,10 @@ export default function LandingPage() {
                   04
                 </div>
                 <h3 className="font-sans text-base font-bold text-stone-900 dark:text-stone-100 mb-2">
-                  QR-kod bilan oling
+                  Kitobni oling va mutolaa qiling
                 </h3>
                 <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
-                  Uchrashuv paytida shaxsiy QR-kodni skanerlang va kitobni ishonch bilan mutolaa qiling.
+                  Uchrashuv paytida kitobni topshiring, oling va maroq bilan mutolaa qilishni boshlang!
                 </p>
               </div>
             </div>

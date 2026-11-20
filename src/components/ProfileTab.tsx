@@ -19,6 +19,7 @@ import {
   ArrowRight,
   Edit3,
   Check,
+  CheckCircle2,
   X,
   RefreshCw,
   Compass,
@@ -28,7 +29,6 @@ import {
   Phone,
   Send,
   HelpCircle,
-  QrCode,
   Bell,
 } from 'lucide-react';
 import { SUPPORT_PHONE, SUPPORT_TELEGRAM } from '@/lib/telegram-admin';
@@ -55,7 +55,6 @@ interface ProfileTabProps {
   onActivateBook?: (bookId: string) => void;
   onOpenBookDetail?: (book: Book) => void;
   onOpenSupport?: () => void;
-  onOpenQRModal?: (book: Book, mode: 'handover' | 'return') => void;
 }
 
 export const ProfileTab: React.FC<ProfileTabProps> = ({
@@ -69,7 +68,6 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
   onActivateBook,
   onOpenBookDetail,
   onOpenSupport,
-  onOpenQRModal,
 }) => {
   const { user, isAuthenticated, openAuthModal, logout, updateProfile } = useAuth();
   const { showToast } = useToast();
@@ -694,15 +692,19 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
-                    {onOpenQRModal && (
+                    {onActivateBook && (
                       <button
                         type="button"
-                        onClick={() => onOpenQRModal(book, 'return')}
-                        className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-xs transition-all active:scale-95"
-                        title="QR-kod bilan qabul qilish va +1 ishonch bali olish"
+                        onClick={() => {
+                          if (confirm(`"${book.title}" kitobi sizga qaytarilganini tasdiqlaysizmi?`)) {
+                            onActivateBook(book.id);
+                          }
+                        }}
+                        className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition-all active:scale-95"
+                        title="Kitob qaytarilganini tasdiqlash"
                       >
-                        <QrCode className="w-3.5 h-3.5" />
-                        <span>QR Qabul (+1 ball)</span>
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>Qaytarildi deb tasdiqlash</span>
                       </button>
                     )}
 

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Book } from '@/types/book';
-import { Bookmark, CheckCircle2, Trash2, RefreshCw, MapPin, BookOpen, Camera, Clock, ShieldCheck, QrCode, ArrowLeftRight, Gift } from 'lucide-react';
+import { Bookmark, CheckCircle2, Trash2, RefreshCw, MapPin, BookOpen, Camera, Clock, ShieldCheck, ArrowLeftRight, Gift } from 'lucide-react';
 import { calculateDistanceKm, formatDistance } from '@/lib/geo-utils';
 import { formatBookCondition } from '@/lib/book-constants';
 
@@ -16,7 +16,6 @@ interface BookCardProps {
   onDeleteBook?: (bookId: string, e: React.MouseEvent) => void;
   userCoordinates?: { lat: number; lng: number } | null;
   onOpenUserProfile?: (userId: string, e: React.MouseEvent) => void;
-  onOpenQRModal?: (book: Book, mode: 'handover' | 'return') => void;
   onOpenSwapModal?: (book: Book) => void;
 }
 
@@ -30,7 +29,6 @@ export const BookCard: React.FC<BookCardProps> = ({
   onDeleteBook,
   userCoordinates = null,
   onOpenUserProfile,
-  onOpenQRModal,
   onOpenSwapModal,
 }) => {
   const [imageError, setImageError] = useState(false);
@@ -401,27 +399,10 @@ export const BookCard: React.FC<BookCardProps> = ({
           <div className="mt-3 pt-2.5 border-t border-stone-200/80 dark:border-zinc-800 flex flex-col gap-2">
             {!confirmDelete ? (
               <div className="flex items-center justify-between gap-1.5">
-                {onOpenQRModal && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onOpenQRModal(book, isTemporarilyGiven ? 'return' : 'handover');
-                    }}
-                    className="flex-1 py-1.5 px-2 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1 bg-amber-500/10 text-amber-800 dark:text-amber-300 hover:bg-amber-500/20 border border-amber-500/25 transition-all shadow-xs"
-                    title="QR kod orqali topshirish yoki qabul qilish"
-                  >
-                    <QrCode className="w-3 h-3 text-amber-600 dark:text-amber-400" />
-                    <span>QR {isTemporarilyGiven ? 'Qabul qilish' : 'Topshirish'}</span>
-                  </button>
-                )}
-
                 <button
                   type="button"
                   onClick={handleToggleStatusClick}
-                  className={`py-1.5 px-2 rounded-lg text-[10px] font-semibold tracking-wide flex items-center justify-center gap-1 transition-all border ${
-                    onOpenQRModal ? 'shrink-0' : 'flex-1'
-                  } ${
+                  className={`flex-1 py-1.5 px-2 rounded-lg text-[10px] font-semibold tracking-wide flex items-center justify-center gap-1 transition-all border ${
                     isInactive
                       ? 'bg-stone-100 text-stone-600 border border-stone-200 dark:bg-zinc-900 dark:text-zinc-400 dark:border-zinc-800'
                       : 'bg-amber-50 text-amber-900 border border-amber-200 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/50'

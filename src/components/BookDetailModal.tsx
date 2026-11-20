@@ -18,7 +18,6 @@ import {
   Camera,
   Clock,
   ShieldCheck,
-  QrCode,
   Send,
   Copy,
   MessageCircle,
@@ -41,7 +40,6 @@ interface BookDetailModalProps {
   onStartChat?: (book: Book) => void;
   onGoToMyListings?: () => void;
   onOpenUserProfile?: (userId: string) => void;
-  onOpenQRModal?: (book: Book, mode: 'handover' | 'return') => void;
   onOpenSwapModal?: (book: Book) => void;
   isSaved?: boolean;
   userCoordinates?: { lat: number; lng: number } | null;
@@ -57,7 +55,6 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
   onStartChat,
   onGoToMyListings,
   onOpenUserProfile,
-  onOpenQRModal,
   onOpenSwapModal,
   isSaved = false,
   userCoordinates = null,
@@ -531,21 +528,6 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
                 </button>
               )}
             </div>
-
-            {onOpenQRModal && (
-              <button
-                type="button"
-                onClick={() => onOpenQRModal(book, isTemporarilyGiven ? 'return' : 'handover')}
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-900 dark:text-amber-300 border border-amber-500/25 text-xs font-bold transition-all shadow-xs"
-              >
-                <QrCode className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                <span>
-                  {isTemporarilyGiven
-                    ? 'QR-kod bilan qabul qilish'
-                    : 'QR-kod bilan topshirish'}
-                </span>
-              </button>
-            )}
 
             {onDeleteBook && (
               <div className="pt-2 border-t border-stone-200 dark:border-zinc-800 flex items-center justify-between">

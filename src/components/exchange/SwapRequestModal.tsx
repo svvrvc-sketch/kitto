@@ -41,6 +41,7 @@ export const SwapRequestModal: React.FC<SwapRequestModalProps> = ({
 
   const [selectedTargetBook, setSelectedTargetBook] = useState<Book | null>(targetBook);
   const [selectedMyBookId, setSelectedMyBookId] = useState<string | null>(null);
+  const [swapAgreementType, setSwapAgreementType] = useState<'permanent' | 'temporary'>('permanent');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Sync selected target book whenever modal opens with targetBook
@@ -181,7 +182,8 @@ export const SwapRequestModal: React.FC<SwapRequestModalProps> = ({
         offeredBookMeta,
         requestedBookMeta,
         selectedTargetBook.ownerId,
-        transactionId
+        transactionId,
+        swapAgreementType
       );
 
       // 4. Dispatch Telegram Notification to the owner with both book titles explicitly stated
@@ -436,11 +438,51 @@ export const SwapRequestModal: React.FC<SwapRequestModalProps> = ({
 
         {/* SECTION 3: SMART OFFER SUMMARY CARD & SUBMIT */}
         <div className="p-4 sm:p-5 border-t border-stone-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/90 backdrop-blur-md shrink-0 space-y-3">
+          {/* Kelishuv turi (Doimiy vs Vaqtincha) */}
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-bold text-stone-800 dark:text-stone-200">
+              Kelishuv turi (Almashuv muddati):
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setSwapAgreementType('permanent')}
+                className={`py-2 px-3 rounded-xl text-xs font-semibold border transition-all text-left flex items-center justify-between ${
+                  swapAgreementType === 'permanent'
+                    ? 'bg-amber-500/15 border-amber-500 text-amber-900 dark:text-amber-200 ring-1 ring-amber-500'
+                    : 'bg-white dark:bg-zinc-800 border-stone-200 dark:border-zinc-700 text-stone-600 dark:text-stone-300'
+                }`}
+              >
+                <div>
+                  <span className="block font-bold">Doimiy almashish</span>
+                  <span className="text-[10px] text-stone-400 block">Abadiy yangi egasiga o&#39;tadi</span>
+                </div>
+                {swapAgreementType === 'permanent' && <Check className="w-4 h-4 text-amber-600 shrink-0" />}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSwapAgreementType('temporary')}
+                className={`py-2 px-3 rounded-xl text-xs font-semibold border transition-all text-left flex items-center justify-between ${
+                  swapAgreementType === 'temporary'
+                    ? 'bg-amber-500/15 border-amber-500 text-amber-900 dark:text-amber-200 ring-1 ring-amber-500'
+                    : 'bg-white dark:bg-zinc-800 border-stone-200 dark:border-zinc-700 text-stone-600 dark:text-stone-300'
+                }`}
+              >
+                <div>
+                  <span className="block font-bold">Vaqtincha mutolaa</span>
+                  <span className="text-[10px] text-stone-400 block">14 kunga o&#39;qishga beriladi</span>
+                </div>
+                {swapAgreementType === 'temporary' && <Check className="w-4 h-4 text-amber-600 shrink-0" />}
+              </button>
+            </div>
+          </div>
+
           {selectedTargetBook && (
             <div className="p-2.5 rounded-xl bg-amber-500/10 dark:bg-amber-950/40 border border-amber-500/25 text-[11px] text-amber-900 dark:text-amber-200 flex items-start gap-2">
               <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
               <span>
-                Diqqat: E&#39;lon egasi kitobni <b>{getSwapTermLabel(selectedTargetBook)}</b> bermoqchi. Shartga rozimisiz yoki o&#39;z taklifingizni yuborasizmi?
+                Diqqat: E&#39;lon egasi kitobni <b>{getSwapTermLabel(selectedTargetBook)}</b> bermoqchi.
               </span>
             </div>
           )}

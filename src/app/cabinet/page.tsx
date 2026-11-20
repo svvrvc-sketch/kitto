@@ -22,7 +22,6 @@ import {
   Check,
   X,
   Menu,
-  QrCode,
   Search,
   LogOut,
   ExternalLink,
@@ -43,7 +42,6 @@ import { uploadImageToStorage } from '@/utils/storage';
 import { isValidUzbekPhone, formatUzbekPhone, formatLocalPhone, getUzbekOperator, extractUzbek9Digits } from '@/utils/phone';
 import { UZBEKISTAN_REGIONS, normalizeRegionName } from '@/lib/regions';
 import { Sidebar } from '@/components/Sidebar';
-import { SwapQRModal } from '@/components/SwapQRModal';
 
 const GENRE_CHIPS = [
   'Badiiy adabiyot',
@@ -138,11 +136,6 @@ function CabinetContent() {
       color: 'text-emerald-800 dark:text-emerald-300 bg-emerald-500/15 border-emerald-500/30',
     };
   }, [myBooks.length]);
-
-  // QR Modal
-  const [isQRModalOpen, setIsQRModalOpen] = useState(false);
-  const [qrSelectedBook, setQrSelectedBook] = useState<Book | null>(null);
-  const [qrModalMode, setQrModalMode] = useState<'handover' | 'return'>('handover');
 
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
@@ -363,11 +356,20 @@ function CabinetContent() {
     }
   };
 
-  // QR Handover
-  const handleOpenQRModal = (book: Book, mode: 'handover' | 'return') => {
-    setQrSelectedBook(book);
-    setQrModalMode(mode);
-    setIsQRModalOpen(true);
+  // Qaytarib olishni tasdiqlash
+  const handleConfirmReturn = async (book: Book) => {
+    if (!confirm(`"${book.title}" kitobi sizga qaytarilganini tasdiqlaysizmi?`)) return;
+    try {
+      await booksService.updateBook(book.id, {
+        status: 'active',
+      });
+      setMyBooks((prev) =>
+        prev.map((b) => (b.id === book.id ? { ...b, status: 'active' } : b))
+      );
+      showToast("Kitob javoningizga qaytarildi va faollashtirildi!", 'success');
+    } catch {
+      showToast("Xatolik yuz berdi", 'error');
+    }
   };
 
   // Stats calculation
@@ -909,15 +911,10 @@ function CabinetContent() {
                       </div>
 
                       {/* Controls */}
-                      <div className="mt-3 pt-2.5 border-t border-stone-100 dark:border-zinc-800 flex items-center justify-between gap-1">
-                        <button
-                          onClick={() => handleOpenQRModal(book, 'handover')}
-                          className="flex-1 py-1.5 px-2 rounded-lg bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 text-amber-900 dark:text-amber-300 text-[10px] font-bold flex items-center justify-center gap-1 border border-amber-200/80 dark:border-amber-900/50"
-                          title="QR-kod orqali topshirish"
-                        >
-                          <QrCode className="w-3.5 h-3.5" />
-                          <span>QR topshirish</span>
-                        </button>
+                      <div className="mt-3 pt-2.5 border-t border-stone-100 dark:border-zinc-800 flex items-center justify-between gap-2">
+                        <span className="text-[10px] font-medium text-stone-500 dark:text-zinc-400">
+                          {book.status === 'active' || (book.status as string) === 'available' ? '✓ Faol e\'lon' : book.status === 'temporarily_given' ? 'Vaqtinchalik berilgan' : 'Almashilgan'}
+                        </span>
 
                         <button
                           onClick={() => handleDeleteBook(book.id)}
@@ -1020,11 +1017,11 @@ function CabinetContent() {
                           </div>
 
                           <button
-                            onClick={() => handleOpenQRModal(book, 'return')}
-                            className="py-2 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs flex items-center justify-center gap-1.5 shadow-xs transition-all active:scale-95 shrink-0"
+                            onClick={() => handleConfirmReturn(book)}
+                            className="py-2 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center justify-center gap-1.5 shadow-xs transition-all active:scale-95 shrink-0"
                           >
-                            <QrCode className="w-4 h-4" />
-                            <span>Qaytarib olishni tasdiqlash</span>
+                            <CheckCircle className="w-4 h-4" />
+                            <span>Qaytarildi deb tasdiqlash</span>
                           </button>
                         </div>
                       );
@@ -1509,21 +1506,21 @@ function CabinetContent() {
                 <div className="p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-xs hover:border-amber-500/40 transition-all flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between mb-4">
-                      <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-500/20">
-                        <QrCode className="w-6 h-6 stroke-[2]" />
+                      <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+                        <CheckCircle className="w-6 h-6 stroke-[2]" />
                       </div>
-                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-500/20">
-                        QR Kafolat
+                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
+                        O&apos;zaro Kafolat
                       </span>
                     </div>
-                    <div className="text-xs font-extrabold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1">
+                    <div className="text-xs font-extrabold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-1">
                       03-qadam
                     </div>
                     <h3 className="font-sans text-lg font-bold text-stone-900 dark:text-stone-100 mb-2">
-                      Uchrashing va QR orqali tasdiqlang
+                      Uchrashing va chatda tasdiqlang
                     </h3>
                     <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
-                      Belgilangan metro yoki jamoat joyida ko‘rishib kitobni oling. Tomonlar shaxsiy QR-kodni skanerlab almashuvni tasdiqlaydi — hech bir kitob yo‘qolmaydi va adashmaydi.
+                      Belgilangan metro yoki qulay jamoat joyida ko‘rishib kitobni topshiring. Suhbatda &apos;Topshirildi&apos; tugmasini bir marta bosish orqali almashuv yakunlanadi.
                     </p>
                   </div>
                 </div>
@@ -1601,15 +1598,15 @@ function CabinetContent() {
                 </div>
 
                 <div className="p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-xs flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-700 dark:text-blue-400 flex items-center justify-center shrink-0">
-                    <QrCode className="w-5 h-5" />
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                    <CheckCircle className="w-5 h-5" />
                   </div>
                   <div>
                     <h3 className="font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100 mb-1">
-                      3. Har doim QR-kod orqali tasdiqlang
+                      3. Suhbatda topshirishni tasdiqlang
                     </h3>
                     <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
-                      Kitobni qo‘lga olganingizda, egasining shaxsiy QR-kodini skanerlang. Bu almashuvni tizimda rasmiylashtiradi va muddatni nazorat qiladi.
+                      Kitobni qo‘lga olganingizda, chat oynasidagi &apos;Topshirildi deb yakunlash&apos; tugmasi orqali almashuvni rasmiylashtiring.
                     </p>
                   </div>
                 </div>
@@ -1666,21 +1663,6 @@ function CabinetContent() {
         {/* Mobile Bottom Navigation */}
         <BottomNav savedCount={user.wishlistBooks?.length || 0} />
       </div>
-
-      {/* QR Code Handover & Return Modal */}
-      {isQRModalOpen && qrSelectedBook && (
-        <SwapQRModal
-          isOpen={isQRModalOpen}
-          book={qrSelectedBook}
-          mode={qrModalMode}
-          onClose={() => setIsQRModalOpen(false)}
-          onConfirmSuccess={(bookId, newStatus) => {
-            setMyBooks((prev) =>
-              prev.map((b) => (b.id === bookId ? { ...b, status: newStatus } : b))
-            );
-          }}
-        />
-      )}
     </div>
   );
 }

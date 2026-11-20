@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Shield, CheckCircle, AlertTriangle, MapPin, QrCode, PhoneCall, UserCheck } from 'lucide-react';
+import { ArrowLeft, Shield, CheckCircle, AlertTriangle, MapPin, PhoneCall, UserCheck } from 'lucide-react';
 import { Header } from '@/components/Header';
 
 export default function SafetyPage() {
@@ -73,17 +73,17 @@ export default function SafetyPage() {
             </div>
           </div>
 
-          {/* Rule 3: QR Kod bilan tasdiqlash */}
+          {/* Rule 3: Chatda topshirishni tasdiqlash */}
           <div className="p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-xs flex items-start gap-4">
             <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-700 dark:text-blue-400 flex items-center justify-center shrink-0">
-              <QrCode className="w-5 h-5" />
+              <CheckCircle className="w-5 h-5" />
             </div>
             <div>
               <h3 className="font-bold text-base text-stone-900 dark:text-stone-100 mb-1">
-                3. Har doim QR-kod orqali tasdiqlang
+                3. Suhbatda topshirishni tasdiqlang
               </h3>
               <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
-                Kitobni qo‘lga olganingizda, egasining shaxsiy QR-kodini Kitto orqali skanerlang. Bu tizimda almashuv boshlanganini rasmiylashtiradi va qaytarish muddatini xolisona nazorat qiladi.
+                Kitobni qo‘lga olganingizda, suhbat oynasidagi &apos;Topshirildi deb yakunlash&apos; tugmasi orqali almashuvni tasdiqlang. Bu tizimda almashuv boshlanganini rasmiylashtiradi va qaytarish muddatini xolisona nazorat qiladi.
               </p>
             </div>
           </div>

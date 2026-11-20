@@ -23,12 +23,13 @@ interface ChatContextType {
     offeredBook: BookMiniMeta,
     requestedBook: BookMiniMeta,
     targetOwnerId?: string,
-    customProposalId?: string
+    customProposalId?: string,
+    swapAgreementType?: 'permanent' | 'temporary'
   ) => void;
   updateProposalStatus: (
     threadId: string,
     proposalId: string,
-    status: 'accepted' | 'declined'
+    status: 'accepted' | 'declined' | 'completed'
   ) => Promise<void>;
   markAsRead: (threadId: string) => void;
   clearAllChats: () => void;
@@ -267,7 +268,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     offeredBook: BookMiniMeta,
     requestedBook: BookMiniMeta,
     targetOwnerId?: string,
-    customProposalId?: string
+    customProposalId?: string,
+    swapAgreementType: 'permanent' | 'temporary' = 'permanent'
   ) => {
     const currentUserId = user?.id || 'guest_user';
     const proposalId = customProposalId || `prop_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
@@ -276,7 +278,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       id: `msg_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       senderId: currentUserId,
       senderName: user?.name || 'Kitobxon',
-      text: `${user?.name || 'Kitobxon'} ushbu kitobni almashishni taklif qilmoqda`,
+      text: `${user?.name || 'Kitobxon'} ushbu kitobni almashishni taklif qilmoqda (${swapAgreementType === 'temporary' ? 'Vaqtincha mutolaa' : 'Doimiy almashish'})`,
       createdAt: new Date().toISOString(),
       isRead: false,
       type: 'exchange_proposal',
@@ -285,6 +287,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         offered_book: offeredBook,
         requested_book: requestedBook,
         status: 'pending',
+        swap_agreement_type: swapAgreementType,
         target_owner_id: targetOwnerId,
         created_at: new Date().toISOString(),
       },
@@ -333,7 +336,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const updateProposalStatus = async (
     threadId: string,
     proposalId: string,
-    status: 'accepted' | 'declined'
+    status: 'accepted' | 'declined' | 'completed'
   ) => {
     const targetThread = threads.find((t) => t.id === threadId);
     if (!targetThread) return;
@@ -348,7 +351,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           proposal: {
             ...m.proposal,
             status,
-            responded_at: new Date().toISOString(),
+            responded_at: m.proposal.responded_at || new Date().toISOString(),
+            ...(status === 'completed' ? { completed_at: new Date().toISOString() } : {}),
           },
         };
       }
@@ -360,32 +364,37 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.warn('Failed to update exchange_transactions status:', err);
     });
 
-    // 2. If accepted, update both books to 'swapped' in DB (satisfying CHECK constraint) and notify UI
-    if (status === 'accepted' && targetProposal) {
+    // 2. If accepted or completed, update both books in DB and notify UI
+    if ((status === 'accepted' || status === 'completed') && targetProposal) {
       const offeredId = targetProposal.offered_book?.id;
       const requestedId = targetProposal.requested_book?.id;
+      const isTemporary =
+        targetProposal.swap_agreement_type === 'temporary' ||
+        targetProposal.offered_book?.type === 'temporary' ||
+        targetProposal.requested_book?.type === 'temporary';
+      const targetStatus = isTemporary ? 'temporarily_given' : 'swapped';
 
       if (offeredId) {
-        booksService.updateBookStatus(offeredId, 'swapped').catch((e) => {
+        booksService.updateBookStatus(offeredId, targetStatus).catch((e) => {
           console.warn('Failed to update offered book status:', e);
         });
         if (typeof window !== 'undefined') {
           window.dispatchEvent(
             new CustomEvent('kitto_book_status_updated', {
-              detail: { bookId: offeredId, status: 'swapped' },
+              detail: { bookId: offeredId, status: targetStatus },
             })
           );
         }
       }
 
       if (requestedId) {
-        booksService.updateBookStatus(requestedId, 'swapped').catch((e) => {
+        booksService.updateBookStatus(requestedId, targetStatus).catch((e) => {
           console.warn('Failed to update requested book status:', e);
         });
         if (typeof window !== 'undefined') {
           window.dispatchEvent(
             new CustomEvent('kitto_book_status_updated', {
-              detail: { bookId: requestedId, status: 'swapped' },
+              detail: { bookId: requestedId, status: targetStatus },
             })
           );
         }

@@ -13,7 +13,6 @@ import {
   Search,
   X,
   MapPin,
-  QrCode,
   Compass,
   UserPlus,
   Trash2,
@@ -28,7 +27,6 @@ import { useTheme } from '@/context/ThemeContext';
 import { Sidebar } from '@/components/Sidebar';
 import { Logo } from '@/components/Logo';
 import { ExchangeProposalCard } from '@/components/chat/ExchangeProposalCard';
-import { SwapQRModal } from '@/components/SwapQRModal';
 import { booksService, chatsService } from '@/services/db';
 import { Book } from '@/types/book';
 import { ChatMessage, ChatThread } from '@/types/chat';
@@ -80,7 +78,7 @@ function MessagesContent() {
   const threadParam = searchParams.get('thread');
   const bookIdParam = searchParams.get('bookId');
 
-  const { user, isAuthenticated, loginWithGoogle, openAuthModal } = useAuth();
+  const { user, isAuthenticated, loginWithGoogle, openAuthModal, updateProfile } = useAuth();
   const { showToast } = useToast();
   const {
     threads,
@@ -108,10 +106,6 @@ function MessagesContent() {
 
   // Realistic Telegram simulation states
   const [isTyping, setIsTyping] = useState(false);
-
-  // QR Modal
-  const [isQRModalOpen, setIsQRModalOpen] = useState(false);
-  const [qrSelectedBook, setQrSelectedBook] = useState<Book | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const currentUserId = user?.id || '';
@@ -207,18 +201,27 @@ function MessagesContent() {
   const handleAcceptProposal = async (proposalId: string) => {
     if (!activeThreadId) return;
     await updateProposalStatus(activeThreadId, proposalId, 'accepted');
+    showToast('Almashish taklifi qabul qilindi!', 'success');
   };
 
   const handleDeclineProposal = async (proposalId: string) => {
     if (!activeThreadId) return;
     await updateProposalStatus(activeThreadId, proposalId, 'declined');
+    showToast('Taklif rad etildi', 'info');
   };
 
-  const handleOpenQR = (bookId: string) => {
-    const target = allBooks.find((b) => b.id === bookId);
-    if (target) {
-      setQrSelectedBook(target);
-      setIsQRModalOpen(true);
+  const handleCompleteProposal = async (proposalId: string) => {
+    if (!activeThreadId) return;
+    try {
+      await updateProposalStatus(activeThreadId, proposalId, 'completed');
+      const currentTrust = user?.trustScore || 0;
+      updateProfile({
+        trustScore: currentTrust + 1,
+        completedSwaps: (user?.completedSwaps || 0) + 1,
+      });
+      showToast('Almashuv muvaffaqiyatli yakunlandi! Profilingizga +1 ishonch bali qo\'shildi.', 'success');
+    } catch {
+      showToast('Xatolik yuz berdi, qaytadan urinib ko\'ring', 'error');
     }
   };
 
@@ -604,15 +607,6 @@ function MessagesContent() {
 
                 {/* Actions & Book details */}
                 <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleOpenQR(activeThread.bookId)}
-                    className="hidden sm:flex items-center gap-1 py-1.5 px-3 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30 text-[11px] font-bold transition-all"
-                  >
-                    <QrCode className="w-3.5 h-3.5 text-amber-600" />
-                    <span>QR-kod</span>
-                  </button>
-
                   <Link
                     href={`/book/${activeThread.bookId}`}
                     className="flex items-center gap-1.5 py-1.5 px-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 hover:bg-stone-100 text-[11px] font-semibold text-stone-700 dark:text-stone-200 transition-colors"
@@ -648,7 +642,7 @@ function MessagesContent() {
                           targetOwnerId={activeThread.ownerId}
                           onAccept={handleAcceptProposal}
                           onDecline={handleDeclineProposal}
-                          onOpenQRModal={() => handleOpenQR(activeThread.bookId)}
+                          onComplete={handleCompleteProposal}
                           onOpenBookDetail={(bId) => router.push(`/book/${bId}`)}
                         />
                       </div>
@@ -894,19 +888,6 @@ function MessagesContent() {
             <Sidebar standalone onCloseMobile={() => setShowSidebarDrawer(false)} />
           </div>
         </div>
-      )}
-
-      {/* QR Handover Modal */}
-      {isQRModalOpen && qrSelectedBook && (
-        <SwapQRModal
-          isOpen={isQRModalOpen}
-          book={qrSelectedBook}
-          mode="handover"
-          onClose={() => setIsQRModalOpen(false)}
-          onConfirmSuccess={() => {
-            setIsQRModalOpen(false);
-          }}
-        />
       )}
     </div>
   );

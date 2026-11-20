@@ -1,5 +1,5 @@
 export type MessageType = 'text' | 'exchange_proposal';
-export type ProposalStatus = 'pending' | 'accepted' | 'declined';
+export type ProposalStatus = 'pending' | 'accepted' | 'declined' | 'completed';
 
 export interface BookMiniMeta {
   id: string;
@@ -7,6 +7,8 @@ export interface BookMiniMeta {
   author: string;
   cover_url?: string;
   coverUrl?: string;
+  type?: string;
+  condition?: string;
 }
 
 export interface ExchangeProposalPayload {
@@ -14,9 +16,11 @@ export interface ExchangeProposalPayload {
   offered_book: BookMiniMeta;
   requested_book: BookMiniMeta;
   status: ProposalStatus;
+  swap_agreement_type?: 'permanent' | 'temporary';
   target_owner_id?: string;
   created_at?: string;
   responded_at?: string;
+  completed_at?: string;
 }
 
 export interface ChatMessage {
