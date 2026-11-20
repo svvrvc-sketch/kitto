@@ -57,18 +57,6 @@ export const HeroExchangeShowcase: React.FC<{ className?: string }> = ({ classNa
           </div>
         </div>
       </div>
-
-      {/* Floating Bottom Trust Pill */}
-      <div className="mt-3 sm:mt-5 text-center">
-        <Link
-          href="/catalog"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/95 dark:bg-stone-900/95 border border-amber-500/30 text-xs font-bold text-stone-800 dark:text-stone-200 shadow-md hover:border-amber-500 transition-all group"
-        >
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span>Toshkentda 1,200+ ta kitob kutmoqda</span>
-          <ArrowRight className="w-3.5 h-3.5 text-amber-600 group-hover:translate-x-1 transition-transform" />
-        </Link>
-      </div>
     </div>
   );
 };

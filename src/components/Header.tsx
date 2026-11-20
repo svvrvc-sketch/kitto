@@ -9,8 +9,6 @@ import {
   User as UserIcon,
   LogOut,
   ChevronDown,
-  Menu,
-  X,
   Shield,
   BookOpen,
   MessageSquare,
@@ -25,7 +23,6 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { useTheme } from '@/context/ThemeContext';
 import { Logo } from './Logo';
-import { Sidebar } from './Sidebar';
 
 interface HeaderProps {
   darkMode?: boolean;
@@ -55,7 +52,6 @@ export const Header: React.FC<HeaderProps> = ({
   const { isDark: globalIsDark, toggleTheme: globalToggleTheme } = useTheme();
 
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const isDark = darkMode !== undefined ? darkMode : globalIsDark;
   const toggleTheme = onToggleTheme || globalToggleTheme;
@@ -68,7 +64,6 @@ export const Header: React.FC<HeaderProps> = ({
   const handleLogout = () => {
     logout();
     setShowProfileMenu(false);
-    setMobileMenuOpen(false);
     showToast('Tizimdan muvaffaqiyatli chiqdingiz', 'info');
   };
 
@@ -92,18 +87,8 @@ export const Header: React.FC<HeaderProps> = ({
     <>
       <header className="sticky top-0 z-30 w-full bg-[#FAF9F5]/90 dark:bg-stone-900/90 backdrop-blur-md border-b border-stone-200/80 dark:border-stone-800 transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
-          {/* 1. Left: Mobile Hamburger & Brand */}
-          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-            {/* Mobile Hamburger Menu Toggle - on the LEFT (Global App Standard) */}
-            <button
-              onClick={() => setMobileMenuOpen(true)}
-              className="md:hidden p-2 -ml-1 rounded-xl text-stone-700 dark:text-stone-300 hover:bg-stone-200/70 dark:hover:bg-stone-800 transition-colors shrink-0"
-              title="Menyu"
-              aria-label="Menyu"
-            >
-              <Menu className="w-5 h-5" />
-            </button>
-
+          {/* 1. Left: Brand */}
+          <div className="flex items-center gap-3 sm:gap-5 shrink-0">
             <Link
               href={isAuthenticated ? "/catalog" : "/"}
               className="cursor-pointer group text-left focus:outline-none"
@@ -335,12 +320,6 @@ export const Header: React.FC<HeaderProps> = ({
 
           </div>
         </div>
-
-        {/* Unified Mobile Navigation Sidebar Drawer (Slides from the LEFT) */}
-        <Sidebar
-          mobileOpen={mobileMenuOpen}
-          onCloseMobile={() => setMobileMenuOpen(false)}
-        />
       </header>
     </>
   );

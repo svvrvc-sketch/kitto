@@ -254,7 +254,7 @@ const SidebarInner: React.FC<SidebarProps> = ({
 
   // Expanded (Full 256px) Mode
   const content = (
-    <aside className="h-full w-64 flex flex-col justify-between p-4 bg-[#FAF9F5] dark:bg-stone-900 border-r border-stone-200/90 dark:border-stone-800 text-stone-900 dark:text-stone-100 select-none shrink-0 transition-all duration-200">
+    <aside className="h-full w-full max-w-full flex flex-col justify-between p-4 bg-white dark:bg-[#141414] border-r border-stone-200 dark:border-stone-800 text-stone-900 dark:text-stone-100 select-none shrink-0 transition-all duration-200">
       <div className="space-y-4">
         {/* 1. Quick Switcher Button */}
         {pathname?.startsWith('/cabinet') ? (
@@ -460,10 +460,10 @@ const SidebarInner: React.FC<SidebarProps> = ({
       {mobileOpen && (
         <div className="lg:hidden fixed inset-0 z-50 flex">
           <div
-            className="fixed inset-0 bg-stone-950/60 backdrop-blur-xs transition-opacity"
+            className="fixed inset-0 bg-black/75 backdrop-blur-xs transition-opacity"
             onClick={onCloseMobile}
           />
-          <div className="relative w-72 max-w-[85vw] h-full shadow-2xl z-10 animate-in slide-in-from-left duration-200">
+          <div className="relative w-72 max-w-[85vw] h-full bg-white dark:bg-[#141414] shadow-2xl z-10 animate-in slide-in-from-left duration-200 overflow-y-auto">
             {content}
           </div>
         </div>

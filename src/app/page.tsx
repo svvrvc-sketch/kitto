@@ -104,25 +104,9 @@ export default function LandingPage() {
                 </h1>
 
                 {/* Subtitle */}
-                <p className="text-xs sm:text-base md:text-lg text-stone-600 dark:text-stone-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal mb-5 sm:mb-6">
+                <p className="text-xs sm:text-base md:text-lg text-stone-600 dark:text-stone-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal mb-6 sm:mb-8">
                   Kitto — Toshkent bo‘ylab kitobxonlar o‘rtasida 100% bepul kitob almashish ekotizimi. Yangi kitob sotib olishga pul sarflamasdan, javondagi kitoblarni boshqalar bilan xolis va qulay almashing.
                 </p>
-
-                {/* Quick Trust Highlights */}
-                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 mb-6 sm:mb-8 text-[11px] sm:text-xs font-semibold text-stone-600 dark:text-stone-400">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-stone-100/90 dark:bg-stone-900/90 border border-stone-200/70 dark:border-stone-800">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                    <span>100% Bepul almashuv</span>
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-stone-100/90 dark:bg-stone-900/90 border border-stone-200/70 dark:border-stone-800">
-                    <MapPin className="w-3.5 h-3.5 text-emerald-500" />
-                    <span>Toshkent metro & tumanlar</span>
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-stone-100/90 dark:bg-stone-900/90 border border-stone-200/70 dark:border-stone-800">
-                    <ShieldCheck className="w-3.5 h-3.5 text-blue-500" />
-                    <span>Ishonchli kafolat</span>
-                  </span>
-                </div>
 
                 {/* Primary & Secondary Action Buttons (Compact & Ergonomic on Mobile) */}
                 <div className="flex flex-row items-center justify-center lg:justify-start gap-2.5 sm:gap-4 mb-8 sm:mb-10 w-full max-w-md mx-auto lg:mx-0">
