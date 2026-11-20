@@ -20,9 +20,12 @@ import {
   Sun,
   Moon,
   ExternalLink,
+  Menu,
 } from 'lucide-react';
 import { useChat } from '@/context/ChatContext';
 import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
+import { Sidebar } from '@/components/Sidebar';
 import { Logo } from '@/components/Logo';
 import { ExchangeProposalCard } from '@/components/chat/ExchangeProposalCard';
 import { SwapQRModal } from '@/components/SwapQRModal';
@@ -104,9 +107,12 @@ function MessagesContent() {
   const [searchThreadsQuery, setSearchThreadsQuery] = useState('');
   const [showMetroPicker, setShowMetroPicker] = useState(false);
   const [isNewChatModalOpen, setIsNewChatModalOpen] = useState(false);
+  const [showSidebarDrawer, setShowSidebarDrawer] = useState(false);
   const [newChatSearch, setNewChatSearch] = useState('');
   const [allBooks, setAllBooks] = useState<Book[]>([]);
-  const [darkMode, setDarkMode] = useState(false);
+
+  // Global theme
+  const { isDark, toggleTheme } = useTheme();
 
   // Realistic Telegram simulation states
   const [isTyping, setIsTyping] = useState(false);
@@ -117,22 +123,6 @@ function MessagesContent() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const currentUserId = user?.id || '';
-
-  // Theme detection
-  useEffect(() => {
-    if (typeof document !== 'undefined') {
-      setDarkMode(document.documentElement.classList.contains('dark'));
-    }
-  }, []);
-
-  const toggleTheme = () => {
-    const next = !darkMode;
-    setDarkMode(next);
-    if (typeof document !== 'undefined') {
-      if (next) document.documentElement.classList.add('dark');
-      else document.documentElement.classList.remove('dark');
-    }
-  };
 
   // Load books
   useEffect(() => {
@@ -389,6 +379,16 @@ function MessagesContent() {
 
         {/* Right: Actions */}
         <div className="flex items-center gap-2">
+          {/* Sidebar Drawer Toggle */}
+          <button
+            onClick={() => setShowSidebarDrawer(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-stone-200/90 dark:border-stone-800 bg-white/80 dark:bg-stone-800/80 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 text-xs font-semibold shadow-2xs transition-all"
+            title="Kabinet menyusini ochish"
+          >
+            <Menu className="w-4 h-4 text-amber-500" />
+            <span className="hidden sm:inline">Kabinetim</span>
+          </button>
+
           {/* New Chat Button */}
           <button
             onClick={() => setIsNewChatModalOpen(true)}
@@ -416,7 +416,7 @@ function MessagesContent() {
             className="p-2 rounded-xl border border-stone-200/80 dark:border-stone-800 bg-white/80 dark:bg-stone-800/80 text-stone-600 dark:text-stone-300 hover:bg-stone-100 transition-colors shadow-2xs"
             title="Mavzuni almashtirish"
           >
-            {darkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
+            {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
           </button>
         </div>
       </header>
@@ -493,12 +493,14 @@ function MessagesContent() {
                         : 'hover:bg-stone-50 dark:hover:bg-stone-800/50'
                     }`}
                   >
-                    {/* User Avatar with pulsing green dot */}
+                    {/* User Avatar */}
                     <div className="relative shrink-0">
                       <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-amber-600 to-amber-500 text-white font-bold text-sm flex items-center justify-center shadow-xs">
                         {(otherPartyName || 'K').charAt(0).toUpperCase()}
                       </div>
-                      <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white dark:border-stone-900" />
+                      {isUnread && (
+                        <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-amber-500 border-2 border-white dark:border-stone-900" />
+                      )}
                     </div>
 
                     {/* Content */}
@@ -617,9 +619,9 @@ function MessagesContent() {
                         </span>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                        <span>onlayn</span>
+                      <div className="flex items-center gap-1.5 text-[11px] text-stone-500 dark:text-stone-400 font-medium">
+                        <span className="w-1.5 h-1.5 rounded-full bg-stone-400 dark:bg-stone-500" />
+                        <span>oxirgi marta bugun</span>
                       </div>
                     )}
                   </div>
@@ -916,6 +918,33 @@ function MessagesContent() {
                   Kitobxon topilmadi. Qidiruv so&#39;zini o&#39;zgartirib ko&#39;ring.
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Sliding Off-Canvas Cabinet Sidebar Drawer */}
+      {showSidebarDrawer && (
+        <div className="fixed inset-0 z-50 flex">
+          <div
+            className="fixed inset-0 bg-stone-950/60 backdrop-blur-xs animate-in fade-in duration-200"
+            onClick={() => setShowSidebarDrawer(false)}
+          />
+          <div className="relative w-80 max-w-[85vw] h-full bg-white dark:bg-stone-900 border-r border-stone-200 dark:border-stone-800 shadow-2xl flex flex-col z-10 animate-in slide-in-from-left duration-200 overflow-hidden">
+            <div className="p-4 flex items-center justify-between border-b border-stone-100 dark:border-stone-800 shrink-0">
+              <span className="font-bold text-sm text-stone-900 dark:text-stone-100">
+                Kabinet menyusi
+              </span>
+              <button
+                onClick={() => setShowSidebarDrawer(false)}
+                className="p-1.5 rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 transition-colors"
+                title="Yopish"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              <Sidebar onCloseMobile={() => setShowSidebarDrawer(false)} />
             </div>
           </div>
         </div>

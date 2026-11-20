@@ -822,6 +822,34 @@ export const chatsService = {
   },
 
   /**
+   * Deletes a chat thread from Supabase and localStorage.
+   */
+  async deleteChat(chatId: string): Promise<void> {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem(STORAGE_CHATS_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) {
+            const updated = parsed.filter((c: any) => c.id !== chatId);
+            localStorage.setItem(STORAGE_CHATS_KEY, JSON.stringify(updated));
+          }
+        }
+      } catch (e) {
+        console.error('LocalStorage chat delete error:', e);
+      }
+    }
+
+    if (isSupabaseConfigured) {
+      try {
+        await supabase.from('chats').delete().eq('id', chatId);
+      } catch (err) {
+        console.error('Supabase deleteChat error:', err);
+      }
+    }
+  },
+
+  /**
    * Realtime subscription for user's chats
    */
   subscribeToChats(userId: string, onEvent: (payload: any) => void): () => void {

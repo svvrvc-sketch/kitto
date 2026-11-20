@@ -29,10 +29,10 @@ export default function SafetyPage() {
             <Shield className="w-6 h-6 stroke-[2]" />
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">
-            Xavfsizlik va Kitobxonlik Qoidalari
+            Xavfsizlik va Maxfiylik Qoidalari
           </h1>
           <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
-            Kitto — o‘zaro ishonch va yuksak kitobxonlik madaniyatiga tayanadi. Har bir a’zomiz quyidagi asosiy tamoyillarga qat’iy amal qilishi shart.
+            Kitto — o‘zaro ishonch, xavfsizlik va shaxsiy maʼlumotlar daxlsizligiga qatʼiy tayanadi. Har bir aʼzomiz quyidagi asosiy tamoyillarga rioya qiladi.
           </p>
         </div>
 
@@ -94,6 +94,21 @@ export default function SafetyPage() {
               </h3>
               <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
                 Kitto faqat haqiqiy foydalanuvchilar platformasidir. Barcha a’zolar telefon raqamlarini tasdiqlagan bo‘lishi lozim. Sizning telefoningiz faqat o‘zaro almashuv taklifi tasdiqlangan taqdirda ko‘rsatiladi.
+              </p>
+            </div>
+          </div>
+
+          {/* Rule 5: Maxfiylik va Ma'lumotlar himoyasi */}
+          <div className="p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-xs flex items-start gap-4">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-700 dark:text-amber-400 flex items-center justify-center shrink-0">
+              <UserCheck className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="font-bold text-base text-stone-900 dark:text-stone-100 mb-1">
+                5. Shaxsiy maʼlumotlar maxfiyligi (Privacy Policy)
+              </h3>
+              <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
+                Sizning elektron pochtangiz, aniq turar joy koordinatalaringiz va shaxsiy xabarlaringiz uchinchi tomonlarga berilmaydi va tijoriy maqsadlarda sotilmaydi. Maʼlumotlar faqat kitob almashish va xavfsizlikni taʼminlash uchun ishlatiladi.
               </p>
             </div>
           </div>

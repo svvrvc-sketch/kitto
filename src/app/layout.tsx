@@ -5,6 +5,7 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { ToastProvider } from "@/context/ToastContext";
 import { ChatProvider } from "@/context/ChatContext";
+import { ThemeProvider } from "@/context/ThemeContext";
 import { AuthModal } from "@/components/AuthModal";
 import { PhonePromptModal } from "@/components/PhonePromptModal";
 
@@ -64,23 +65,43 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="uz" className={`light ${sansFont.variable}`} suppressHydrationWarning>
+    <html lang="uz" className={`dark ${sansFont.variable}`} suppressHydrationWarning>
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var t = localStorage.getItem('kitto_theme');
+                  if (t === 'light') {
+                    document.documentElement.classList.remove('dark');
+                    document.documentElement.classList.add('light');
+                  } else {
+                    document.documentElement.classList.add('dark');
+                    document.documentElement.classList.remove('light');
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
         <Script
           src="https://telegram.org/js/telegram-web-app.js"
           strategy="beforeInteractive"
         />
       </head>
       <body className="antialiased min-h-screen bg-[#F8F7F4] dark:bg-zinc-950 text-[#141413] dark:text-[#F8F7F4] font-sans selection:bg-amber-600 selection:text-white dark:selection:bg-amber-500 dark:selection:text-zinc-900 overflow-x-clip transition-colors duration-200">
-        <ToastProvider>
-          <AuthProvider>
-            <ChatProvider>
-              {children}
-              <AuthModal />
-              <PhonePromptModal />
-            </ChatProvider>
-          </AuthProvider>
-        </ToastProvider>
+        <ThemeProvider>
+          <ToastProvider>
+            <AuthProvider>
+              <ChatProvider>
+                {children}
+                <AuthModal />
+                <PhonePromptModal />
+              </ChatProvider>
+            </AuthProvider>
+          </ToastProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

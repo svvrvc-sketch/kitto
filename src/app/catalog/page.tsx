@@ -24,6 +24,7 @@ import { SwapRequestModal } from '@/components/exchange/SwapRequestModal';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { useChat } from '@/context/ChatContext';
+import { useTheme } from '@/context/ThemeContext';
 import { calculateDistanceKm, isLocationOutsideTashkent } from '@/lib/geo-utils';
 import { isRegionTashkent } from '@/lib/regions';
 import { initTelegramApp } from '@/lib/telegram';
@@ -137,8 +138,8 @@ export default function CatalogPage() {
     setIsSwapModalOpen(true);
   }, [user, openAuthModal, openPhonePrompt, hasValidPhone, startConversation]);
 
-  // Dark mode state
-  const [darkMode, setDarkMode] = useState(false);
+  // Global dark mode from ThemeContext
+  const { isDark, toggleTheme } = useTheme();
 
   // Strict SSR mount guard and Cloud Database Hydration
   useEffect(() => {
@@ -321,22 +322,8 @@ export default function CatalogPage() {
 
   // Strictly guarded Telegram WebApp SDK initialization
   useEffect(() => {
-    const isTg = initTelegramApp((isDark) => {
-      setDarkMode(isDark);
-    });
-
-    if (!isTg && typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setDarkMode(true);
-    }
+    initTelegramApp();
   }, []);
-
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [darkMode]);
 
   // Toggle saved book with Guest protection
   const handleToggleSave = useCallback((bookId: string, e?: React.MouseEvent) => {
@@ -636,8 +623,8 @@ export default function CatalogPage() {
 
         {/* Main Header with Toshkent location trigger */}
         <Header
-          darkMode={darkMode}
-          onToggleTheme={() => setDarkMode(!darkMode)}
+          darkMode={isDark}
+          onToggleTheme={toggleTheme}
           currentTab={currentTab}
           onSelectTab={(tab) => {
             if (tab === 'profile') {

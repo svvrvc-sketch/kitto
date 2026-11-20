@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import {
   X,
@@ -21,6 +22,7 @@ export const AuthModal: React.FC = () => {
   const [showPhoneLogin, setShowPhoneLogin] = useState(false);
   const [phoneName, setPhoneName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [agreedToTerms, setAgreedToTerms] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -42,6 +44,10 @@ export const AuthModal: React.FC = () => {
   if (!isAuthModalOpen) return null;
 
   const handleGoogleLogin = async () => {
+    if (!agreedToTerms) {
+      setError('Davom etish uchun Xavfsizlik va Maxfiylik qoidalariga rozilik bildirishingiz kerak.');
+      return;
+    }
     setLoadingGoogle(true);
     setError('');
     try {
@@ -119,9 +125,35 @@ export const AuthModal: React.FC = () => {
 
         {/* Google OAuth Button */}
         <div className="space-y-3">
+          {/* Terms & Privacy Agreement Checkbox */}
+          <div className="pt-1 pb-1">
+            <label className="flex items-start gap-2.5 text-[11px] text-stone-600 dark:text-stone-400 text-left cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={agreedToTerms}
+                onChange={(e) => {
+                  setAgreedToTerms(e.target.checked);
+                  if (error) setError('');
+                }}
+                className="mt-0.5 w-4 h-4 rounded text-amber-600 focus:ring-amber-500 cursor-pointer shrink-0"
+              />
+              <span>
+                Men Kitto{' '}
+                <Link
+                  href="/safety"
+                  target="_blank"
+                  className="text-amber-600 dark:text-amber-400 font-bold underline hover:text-amber-700"
+                >
+                  Xavfsizlik va Maxfiylik qoidalari
+                </Link>
+                ga toʻliq roziman hamda kitoblarni o‘z vaqtida ehtiyotlab qaytarish majburiyatini olaman.
+              </span>
+            </label>
+          </div>
+
           <button
             onClick={handleGoogleLogin}
-            disabled={loadingGoogle}
+            disabled={loadingGoogle || !agreedToTerms}
             className="w-full py-3 px-4 rounded-2xl bg-white dark:bg-zinc-800 hover:bg-stone-50 dark:hover:bg-zinc-750 text-stone-800 dark:text-stone-100 border border-stone-200 dark:border-zinc-700 font-semibold text-xs flex items-center justify-center gap-2.5 shadow-xs hover:shadow-md transition-all active:scale-[0.98] disabled:opacity-50"
           >
             {loadingGoogle ? (

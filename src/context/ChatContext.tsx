@@ -448,6 +448,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const clearAllChats = useCallback(() => {
+    const current = [...threads];
     setThreads([]);
     setActiveThreadId(null);
     if (typeof window !== 'undefined') {
@@ -458,7 +459,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // ignore
       }
     }
-  }, []);
+    current.forEach((t) => {
+      chatsService.deleteChat(t.id).catch(() => {});
+    });
+  }, [threads]);
 
   const totalUnreadCount = threads.reduce((acc, t) => {
     const unread = t.messages.filter((m) => !m.isRead && m.senderId !== user?.id).length;

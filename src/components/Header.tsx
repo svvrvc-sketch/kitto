@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import {
   Moon,
   Sun,
@@ -19,10 +19,12 @@ import {
   Plus,
   HelpCircle,
   ArrowLeftRight,
+  ShieldCheck,
 } from 'lucide-react';
 import { AppTab } from '@/types/book';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
+import { useTheme } from '@/context/ThemeContext';
 import { Logo } from './Logo';
 
 interface HeaderProps {
@@ -49,21 +51,21 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenSupport,
 }) => {
   const router = useRouter();
+  const pathname = usePathname();
   const { user, isAuthenticated, isAdmin, openAuthModal, loginWithGoogle, logout } = useAuth();
   const { showToast } = useToast();
+  const { isDark: globalIsDark, toggleTheme: globalToggleTheme } = useTheme();
+
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [internalDarkMode, setInternalDarkMode] = useState(false);
 
-  const isDark = darkMode !== undefined ? darkMode : internalDarkMode;
-  const toggleTheme = onToggleTheme || (() => {
-    const next = !internalDarkMode;
-    setInternalDarkMode(next);
-    if (typeof document !== 'undefined') {
-      if (next) document.documentElement.classList.add('dark');
-      else document.documentElement.classList.remove('dark');
-    }
-  });
+  const isDark = darkMode !== undefined ? darkMode : globalIsDark;
+  const toggleTheme = onToggleTheme || globalToggleTheme;
+
+  const isHomeActive = pathname === '/';
+  const isCatalogActive = pathname === '/catalog' || pathname?.startsWith('/catalog');
+  const isHowItWorksActive = pathname === '/how-it-works';
+  const isSafetyActive = pathname === '/safety';
 
   const userCityDisplay = user?.city
     ? user.city.includes('Toshkent')
@@ -121,37 +123,48 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           {/* 2. Center: Store Navigation Links */}
-          <nav className="hidden md:flex items-center gap-1 text-xs font-semibold">
+          <nav className="hidden md:flex items-center gap-1.5 text-xs font-semibold">
             <Link
               href="/"
-              className="px-3 py-2 rounded-xl text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800/60 transition-all"
+              className={`px-3.5 py-2 rounded-xl transition-all ${
+                isHomeActive
+                  ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 font-bold border border-amber-500/30'
+                  : 'text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800/60 font-medium'
+              }`}
             >
               Bosh sahifa
             </Link>
             <Link
               href="/catalog"
-              className="px-3.5 py-2 rounded-xl text-stone-900 dark:text-stone-100 font-bold bg-stone-100/80 dark:bg-stone-800/80 hover:bg-stone-200/80 dark:hover:bg-stone-700/80 transition-all flex items-center gap-1.5"
+              className={`px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 ${
+                isCatalogActive
+                  ? 'bg-amber-600 text-white font-bold shadow-xs'
+                  : 'text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800/60 font-medium'
+              }`}
             >
-              <BookOpen className="w-3.5 h-3.5 text-amber-600 dark:text-amber-500" />
+              <BookOpen className="w-3.5 h-3.5" />
               <span>Katalog</span>
             </Link>
             <Link
               href="/how-it-works"
-              className="px-3 py-2 rounded-xl text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800/50 transition-all"
+              className={`px-3.5 py-2 rounded-xl transition-all ${
+                isHowItWorksActive
+                  ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 font-bold border border-amber-500/30'
+                  : 'text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800/60 font-medium'
+              }`}
             >
               Qanday ishlaydi?
             </Link>
             <Link
               href="/safety"
-              className="px-3 py-2 rounded-xl text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800/50 transition-all"
+              className={`px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 ${
+                isSafetyActive
+                  ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 font-bold border border-amber-500/30'
+                  : 'text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800/60 font-medium'
+              }`}
             >
-              Xavfsizlik
-            </Link>
-            <Link
-              href="/faq"
-              className="px-3 py-2 rounded-xl text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800/50 transition-all"
-            >
-              FAQ
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>Xavfsizlik & Maxfiylik</span>
             </Link>
           </nav>
 
@@ -342,11 +355,15 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-stone-200/80 dark:border-stone-800 bg-white/95 dark:bg-stone-900/95 backdrop-blur-md px-4 py-3.5 space-y-1 animate-in slide-in-from-top-2 duration-150">
+          <div className="md:hidden border-t border-stone-200/80 dark:border-stone-800 bg-white/95 dark:bg-stone-900/95 backdrop-blur-md px-4 py-3.5 space-y-1.5 animate-in slide-in-from-top-2 duration-150">
             <Link
               href="/"
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold text-stone-800 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+              className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs ${
+                isHomeActive
+                  ? 'font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20'
+                  : 'font-semibold text-stone-800 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800'
+              } transition-colors`}
             >
               <span>Bosh sahifa</span>
               <span className="text-[10px] text-stone-400">&rarr;</span>
@@ -354,41 +371,52 @@ export const Header: React.FC<HeaderProps> = ({
             <Link
               href="/catalog"
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-50/50 dark:bg-amber-950/20 hover:bg-amber-100/50 dark:hover:bg-amber-900/30 transition-colors"
+              className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs ${
+                isCatalogActive
+                  ? 'font-bold bg-amber-600 text-white shadow-xs'
+                  : 'font-semibold text-stone-800 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800'
+              } transition-colors`}
             >
               <span className="flex items-center gap-2">
                 <BookOpen className="w-4 h-4" />
                 <span>Kitoblar katalogi</span>
               </span>
-              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-amber-600 text-white">Do&#39;kon</span>
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300">Katalog</span>
             </Link>
             <Link
               href="/how-it-works"
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+              className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs ${
+                isHowItWorksActive
+                  ? 'font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20'
+                  : 'font-semibold text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800'
+              } transition-colors`}
             >
               <span>Qanday ishlaydi?</span>
+              <span className="text-[10px] text-stone-400">&rarr;</span>
             </Link>
             <Link
               href="/safety"
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+              className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs ${
+                isSafetyActive
+                  ? 'font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20'
+                  : 'font-semibold text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800'
+              } transition-colors`}
             >
-              <span>Xavfsizlik va Qoidalar</span>
-            </Link>
-            <Link
-              href="/faq"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
-            >
-              <span>Ko&#39;p so&#39;raladigan savollar</span>
+              <span className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                <span>Xavfsizlik & Maxfiylik</span>
+              </span>
+              <span className="text-[10px] text-stone-400">&rarr;</span>
             </Link>
             <Link
               href="/about"
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+              className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
             >
-              <span>Kitto haqida</span>
+              <span>Kitto manifesti va tarixi</span>
+              <span className="text-[10px] text-stone-400">&rarr;</span>
             </Link>
 
             {/* Mobile login prompt if guest */}
