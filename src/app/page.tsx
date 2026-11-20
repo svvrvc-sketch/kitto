@@ -18,12 +18,12 @@ import {
   Search,
   Compass,
   BookMarked,
-  Train,
+  ArrowLeftRight,
+  UserCheck,
   Check,
 } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { BottomNav } from '@/components/BottomNav';
 import { ThreeBookScene } from '@/components/ThreeBookScene';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
@@ -152,69 +152,69 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* 3. BIG STATS CARDS (Upgraded with Big Icons & Editorial Cards) */}
+            {/* 3. PLATFORM CAPABILITY CARDS (100% Real, Honest & Dignified) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mt-14 sm:mt-20">
-              {/* Card 1: Books */}
+              {/* Card 1: 0 so'm / Free */}
               <div className="p-6 rounded-3xl bg-white/90 dark:bg-stone-900/90 border border-stone-200/90 dark:border-stone-800 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
                 <div className="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-4 border border-amber-500/20 group-hover:scale-110 transition-transform">
-                  <BookOpen className="w-7 h-7 stroke-[2]" />
-                </div>
-                <div className="text-3xl sm:text-4xl font-black text-amber-600 dark:text-amber-500 tracking-tight">
-                  1,200+
-                </div>
-                <div className="text-sm font-bold text-stone-900 dark:text-stone-100 mt-1">
-                  Almashilgan kitoblar
-                </div>
-                <p className="text-xs text-stone-500 dark:text-stone-400 mt-1.5 leading-relaxed">
-                  Toshkent bo‘ylab kitobxonlar qo‘lidan qo‘liga o‘tgan sara kitoblar.
-                </p>
-              </div>
-
-              {/* Card 2: Users */}
-              <div className="p-6 rounded-3xl bg-white/90 dark:bg-stone-900/90 border border-stone-200/90 dark:border-stone-800 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
-                <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-4 border border-emerald-500/20 group-hover:scale-110 transition-transform">
-                  <Users className="w-7 h-7 stroke-[2]" />
-                </div>
-                <div className="text-3xl sm:text-4xl font-black text-emerald-600 dark:text-emerald-500 tracking-tight">
-                  4,500+
-                </div>
-                <div className="text-sm font-bold text-stone-900 dark:text-stone-100 mt-1">
-                  Faol kitobxon aʼzolar
-                </div>
-                <p className="text-xs text-stone-500 dark:text-stone-400 mt-1.5 leading-relaxed">
-                  Talabalar, mutaxassislar va mutolaa ixlosmandlari birlashmasi.
-                </p>
-              </div>
-
-              {/* Card 3: Free */}
-              <div className="p-6 rounded-3xl bg-white/90 dark:bg-stone-900/90 border border-stone-200/90 dark:border-stone-800 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
-                <div className="w-14 h-14 rounded-2xl bg-sky-500/10 text-sky-600 dark:text-sky-400 flex items-center justify-center mb-4 border border-sky-500/20 group-hover:scale-110 transition-transform">
                   <Sparkles className="w-7 h-7 stroke-[2]" />
                 </div>
-                <div className="text-3xl sm:text-4xl font-black text-sky-600 dark:text-sky-400 tracking-tight">
-                  100%
+                <div className="text-2xl sm:text-3xl font-black text-amber-600 dark:text-amber-500 tracking-tight">
+                  0 so‘m
                 </div>
                 <div className="text-sm font-bold text-stone-900 dark:text-stone-100 mt-1">
-                  Mutlaqo bepul & xolis
+                  100% Xolis & Bepul
                 </div>
                 <p className="text-xs text-stone-500 dark:text-stone-400 mt-1.5 leading-relaxed">
-                  Sotuv yo‘q, ijara haqi yo‘q. Faqat xolis almashuv va hadya.
+                  Sotuv yo‘q, ijara haqi yo‘q. Faqat kitobxonlar o‘rtasida xolis almashuv va hadya.
                 </p>
               </div>
 
-              {/* Card 4: Metro Stations */}
+              {/* Card 2: P2P Direct */}
               <div className="p-6 rounded-3xl bg-white/90 dark:bg-stone-900/90 border border-stone-200/90 dark:border-stone-800 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
-                <div className="w-14 h-14 rounded-2xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-4 border border-purple-500/20 group-hover:scale-110 transition-transform">
-                  <Train className="w-7 h-7 stroke-[2]" />
+                <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-4 border border-emerald-500/20 group-hover:scale-110 transition-transform">
+                  <ArrowLeftRight className="w-7 h-7 stroke-[2]" />
                 </div>
-                <div className="text-3xl sm:text-4xl font-black text-purple-600 dark:text-purple-400 tracking-tight">
-                  48 ta
+                <div className="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-500 tracking-tight">
+                  P2P
                 </div>
                 <div className="text-sm font-bold text-stone-900 dark:text-stone-100 mt-1">
-                  Toshkent metro bekatlari
+                  To‘g‘ridan-to‘g‘ri aloqa
                 </div>
                 <p className="text-xs text-stone-500 dark:text-stone-400 mt-1.5 leading-relaxed">
-                  Chilonzor, Amir Temur, Oybek, Paxtakor kabi qulay bekatlar.
+                  Vositachilarsiz: o‘zingizga ma’qul kitob egasi bilan ichki chatda to‘g‘ridan-to‘g‘ri suhbatlashing.
+                </p>
+              </div>
+
+              {/* Card 3: QR-kod Kafolati */}
+              <div className="p-6 rounded-3xl bg-white/90 dark:bg-stone-900/90 border border-stone-200/90 dark:border-stone-800 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
+                <div className="w-14 h-14 rounded-2xl bg-sky-500/10 text-sky-600 dark:text-sky-400 flex items-center justify-center mb-4 border border-sky-500/20 group-hover:scale-110 transition-transform">
+                  <QrCode className="w-7 h-7 stroke-[2]" />
+                </div>
+                <div className="text-2xl sm:text-3xl font-black text-sky-600 dark:text-sky-400 tracking-tight">
+                  QR-kod
+                </div>
+                <div className="text-sm font-bold text-stone-900 dark:text-stone-100 mt-1">
+                  Xavfsiz topshirish
+                </div>
+                <p className="text-xs text-stone-500 dark:text-stone-400 mt-1.5 leading-relaxed">
+                  Har bir topshirish va qabul qilish shaxsiy QR-kod orqali tasdiqlanadi. Kitobingiz yo‘qolmaydi.
+                </p>
+              </div>
+
+              {/* Card 4: Verified Community */}
+              <div className="p-6 rounded-3xl bg-white/90 dark:bg-stone-900/90 border border-stone-200/90 dark:border-stone-800 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
+                <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-4 border border-indigo-500/20 group-hover:scale-110 transition-transform">
+                  <UserCheck className="w-7 h-7 stroke-[2]" />
+                </div>
+                <div className="text-2xl sm:text-3xl font-black text-indigo-600 dark:text-indigo-400 tracking-tight">
+                  Ishonchli
+                </div>
+                <div className="text-sm font-bold text-stone-900 dark:text-stone-100 mt-1">
+                  Tasdiqlangan kitobxonlar
+                </div>
+                <p className="text-xs text-stone-500 dark:text-stone-400 mt-1.5 leading-relaxed">
+                  Barcha a’zolar tekshirilgan profil va haqiqiy telefon raqamlari orqali faoliyat yuritadi.
                 </p>
               </div>
             </div>
@@ -293,14 +293,14 @@ export default function LandingPage() {
                     {/* Rule 2 */}
                     <div className="flex items-start gap-4">
                       <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/20">
-                        <Train className="w-6 h-6 stroke-[2]" />
+                        <MapPin className="w-6 h-6 stroke-[2]" />
                       </div>
                       <div>
                         <h4 className="font-bold text-sm text-stone-900 dark:text-stone-100">
-                          Metro & Qulay Uchrashuv
+                          Xavfsiz & Qulay Uchrashuv
                         </h4>
                         <p className="text-xs text-stone-500 dark:text-stone-400 mt-1 leading-relaxed">
-                          Toshkentning barcha metro bekatlari va markazlarida bevosita ko‘rishib, o‘zaro ishonch bilan kitob almashasiz.
+                          Shaharning eng qulay va gavjum jamoat maskanlarida bevosita ko‘rishib, o‘zaro ishonch bilan kitob almashasiz.
                         </p>
                       </div>
                     </div>
@@ -476,9 +476,6 @@ export default function LandingPage() {
 
       {/* Footer */}
       <Footer />
-
-      {/* Mobile Bottom Navigation */}
-      <BottomNav />
     </div>
   );
 }

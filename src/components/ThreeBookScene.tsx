@@ -218,8 +218,8 @@ export const ThreeBookScene: React.FC<{ className?: string }> = ({ className = '
         },
         {
           num: '02',
-          title: 'Toshkent Metro Qulayligi',
-          desc: 'Shaharning barcha 48 metro bekatlarida kitobxonlar bevosita uchrashib mutolaa almashadilar. Yo‘ldan qolmaysiz.',
+          title: 'Qulay Uchrashuv Manzili',
+          desc: 'Kitobxonlar o‘zlari uchun eng qulay bo‘lgan gavjum va xavfsiz jamoat joylarida uchrashib mutolaa almashadilar.',
         },
         {
           num: '03',
@@ -358,15 +358,15 @@ export const ThreeBookScene: React.FC<{ className?: string }> = ({ className = '
       ctx.fillStyle = '#78350f';
       ctx.font = 'bold 64px "Plus Jakarta Sans", sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('1,200+ kitob almashishga tayyor', 1024, 880);
+      ctx.fillText('Mutolaa madaniyatini ulashing', 1024, 880);
 
       ctx.fillStyle = '#92400e';
       ctx.font = '600 46px "Plus Jakarta Sans", sans-serif';
-      ctx.fillText('Katalogga kiring va istalgan kitobni bepul tanlang', 1024, 960);
+      ctx.fillText('Katalogga kiring va yangi asarlarni kashf eting', 1024, 960);
 
       ctx.fillStyle = '#a16207';
       ctx.font = '500 40px "Plus Jakarta Sans", sans-serif';
-      ctx.fillText('Toshkent shahrining 12 ta tumanida faol kitobxonlar', 1024, 1030);
+      ctx.fillText('O‘qilgan kitoblaringizga yangi hayot bering', 1024, 1030);
 
       // Steps Title
       ctx.fillStyle = '#0f172a';
@@ -377,7 +377,7 @@ export const ThreeBookScene: React.FC<{ className?: string }> = ({ className = '
       const steps = [
         { title: '1. Kitobingizni qo‘shing', sub: 'Suratini oling va 1 daqiqada e’lon bering' },
         { title: '2. Istalgan kitobni tanlang', sub: 'Katalogdan yoqqan asarni topib taklif yuboring' },
-        { title: '3. Suhbatlashing & Uchrashing', sub: 'Telegram kabi qulay chatda metro bekatini kelishing' },
+        { title: '3. Suhbatlashing & Uchrashing', sub: 'Telegram kabi qulay chatda uchrashuv joyini kelishing' },
         { title: '4. QR-kod bilan qabul qiling', sub: 'Uchrashuvda QR-kodni ko‘rsatib almashuvni yakunlang' },
       ];
 

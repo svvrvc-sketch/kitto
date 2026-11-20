@@ -4,7 +4,6 @@ import React from 'react';
 import Link from 'next/link';
 import { ArrowLeft, BookOpen, Heart, Users, Globe2, Sparkles, ShieldCheck } from 'lucide-react';
 import { Header } from '@/components/Header';
-import { BottomNav } from '@/components/BottomNav';
 
 export default function AboutPage() {
   return (
@@ -113,8 +112,6 @@ export default function AboutPage() {
           </div>
         </div>
       </main>
-
-      <BottomNav />
     </div>
   );
 }

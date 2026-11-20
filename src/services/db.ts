@@ -321,25 +321,6 @@ export const booksService = {
           try {
             if (typeof window !== 'undefined') {
               localStorage.setItem(STORAGE_BOOKS_KEY, JSON.stringify(mappedBooks));
-
-              // Auto-sync any previously stuck local books to Supabase
-              if (localBooks.length > 0) {
-                const remoteIds = new Set(mappedBooks.map((b) => b.id));
-                const unsynced = localBooks.filter((b) => !remoteIds.has(b.id));
-                if (unsynced.length > 0) {
-                  for (const ub of unsynced) {
-                    const row = mapBookToRow(ub);
-                    supabase.from('books').insert(row).then(
-                      ({ error: syncErr }) => {
-                        if (!syncErr) {
-                          console.log('[Kitto] Auto-synced previous book to cloud:', ub.title);
-                        }
-                      },
-                      () => {}
-                    );
-                  }
-                }
-              }
             }
           } catch (e) {
             console.warn('Could not cache books to localStorage:', e);

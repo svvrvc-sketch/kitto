@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ChevronDown, HelpCircle, Sparkles, MessageCircle } from 'lucide-react';
 import { Header } from '@/components/Header';
-import { BottomNav } from '@/components/BottomNav';
 
 interface FAQItem {
   q: string;
@@ -130,8 +129,6 @@ export default function FAQPage() {
           </a>
         </div>
       </main>
-
-      <BottomNav />
     </div>
   );
 }

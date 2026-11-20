@@ -4,7 +4,6 @@ import React from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Shield, CheckCircle, AlertTriangle, MapPin, QrCode, PhoneCall, UserCheck } from 'lucide-react';
 import { Header } from '@/components/Header';
-import { BottomNav } from '@/components/BottomNav';
 
 export default function SafetyPage() {
   return (
@@ -125,8 +124,6 @@ export default function SafetyPage() {
           </p>
         </div>
       </main>
-
-      <BottomNav />
     </div>
   );
 }

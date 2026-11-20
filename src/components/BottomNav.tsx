@@ -18,7 +18,7 @@ const BottomNavInner: React.FC<BottomNavProps> = ({
   const searchParams = useSearchParams();
   const tab = searchParams.get('tab');
 
-  const isCatalog = pathname === '/catalog' || pathname === '/';
+  const isCatalog = pathname === '/catalog';
   const isAddBook = pathname === '/add-book';
   const isMessages = pathname === '/messages';
   const isWishlist = pathname === '/cabinet' && tab === 'wishlist';
