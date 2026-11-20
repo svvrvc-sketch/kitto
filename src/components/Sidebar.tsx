@@ -19,6 +19,8 @@ import {
   PanelLeftOpen,
   Sun,
   Moon,
+  Compass,
+  Sparkles,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useChat } from '@/context/ChatContext';
@@ -55,6 +57,23 @@ const SidebarInner: React.FC<SidebarProps> = ({
   };
 
   const navItems = [
+    {
+      group: 'ASOSIY SAHIFALAR',
+      items: [
+        {
+          label: 'Kitoblar katalogi (Do‘kon)',
+          href: '/catalog',
+          icon: Compass,
+          active: pathname === '/catalog' || pathname?.startsWith('/catalog'),
+        },
+        {
+          label: 'Bosh sahifa',
+          href: '/',
+          icon: Sparkles,
+          active: pathname === '/',
+        },
+      ],
+    },
     {
       group: 'SHAXSIY JAVON',
       items: [
@@ -98,19 +117,25 @@ const SidebarInner: React.FC<SidebarProps> = ({
       ],
     },
     {
-      group: "QO'LLANMA",
+      group: "QO'LLANMA & XAVFSIZLIK",
       items: [
         {
           label: 'Qanday ishlaydi?',
-          href: '/cabinet?tab=guide',
+          href: '/how-it-works',
           icon: HelpCircle,
-          active: isLinkActive('/cabinet', 'guide') || pathname === '/how-it-works',
+          active: pathname === '/how-it-works' || isLinkActive('/cabinet', 'guide'),
         },
         {
           label: 'Xavfsizlik qoidalari',
-          href: '/cabinet?tab=safety',
+          href: '/safety',
           icon: ShieldCheck,
-          active: isLinkActive('/cabinet', 'safety') || pathname === '/safety',
+          active: pathname === '/safety' || isLinkActive('/cabinet', 'safety'),
+        },
+        {
+          label: 'Kitto haqida & Missiya',
+          href: '/about',
+          icon: BookOpen,
+          active: pathname === '/about',
         },
       ],
     },
@@ -231,19 +256,34 @@ const SidebarInner: React.FC<SidebarProps> = ({
   const content = (
     <aside className="h-full w-64 flex flex-col justify-between p-4 bg-[#FAF9F5] dark:bg-stone-900 border-r border-stone-200/90 dark:border-stone-800 text-stone-900 dark:text-stone-100 select-none shrink-0 transition-all duration-200">
       <div className="space-y-4">
-        {/* 1. Prominent "Asosiy do'konga qaytish" Button */}
-        <Link
-          href="/catalog"
-          onClick={onCloseMobile}
-          className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl bg-stone-200/70 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700/80 text-stone-800 dark:text-stone-100 font-semibold text-xs border border-stone-300/50 dark:border-stone-700 transition-all group"
-          title="Asosiy katalogga o'tish"
-        >
-          <div className="flex items-center gap-2">
-            <ArrowLeft className="w-4 h-4 text-stone-600 dark:text-stone-300 group-hover:-translate-x-0.5 transition-transform" />
-            <span>Asosiy do&#39;konga qaytish</span>
-          </div>
-          <span className="text-[10px] text-stone-500 dark:text-stone-400 font-medium">&rarr;</span>
-        </Link>
+        {/* 1. Quick Switcher Button */}
+        {pathname?.startsWith('/cabinet') ? (
+          <Link
+            href="/catalog"
+            onClick={onCloseMobile}
+            className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/15 dark:bg-amber-950/30 dark:hover:bg-amber-950/40 text-amber-900 dark:text-amber-300 font-semibold text-xs border border-amber-500/20 transition-all group"
+            title="Kitoblar katalogiga o'tish"
+          >
+            <div className="flex items-center gap-2">
+              <Compass className="w-4 h-4 text-amber-600 dark:text-amber-400 group-hover:rotate-45 transition-transform" />
+              <span>Kitoblar katalogi (Do&#39;kon)</span>
+            </div>
+            <span className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">&rarr;</span>
+          </Link>
+        ) : (
+          <Link
+            href="/cabinet"
+            onClick={onCloseMobile}
+            className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl bg-stone-200/70 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700/80 text-stone-800 dark:text-stone-100 font-semibold text-xs border border-stone-300/50 dark:border-stone-700 transition-all group"
+            title="Shaxsiy kabinetga o'tish"
+          >
+            <div className="flex items-center gap-2">
+              <UserIcon className="w-4 h-4 text-amber-600 dark:text-amber-400 group-hover:scale-105 transition-transform" />
+              <span>Shaxsiy kabinetim</span>
+            </div>
+            <span className="text-[10px] text-stone-500 dark:text-stone-400 font-medium">&rarr;</span>
+          </Link>
+        )}
 
         {/* 2. Brand Header: Shaxsiy Kabinet & Collapse Toggle */}
         <div className="flex items-center justify-between px-2 pt-1 pb-1">
@@ -257,7 +297,7 @@ const SidebarInner: React.FC<SidebarProps> = ({
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block mb-1" />
               </div>
               <p className="text-[10px] text-amber-700 dark:text-amber-400 font-bold uppercase tracking-wider">
-                Shaxsiy Kabinet
+                {pathname?.startsWith('/cabinet') ? 'Shaxsiy Kabinet' : 'Kitobxon Tarmog‘i'}
               </p>
             </div>
           </div>
