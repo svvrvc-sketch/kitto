@@ -185,65 +185,16 @@ function MessagesContent() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
 
-  // Realistic smart simulation for instant response
-  const triggerTelegramSmartReply = (targetThread: ChatThread, sentText: string) => {
-    const isOwnerSender = currentUserId === targetThread.ownerId;
-    const recipientId = isOwnerSender ? targetThread.initiatorId : targetThread.ownerId;
-    const recipientName = isOwnerSender ? targetThread.initiatorName : targetThread.ownerName;
-
-    // 1. Mark as read after 900ms (turns to double checkmark)
-    setTimeout(() => {
-      markAsRead(targetThread.id);
-    }, 900);
-
-    // 2. Start "typing..." at 1600ms
-    setTimeout(() => {
-      setIsTyping(true);
-    }, 1600);
-
-    // 3. Deliver intelligent response at 3400ms
-    setTimeout(() => {
-      setIsTyping(false);
-      playIncomingPing();
-
-      // Craft contextual Uzbek response
-      const lower = sentText.toLowerCase();
-      let responseText = "Assalomu alaykum! Xabaringizni oldim. Kitob menda, bemalol almashtirishimiz mumkin 📚";
-
-      if (lower.includes('bormi') || lower.includes('salom') || lower.includes('assalomu')) {
-        responseText = `Assalomu alaykum! Ha, "${targetThread.bookTitle}" hali ham menda. Qaysi kitobingizga almashtirmoqchisiz yoki o'qishga olmoqchimisiz?`;
-      } else if (lower.includes('metro') || lower.includes('uchrash') || lower.includes('qayerda') || lower.includes('joy')) {
-        responseText = "Ajoyib taklif! Chilonzor yoki Paxtakor metro bekati vestibyuli menga juda qulay. Soat 17:30 - 18:30 oralig'ida uchrashsak bo'ladimi?";
-      } else if (lower.includes('vaqt') || lower.includes('soat') || lower.includes('ertaga') || lower.includes('bugun')) {
-        responseText = "Kelishdik! O'sha vaqtda ko'rishamiz. Uchrashganimizda Kitto QR-kodini skanerlab almashuvni rasmiylashtiramiz 👍";
-      } else if (lower.includes('holat') || lower.includes('toza') || lower.includes('qanday')) {
-        responseText = "Kitob holati a'lo darajada, sahifalarida yozuv yoki dog'lar yo'q, deyarli yangidek saqlangan.";
-      } else if (lower.includes('rahmat') || lower.includes('raxmat') || lower.includes('tashakkur')) {
-        responseText = "Arzimaydi! Mutolaadan rohatlaning, yaxshi kun tilayman! 😊";
-      } else {
-        responseText = "Kelishdik! Uchrashuv joyi va vaqtini aniqlashtirib olsak bo'ldi, o'sha yerda kutaman.";
+  const prevMessagesLengthRef = useRef(messages.length);
+  useEffect(() => {
+    if (messages.length > prevMessagesLengthRef.current) {
+      const last = messages[messages.length - 1];
+      if (last && last.senderId !== currentUserId) {
+        playIncomingPing();
       }
-
-      const autoReplyMsg: ChatMessage = {
-        id: `msg_${Date.now()}_reply`,
-        senderId: recipientId,
-        senderName: recipientName,
-        text: responseText,
-        createdAt: new Date().toISOString(),
-        isRead: true,
-      };
-
-      const updatedTarget: ChatThread = {
-        ...targetThread,
-        messages: [...targetThread.messages, autoReplyMsg],
-        lastMessage: responseText,
-        lastMessageAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      chatsService.saveChat(updatedTarget).catch(() => {});
-    }, 3400);
-  };
+    }
+    prevMessagesLengthRef.current = messages.length;
+  }, [messages, currentUserId]);
 
   const handleSendMessage = (e?: React.FormEvent, customText?: string) => {
     if (e) e.preventDefault();
@@ -254,9 +205,6 @@ function MessagesContent() {
     if (customText === undefined) {
       setInputText('');
     }
-
-    // Trigger realistic telegram bot reply
-    triggerTelegramSmartReply(activeThread, textToSend.trim());
   };
 
   const handleSendMetroSuggestion = (station: string) => {
@@ -380,17 +328,17 @@ function MessagesContent() {
 
         {/* Right: Actions */}
         <div className="flex items-center gap-2">
-          {/* Sidebar Drawer Toggle (Mobile opens drawer, Desktop toggles collapse) */}
+          {/* Sidebar Drawer Toggle (Opens sliding cabinet drawer on tablet/mobile, toggles rail on desktop) */}
           <button
             onClick={() => {
-              if (window.innerWidth < 768) {
+              if (window.innerWidth < 1024) {
                 setShowSidebarDrawer(true);
               } else {
                 setIsSidebarCollapsed(!isSidebarCollapsed);
               }
             }}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-stone-200/90 dark:border-stone-800 bg-white/80 dark:bg-stone-800/80 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 text-xs font-semibold shadow-2xs transition-all"
-            title="Kabinet menyusini ochish/yig‘ish"
+            title="Kabinet menyusini ochish"
           >
             <Menu className="w-4 h-4 text-amber-500" />
             <span className="hidden sm:inline">Kabinetim</span>
@@ -429,9 +377,9 @@ function MessagesContent() {
       </header>
 
       {/* 2. Main Two-Column Layout (Zero Squishing, Wide & Dignified) */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Collapsible Sidebar for Desktop */}
-        <div className="hidden md:flex shrink-0">
+      <div className="flex-1 min-w-0 flex overflow-hidden">
+        {/* Collapsible Sidebar for Desktop (>= 1024px) */}
+        <div className="hidden lg:flex shrink-0">
           <Sidebar
             standalone
             isCollapsed={isSidebarCollapsed}
@@ -588,7 +536,7 @@ function MessagesContent() {
 
         {/* Right Pane: Telegram Interactive Chat Window */}
         <div
-          className={`flex-1 flex flex-col bg-[#EFECE6] dark:bg-stone-950 relative ${
+          className={`flex-1 min-w-0 flex flex-col bg-[#EFECE6] dark:bg-stone-950 relative overflow-hidden ${
             !activeThreadId ? 'max-md:hidden md:flex' : 'flex'
           }`}
         >
@@ -946,22 +894,8 @@ function MessagesContent() {
             className="fixed inset-0 bg-stone-950/60 backdrop-blur-xs animate-in fade-in duration-200"
             onClick={() => setShowSidebarDrawer(false)}
           />
-          <div className="relative w-80 max-w-[85vw] h-full bg-white dark:bg-stone-900 border-r border-stone-200 dark:border-stone-800 shadow-2xl flex flex-col z-10 animate-in slide-in-from-left duration-200 overflow-hidden">
-            <div className="p-4 flex items-center justify-between border-b border-stone-100 dark:border-stone-800 shrink-0">
-              <span className="font-bold text-sm text-stone-900 dark:text-stone-100">
-                Kabinet menyusi
-              </span>
-              <button
-                onClick={() => setShowSidebarDrawer(false)}
-                className="p-1.5 rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 transition-colors"
-                title="Yopish"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto">
-              <Sidebar standalone onCloseMobile={() => setShowSidebarDrawer(false)} />
-            </div>
+          <div className="relative w-72 max-w-[85vw] h-full bg-[#FAF9F5] dark:bg-stone-900 border-r border-stone-200 dark:border-stone-800 shadow-2xl flex flex-col z-10 animate-in slide-in-from-left duration-200 overflow-y-auto">
+            <Sidebar standalone onCloseMobile={() => setShowSidebarDrawer(false)} />
           </div>
         </div>
       )}

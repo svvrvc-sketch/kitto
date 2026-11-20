@@ -42,14 +42,20 @@ export default function HowItWorksPage() {
       <Header />
 
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        {/* Breadcrumb */}
-        <div className="mb-6">
+        {/* Breadcrumbs */}
+        <div className="mb-6 flex items-center justify-between">
           <Link
             href="/"
             className="inline-flex items-center gap-1.5 text-xs font-bold text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Asosiy sahifaga qaytish</span>
+          </Link>
+          <Link
+            href="/cabinet?tab=guide"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 hover:text-amber-700 transition-colors"
+          >
+            <span>Kabinet ichida ko‘rish &rarr;</span>
           </Link>
         </div>
 

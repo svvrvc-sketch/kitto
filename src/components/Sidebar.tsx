@@ -98,15 +98,15 @@ const SidebarInner: React.FC<SidebarProps> = ({
       items: [
         {
           label: 'Qanday ishlaydi?',
-          href: '/how-it-works',
+          href: '/cabinet?tab=guide',
           icon: HelpCircle,
-          active: pathname === '/how-it-works',
+          active: isLinkActive('/cabinet', 'guide') || pathname === '/how-it-works',
         },
         {
           label: 'Xavfsizlik qoidalari',
-          href: '/safety',
+          href: '/cabinet?tab=safety',
           icon: ShieldCheck,
-          active: pathname === '/safety',
+          active: isLinkActive('/cabinet', 'safety') || pathname === '/safety',
         },
       ],
     },

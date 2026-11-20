@@ -757,7 +757,7 @@ export const ThreeBookScene: React.FC<{ className?: string }> = ({ className = '
       {/* 3D Canvas Mounting Container */}
       <div
         ref={mountRef}
-        className="w-full h-[420px] sm:h-[500px] md:h-[540px] cursor-grab active:cursor-grabbing transition-transform duration-300"
+        className="w-full h-[320px] sm:h-[460px] md:h-[520px] cursor-grab active:cursor-grabbing transition-transform duration-300"
       />
 
       {/* Floating Control Toolbar (Open/Close, Zoom In/Out, Reset View) */}
@@ -806,7 +806,7 @@ export const ThreeBookScene: React.FC<{ className?: string }> = ({ className = '
         {/* Interactive guidance tag */}
         <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-100/90 dark:bg-stone-900/90 backdrop-blur-xs border border-stone-200/60 dark:border-stone-800 text-[11px] text-stone-600 dark:text-stone-400 font-medium">
           <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-          <span>{isOpen ? 'Kitob ochildi! Sichqoncha bilan aylantiring va o‘qing' : 'Kitobni sichqoncha bilan aylantiring'}</span>
+          <span>{isOpen ? 'Kitob ochildi! Barmog‘ingiz yoki sichqoncha bilan varaqlang' : 'Kitobni barmog‘ingiz yoki sichqoncha bilan aylantiring'}</span>
         </div>
       </div>
     </div>

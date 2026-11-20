@@ -26,6 +26,12 @@ import {
   Search,
   LogOut,
   ExternalLink,
+  MessageSquare,
+  Repeat,
+  Sparkles,
+  Shield,
+  HelpCircle,
+  CheckCircle,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
@@ -58,7 +64,7 @@ function CabinetContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const rawTab = searchParams.get('tab') || 'my_books';
-  const activeTab = ['my_books', 'swaps', 'wishlist', 'genres', 'profile'].includes(rawTab)
+  const activeTab = ['my_books', 'swaps', 'wishlist', 'genres', 'profile', 'guide', 'safety'].includes(rawTab)
     ? rawTab
     : 'my_books';
 
@@ -758,6 +764,30 @@ function CabinetContent() {
               <UserIcon className="w-4 h-4 text-amber-600 dark:text-amber-400" />
               <span>Profil sozlamalari</span>
             </button>
+
+            <button
+              onClick={() => setTab('guide')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                activeTab === 'guide'
+                  ? 'bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 shadow-xs border border-stone-200/60 dark:border-stone-700/60'
+                  : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
+              }`}
+            >
+              <HelpCircle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+              <span>Qo‘llanma</span>
+            </button>
+
+            <button
+              onClick={() => setTab('safety')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                activeTab === 'safety'
+                  ? 'bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 shadow-xs border border-stone-200/60 dark:border-stone-700/60'
+                  : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
+              }`}
+            >
+              <ShieldCheck className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+              <span>Xavfsizlik</span>
+            </button>
           </div>
 
           {/* TAB 1: MENING JAVONIM */}
@@ -1390,6 +1420,242 @@ function CabinetContent() {
                   </button>
                 </div>
               </form>
+            </div>
+          )}
+
+          {/* TAB 6: QANDAY ISHLAYDI? (QO'LLANMA) */}
+          {activeTab === 'guide' && (
+            <div className="space-y-6 animate-in fade-in duration-200">
+              <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-sm">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/30 text-xs font-bold uppercase tracking-wider mb-3">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                  <span>Oddiy, tez va mutlaqo bepul</span>
+                </div>
+                <h2 className="font-sans text-2xl sm:text-3xl font-extrabold text-stone-900 dark:text-stone-100 mb-2">
+                  Kitto qanday ishlaydi?
+                </h2>
+                <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 max-w-2xl leading-relaxed">
+                  Kitto — Toshkent bo‘ylab kitobxonlarni birlashtiruvchi zamonaviy P2P kitob almashish ekotizimi. Kitoblaringiz javonda chang bosib yotmasin, boshqalar bilan baham ko‘ring!
+                </p>
+              </div>
+
+              {/* 4 Interactive Step Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                {/* Step 1 */}
+                <div className="p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-xs hover:border-amber-500/40 transition-all flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center border border-amber-500/20">
+                        <BookOpen className="w-6 h-6 stroke-[2]" />
+                      </div>
+                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-500/20">
+                        1 daqiqada
+                      </span>
+                    </div>
+                    <div className="text-xs font-extrabold text-amber-600 dark:text-amber-400 uppercase tracking-widest mb-1">
+                      01-qadam
+                    </div>
+                    <h3 className="font-sans text-lg font-bold text-stone-900 dark:text-stone-100 mb-2">
+                      Kitobingizni javonga joylang
+                    </h3>
+                    <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
+                      O‘qib bo‘lgan yoki javoningizda turgan kitobni suratga olib, nomini, holatini va Toshkentdagi uchrashuv hududini (tuman/metro) belgilang. E’lon berish butunlay bepul.
+                    </p>
+                  </div>
+                  <div className="mt-5 pt-4 border-t border-stone-100 dark:border-stone-800">
+                    <Link
+                      href="/add-book"
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 hover:text-amber-700"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Hozir kitob qo‘shish &rarr;</span>
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Step 2 */}
+                <div className="p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-xs hover:border-amber-500/40 transition-all flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+                        <MessageSquare className="w-6 h-6 stroke-[2]" />
+                      </div>
+                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
+                        Xavfsiz chat
+                      </span>
+                    </div>
+                    <div className="text-xs font-extrabold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-1">
+                      02-qadam
+                    </div>
+                    <h3 className="font-sans text-lg font-bold text-stone-900 dark:text-stone-100 mb-2">
+                      Kitobxonlar bilan kelishing
+                    </h3>
+                    <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
+                      Sayt ichidagi qulay xabarlar orqali boshqa kitobxon bilan bog‘laning. Qaysi kitobga almashtirish, vaqtincha mutolaa qilish muddati yoki hadya shartlarini xaritada aniqlang.
+                    </p>
+                  </div>
+                  <div className="mt-5 pt-4 border-t border-stone-100 dark:border-stone-800">
+                    <Link
+                      href="/messages"
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 hover:text-emerald-700"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5" />
+                      <span>Xabarlarga o‘tish &rarr;</span>
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Step 3 */}
+                <div className="p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-xs hover:border-amber-500/40 transition-all flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-500/20">
+                        <QrCode className="w-6 h-6 stroke-[2]" />
+                      </div>
+                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-500/20">
+                        QR Kafolat
+                      </span>
+                    </div>
+                    <div className="text-xs font-extrabold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1">
+                      03-qadam
+                    </div>
+                    <h3 className="font-sans text-lg font-bold text-stone-900 dark:text-stone-100 mb-2">
+                      Uchrashing va QR orqali tasdiqlang
+                    </h3>
+                    <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
+                      Belgilangan metro yoki jamoat joyida ko‘rishib kitobni oling. Tomonlar shaxsiy QR-kodni skanerlab almashuvni tasdiqlaydi — hech bir kitob yo‘qolmaydi va adashmaydi.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Step 4 */}
+                <div className="p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-xs hover:border-amber-500/40 transition-all flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center border border-purple-500/20">
+                        <Repeat className="w-6 h-6 stroke-[2]" />
+                      </div>
+                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-500/20">
+                        Obro‘ & Reyting
+                      </span>
+                    </div>
+                    <div className="text-xs font-extrabold text-purple-600 dark:text-purple-400 uppercase tracking-widest mb-1">
+                      04-qadam
+                    </div>
+                    <h3 className="font-sans text-lg font-bold text-stone-900 dark:text-stone-100 mb-2">
+                      Mutolaa qiling va qaytaring
+                    </h3>
+                    <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
+                      Belgilangan muddatda kitobni toza va asrab o‘qib egasiga qaytaring yoki doimiy almashuv orqali javoningizni boyiting. Har bir muvaffaqiyatli almashuv reytingingizni oshiradi.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 7: XAVFSIZLIK VA MAXFIYLIK QOIDALARI */}
+          {activeTab === 'safety' && (
+            <div className="space-y-6 animate-in fade-in duration-200">
+              <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-sm">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 text-xs font-bold uppercase tracking-wider mb-3">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Kafolatlangan xavfsizlik</span>
+                </div>
+                <h2 className="font-sans text-2xl sm:text-3xl font-extrabold text-stone-900 dark:text-stone-100 mb-2">
+                  Xavfsizlik va Maxfiylik Qoidalari
+                </h2>
+                <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 max-w-2xl leading-relaxed">
+                  Kitto — o‘zaro ishonch, hurmat va shaxsiy maʼlumotlar daxlsizligiga qatʼiy tayanadi. Har bir kitobxon quyidagi qoidalarga rioya qiladi.
+                </p>
+              </div>
+
+              {/* Security Rules List */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                <div className="p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-xs flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-700 dark:text-amber-400 flex items-center justify-center shrink-0">
+                    <MapPin className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100 mb-1">
+                      1. Gavjum va xavfsiz joylarda uchrashing
+                    </h3>
+                    <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
+                      Toshkent metrosi vestibyullari, kutubxonalar, yorug‘ qahvaxonalar yoki savdo markazlari uchrashuv uchun eng ideal joylardir.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-xs flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                    <CheckCircle className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100 mb-1">
+                      2. Kitobni o‘z mulkingizdek asrab o‘qing
+                    </h3>
+                    <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
+                      Sahifalarga ruchka yoki qalam bilan chizmang, buklamang va xatcho‘pdan foydalaning. Kitobni toza va asrab qaytaring.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-xs flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-700 dark:text-blue-400 flex items-center justify-center shrink-0">
+                    <QrCode className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100 mb-1">
+                      3. Har doim QR-kod orqali tasdiqlang
+                    </h3>
+                    <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
+                      Kitobni qo‘lga olganingizda, egasining shaxsiy QR-kodini skanerlang. Bu almashuvni tizimda rasmiylashtiradi va muddatni nazorat qiladi.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-xs flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-700 dark:text-purple-400 flex items-center justify-center shrink-0">
+                    <Phone className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100 mb-1">
+                      4. Tasdiqlangan telefon raqam
+                    </h3>
+                    <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
+                      Kitto faqat haqiqiy kitobxonlar tarmog‘idir. Telefon raqamingiz faqat o‘zaro taklif tasdiqlangandagina uchrashuv uchun ko‘rsatiladi.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-xs flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-teal-500/10 text-teal-700 dark:text-teal-400 flex items-center justify-center shrink-0">
+                    <Shield className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100 mb-1">
+                      5. Shaxsiy ma’lumotlar daxlsizligi
+                    </h3>
+                    <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
+                      Foydalanuvchilarning shaxsiy ma’lumotlari va joylashuvi uchinchi shaxslarga berilmaydi. Xavfsiz shifrlangan aloqa kafolatlangan.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-xs flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-700 dark:text-rose-400 flex items-center justify-center shrink-0">
+                    <ShieldCheck className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100 mb-1">
+                      6. Qatʼiy tartib va bloklash
+                    </h3>
+                    <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
+                      Kitobni o‘z vaqtida qaytarmagan yoki qoidalarni buzgan a’zolar ogohlantirishsiz butunlay bloklanadi va ishonchsizlar ro‘yxatiga tushadi.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </main>
