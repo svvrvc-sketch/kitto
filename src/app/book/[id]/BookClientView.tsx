@@ -85,7 +85,7 @@ export const BookClientView: React.FC<BookClientViewProps> = ({ initialBook, boo
       openAuthModal('Xabar yozish uchun tizimga kiring');
       return;
     }
-    const threadId = startConversation(book, `Salom! Sizning "${book.title}" kitobingiz bo'yicha bog'lanmoqdaman.`);
+    const threadId = startConversation(book);
     router.push(`/messages?thread=${threadId}`);
   };
 
@@ -123,7 +123,7 @@ export const BookClientView: React.FC<BookClientViewProps> = ({ initialBook, boo
             </Link>
             <span className="text-stone-300 dark:text-stone-700">/</span>
             <Link
-              href="/"
+              href="/catalog"
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
@@ -311,11 +311,11 @@ export const BookClientView: React.FC<BookClientViewProps> = ({ initialBook, boo
                 Ushbu kitob oʻchirilgan yoki allaqachon muvaffaqiyatli almashilgan boʻlishi mumkin.
               </p>
               <Link
-                href="/"
+                href="/catalog"
                 className="inline-flex items-center gap-2 py-2.5 px-5 rounded-2xl bg-[#141413] text-white text-xs font-semibold"
               >
                 <ArrowLeft className="w-4 h-4" />
-                <span>Bosh sahifaga qaytish</span>
+                <span>Do&#39;konga qaytish</span>
               </Link>
             </div>
           )}

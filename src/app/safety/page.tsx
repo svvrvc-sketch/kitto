@@ -14,11 +14,11 @@ export default function SafetyPage() {
         {/* Breadcrumbs */}
         <div className="mb-6 flex items-center justify-between">
           <Link
-            href="/"
+            href="/catalog"
             className="inline-flex items-center gap-1.5 text-xs font-bold text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Asosiy sahifaga qaytish</span>
+            <span>Do&#39;konga qaytish</span>
           </Link>
           <Link
             href="/cabinet?tab=safety"

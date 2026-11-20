@@ -37,7 +37,7 @@ export default function LandingPage() {
 
   const handleGoogleAction = async () => {
     if (isAuthenticated) {
-      router.push('/cabinet');
+      router.push('/catalog');
     } else {
       try {
         await loginWithGoogle();

@@ -163,21 +163,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (existing) {
       setActiveThreadId(existing.id);
       markAsRead(existing.id);
-      if (initialMessage && initialMessage.trim()) {
-        sendMessage(existing.id, initialMessage.trim());
-      }
       return existing.id;
-    }
-
-    const messages: ChatMessage[] = [];
-    if (initialMessage && initialMessage.trim()) {
-      messages.push({
-        id: `msg_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-        senderId: currentUserId,
-        text: initialMessage.trim(),
-        createdAt: new Date().toISOString(),
-        isRead: false,
-      });
     }
 
     const newThread: ChatThread = {
@@ -190,7 +176,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       ownerName,
       initiatorId: currentUserId,
       initiatorName: currentUserName,
-      messages,
+      messages: [],
       updatedAt: new Date().toISOString(),
       exactLocation: book.location?.addressText || book.exactLocation || 'Toshkent',
     };

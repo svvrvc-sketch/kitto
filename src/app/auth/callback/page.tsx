@@ -21,7 +21,7 @@ function CallbackContent() {
         if (error) {
           console.error('[OAuth Callback Error]:', error);
           setStatus('Kirishda xatolik yuz berdi');
-          setTimeout(() => router.replace('/'), 1500);
+          setTimeout(() => router.replace('/catalog'), 1500);
           return;
         }
 
@@ -38,7 +38,7 @@ function CallbackContent() {
               id: session.user.id,
             }),
           }).catch(() => {});
-          router.replace('/');
+          router.replace('/catalog');
           return;
         }
 
@@ -57,14 +57,14 @@ function CallbackContent() {
                 id: session.user.id,
               }),
             }).catch(() => {});
-            router.replace('/');
+            router.replace('/catalog');
           }
         });
 
         // 3. Fallback timeout to prevent infinite loading
         const timer = setTimeout(() => {
           if (isSubscribed) {
-            router.replace('/');
+            router.replace('/catalog');
           }
         }, 2500);
 
@@ -75,7 +75,7 @@ function CallbackContent() {
       } catch (err) {
         console.error('[OAuth Unexpected Error]:', err);
         if (isSubscribed) {
-          router.replace('/');
+          router.replace('/catalog');
         }
       }
     };

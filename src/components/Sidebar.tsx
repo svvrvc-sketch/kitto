@@ -127,7 +127,7 @@ const SidebarInner: React.FC<SidebarProps> = ({
           </Link>
 
           <Link
-            href="/"
+            href="/catalog"
             className="p-2 rounded-xl text-stone-600 dark:text-stone-300 hover:bg-stone-200/70 dark:hover:bg-stone-800 transition-colors"
             title="Asosiy katalogga o‘tish"
           >
@@ -221,7 +221,7 @@ const SidebarInner: React.FC<SidebarProps> = ({
       <div className="space-y-4">
         {/* 1. Prominent "Asosiy do'konga qaytish" Button */}
         <Link
-          href="/"
+          href="/catalog"
           onClick={onCloseMobile}
           className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl bg-stone-200/70 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700/80 text-stone-800 dark:text-stone-100 font-semibold text-xs border border-stone-300/50 dark:border-stone-700 transition-all group"
           title="Asosiy katalogga o'tish"

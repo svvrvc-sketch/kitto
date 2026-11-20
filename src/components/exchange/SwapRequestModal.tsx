@@ -157,8 +157,7 @@ export const SwapRequestModal: React.FC<SwapRequestModalProps> = ({
       });
 
       // 2. Start or retrieve chat conversation with the target book
-      const initialMessage = `Salom! Sizning "${selectedTargetBook.title}" kitobingizga oʻzimning "${selectedMyBook.title}" kitobimni almashishni taklif qilaman.`;
-      const threadId = startConversation(selectedTargetBook, initialMessage);
+      const threadId = startConversation(selectedTargetBook);
 
       // 3. Dispatch rich exchange_proposal card payload directly into the chat thread
       const offeredBookMeta = {

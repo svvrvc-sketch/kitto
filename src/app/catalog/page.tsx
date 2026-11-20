@@ -847,7 +847,7 @@ export default function CatalogPage() {
                   }`}
                 >
                   <Clock className="w-3.5 h-3.5" />
-                  <span>Vaqtincha o&#39;qishga</span>
+                  <span>Vaqtincha</span>
                 </button>
 
                 <button
@@ -860,7 +860,7 @@ export default function CatalogPage() {
                   }`}
                 >
                   <ArrowLeftRight className="w-3.5 h-3.5" />
-                  <span>Doimiy almashish</span>
+                  <span>Doimiy</span>
                 </button>
 
                 <button
@@ -873,7 +873,7 @@ export default function CatalogPage() {
                   }`}
                 >
                   <Gift className="w-3.5 h-3.5" />
-                  <span>Hadya qilinadi</span>
+                  <span>Hadya</span>
                 </button>
               </div>
             )}

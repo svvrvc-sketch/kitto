@@ -191,7 +191,7 @@ function AddBookContent() {
             </Link>
             <span className="text-stone-300 dark:text-stone-700">/</span>
             <Link
-              href="/"
+              href="/catalog"
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
@@ -537,7 +537,7 @@ function AddBookContent() {
             {/* Submit Button */}
             <div className="flex items-center justify-end gap-3 pt-2">
               <Link
-                href="/"
+                href="/catalog"
                 className="px-5 py-3 rounded-2xl border border-stone-200 dark:border-zinc-700 text-stone-700 dark:text-stone-300 font-semibold text-xs hover:bg-stone-50"
               >
                 Bekor qilish

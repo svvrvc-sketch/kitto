@@ -358,11 +358,11 @@ export const BookCard: React.FC<BookCardProps> = ({
                   e.stopPropagation();
                   onClick(book);
                 }}
-                className="py-1 px-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] sm:text-[11px] font-semibold flex items-center gap-1 shadow-xs transition-all active:scale-95 shrink-0"
-                title="Kitobni bepul qabul qilish"
+                className="py-1 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold flex items-center gap-1 shadow-xs transition-all active:scale-95 shrink-0"
+                title="Kitobni qabul qilish"
               >
                 <Gift className="w-3 h-3 text-white" />
-                <span>Kitobni olish</span>
+                <span>Olish</span>
               </button>
             ) : isTemporary ? (
               <button
@@ -372,11 +372,11 @@ export const BookCard: React.FC<BookCardProps> = ({
                   e.stopPropagation();
                   onClick(book);
                 }}
-                className="py-1 px-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white text-[10px] sm:text-[11px] font-semibold flex items-center gap-1 shadow-xs transition-all shrink-0"
-                title="Vaqtincha o'qishga olish"
+                className="py-1 px-3 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white text-[11px] font-semibold flex items-center gap-1 shadow-xs transition-all shrink-0"
+                title="Vaqtincha mutolaa"
               >
                 <Clock className="w-3 h-3 text-white" />
-                <span>O&#39;qishga olish</span>
+                <span>O‘qish</span>
               </button>
             ) : (
               <button
@@ -386,8 +386,8 @@ export const BookCard: React.FC<BookCardProps> = ({
                   e.stopPropagation();
                   onOpenSwapModal(book);
                 }}
-                className="py-1 px-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white text-[10px] sm:text-[11px] font-semibold flex items-center gap-1 shadow-xs transition-all shrink-0"
-                title="Kitob almashish taklifini yuborish"
+                className="py-1 px-3 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white text-[11px] font-semibold flex items-center gap-1 shadow-xs transition-all shrink-0"
+                title="Almashish taklifini yuborish"
               >
                 <ArrowLeftRight className="w-3 h-3 text-white" />
                 <span>Almashish</span>

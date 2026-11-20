@@ -424,7 +424,7 @@ function CabinetContent() {
 
           <div className="mt-5">
             <Link
-              href="/"
+              href="/catalog"
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-500 hover:text-stone-900 transition-colors"
             >
               <Compass className="w-3.5 h-3.5" />
@@ -462,7 +462,7 @@ function CabinetContent() {
           </div>
           <div className="flex items-center gap-2">
             <Link
-              href="/"
+              href="/catalog"
               className="p-2 rounded-xl hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300"
               title="Do'konga qaytish"
             >

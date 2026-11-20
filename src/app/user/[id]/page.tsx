@@ -75,7 +75,7 @@ function UserProfileContent() {
 
   const handleDirectMessage = () => {
     if (activeBooks.length > 0) {
-      const threadId = startConversation(activeBooks[0], 'Salom!');
+      const threadId = startConversation(activeBooks[0]);
       router.push(`/messages?thread=${threadId}`);
     } else {
       router.push('/messages');
@@ -110,7 +110,7 @@ function UserProfileContent() {
             </Link>
             <span className="text-stone-300 dark:text-stone-700">/</span>
             <Link
-              href="/"
+              href="/catalog"
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />

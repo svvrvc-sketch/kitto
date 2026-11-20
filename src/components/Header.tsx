@@ -93,7 +93,10 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
           {/* 1. Left: Brand */}
           <div className="flex items-center gap-3 sm:gap-5 shrink-0">
-            <Link href="/" className="cursor-pointer group text-left focus:outline-none">
+            <Link
+              href={isAuthenticated ? "/catalog" : "/"}
+              className="cursor-pointer group text-left focus:outline-none"
+            >
               <Logo showTagline={false} />
             </Link>
           </div>

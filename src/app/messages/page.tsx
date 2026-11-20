@@ -34,15 +34,6 @@ import { Book } from '@/types/book';
 import { ChatMessage, ChatThread } from '@/types/chat';
 import { useToast } from '@/context/ToastContext';
 
-const QUICK_REPLIES = [
-  'Salom! Ushbu kitob hali ham bormi?',
-  'Qaysi metro bekatida uchrashsak qulay?',
-  'Kitobni almashtirishga tayyorman!',
-  'Bugun yoki ertaga uchrashamizmi?',
-  'Kitobning holati qanday?',
-  'Rahmat, kelishdik!',
-];
-
 const TASHKENT_METRO_STATIONS = [
   'Chilonzor',
   'Paxtakor',
@@ -696,21 +687,6 @@ function MessagesContent() {
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Quick Smart Replies Bar */}
-              <div className="px-3 pt-2 pb-1.5 bg-white/90 dark:bg-stone-900/90 border-t border-stone-200/60 dark:border-stone-800 flex items-center gap-1.5 overflow-x-auto scrollbar-none">
-                <span className="text-[10px] text-stone-400 shrink-0 font-bold">Tezkor:</span>
-                {QUICK_REPLIES.map((reply, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => handleSendMessage(undefined, reply)}
-                    className="px-2.5 py-1 rounded-lg bg-stone-100 dark:bg-stone-800 border border-stone-200/80 dark:border-stone-700 text-[11px] text-stone-700 dark:text-stone-300 hover:border-amber-500 whitespace-nowrap transition-all shrink-0 active:scale-95"
-                  >
-                    {reply}
-                  </button>
-                ))}
-              </div>
-
               {/* Metro Meeting Point Picker Dropdown */}
               {showMetroPicker && (
                 <div className="p-3 bg-amber-50 dark:bg-stone-900 border-t border-amber-200 dark:border-stone-800 animate-in slide-in-from-bottom-2">
@@ -764,7 +740,7 @@ function MessagesContent() {
                   type="text"
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
-                  placeholder="Xabar yozing (Telegram kabi silliq)..."
+                  placeholder="Xabar yozing..."
                   className="flex-1 px-4 py-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs sm:text-sm text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 transition-all"
                 />
                 <button
