@@ -2,31 +2,28 @@
  * Phone formatting and validation utilities for Uzbekistan (+998)
  */
 
+export const extractUzbek9Digits = (raw?: string | null): string => {
+  if (!raw) return '';
+  let digits = String(raw).replace(/\D/g, '');
+  while (digits.startsWith('998')) {
+    digits = digits.substring(3);
+  }
+  return digits.substring(0, 9);
+};
+
 export const isValidUzbekPhone = (contact?: string | null): boolean => {
   if (!contact || typeof contact !== 'string') return false;
   // If contact contains '@', it is an email, not a phone number!
   if (contact.includes('@')) return false;
 
-  const digits = contact.replace(/\D/g, '');
-  // 9 digits (e.g. 901234567) or 12 digits (998901234567)
-  if (digits.length === 9) {
-    const code = digits.substring(0, 2);
-    return ['90', '91', '93', '94', '95', '97', '98', '99', '33', '88', '77', '50', '20'].includes(code);
-  }
-  if (digits.length === 12 && digits.startsWith('998')) {
-    const code = digits.substring(3, 5);
-    return ['90', '91', '93', '94', '95', '97', '98', '99', '33', '88', '77', '50', '20'].includes(code);
-  }
-  return false;
+  const digits = extractUzbek9Digits(contact);
+  if (digits.length !== 9) return false;
+  const code = digits.substring(0, 2);
+  return ['90', '91', '93', '94', '95', '97', '98', '99', '33', '88', '77', '50', '20'].includes(code);
 };
 
 export const formatLocalPhone = (raw: string): string => {
-  let digits = raw.replace(/\D/g, '');
-  if (digits.startsWith('998')) {
-    digits = digits.substring(3);
-  }
-  digits = digits.substring(0, 9);
-
+  const digits = extractUzbek9Digits(raw);
   let formatted = '';
   if (digits.length > 0) formatted += digits.substring(0, 2);
   if (digits.length > 2) formatted += ` ${digits.substring(2, 5)}`;
@@ -36,12 +33,7 @@ export const formatLocalPhone = (raw: string): string => {
 };
 
 export const formatUzbekPhone = (raw: string): string => {
-  let digits = raw.replace(/\D/g, '');
-  if (digits.startsWith('998')) {
-    digits = digits.substring(3);
-  }
-  digits = digits.substring(0, 9);
-
+  const digits = extractUzbek9Digits(raw);
   let formatted = '+998';
   if (digits.length > 0) formatted += ` ${digits.substring(0, 2)}`;
   if (digits.length > 2) formatted += ` ${digits.substring(2, 5)}`;
@@ -51,10 +43,7 @@ export const formatUzbekPhone = (raw: string): string => {
 };
 
 export const getUzbekOperator = (raw: string): { name: string; color: string } | null => {
-  let digits = raw.replace(/\D/g, '');
-  if (digits.startsWith('998')) {
-    digits = digits.substring(3);
-  }
+  const digits = extractUzbek9Digits(raw);
   if (digits.length < 2) return null;
   const prefix = digits.substring(0, 2);
 

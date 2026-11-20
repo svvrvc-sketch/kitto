@@ -136,19 +136,19 @@ export const Header: React.FC<HeaderProps> = ({
               <span>Katalog</span>
             </Link>
             <Link
-              href="/#how-it-works"
+              href="/how-it-works"
               className="px-3 py-2 rounded-xl text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800/50 transition-all"
             >
               Qanday ishlaydi?
             </Link>
             <Link
-              href="/#safety"
+              href="/safety"
               className="px-3 py-2 rounded-xl text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800/50 transition-all"
             >
               Xavfsizlik
             </Link>
             <Link
-              href="/#faq"
+              href="/faq"
               className="px-3 py-2 rounded-xl text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800/50 transition-all"
             >
               FAQ
@@ -363,21 +363,21 @@ export const Header: React.FC<HeaderProps> = ({
               <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-amber-600 text-white">Do&#39;kon</span>
             </Link>
             <Link
-              href="/#how-it-works"
+              href="/how-it-works"
               onClick={() => setMobileMenuOpen(false)}
               className="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
             >
               <span>Qanday ishlaydi?</span>
             </Link>
             <Link
-              href="/#safety"
+              href="/safety"
               onClick={() => setMobileMenuOpen(false)}
               className="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
             >
               <span>Xavfsizlik va Qoidalar</span>
             </Link>
             <Link
-              href="/#faq"
+              href="/faq"
               onClick={() => setMobileMenuOpen(false)}
               className="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
             >

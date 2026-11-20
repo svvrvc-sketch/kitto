@@ -5,7 +5,7 @@ import { Book } from '@/types/book';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { uploadImageToStorage } from '@/utils/storage';
-import { isValidUzbekPhone, formatUzbekPhone } from '@/utils/phone';
+import { isValidUzbekPhone, formatUzbekPhone, formatLocalPhone, extractUzbek9Digits } from '@/utils/phone';
 import { UZBEKISTAN_REGIONS, normalizeRegionName } from '@/lib/regions';
 import {
   User as UserIcon,
@@ -87,7 +87,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
   const handleStartEdit = () => {
     if (!user) return;
     setEditName(user.name || '');
-    setEditContact(user.contact && !user.contact.includes('@') ? user.contact : '');
+    setEditContact(user.contact && !user.contact.includes('@') ? extractUzbek9Digits(user.contact) : '');
     setEditCity(user.city ? normalizeRegionName(user.city) : 'Toshkent shahri');
     setEditTelegram(user.telegramUsername || '');
     setEditAvatar(user.avatar || null);
@@ -118,17 +118,19 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
 
   const handleSaveEdit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editName.trim() || !editContact.trim()) {
-      showToast('Ism va telefon raqamini kiriting', 'error');
+    const digits = extractUzbek9Digits(editContact);
+    if (!editName.trim() || digits.length !== 9) {
+      showToast('Iltimos, ism va 9 xonali telefon raqamingizni toʻliq kiriting', 'error');
       return;
     }
-    if (editContact.includes('@') || !isValidUzbekPhone(editContact.trim())) {
-      showToast('Iltimos, amaldagi Oʻzbekiston telefon raqamini kiriting (+998...)', 'error');
+    const fullPhone = formatUzbekPhone(digits);
+    if (!isValidUzbekPhone(fullPhone)) {
+      showToast('Iltimos, amaldagi Oʻzbekiston telefon raqamini kiriting', 'error');
       return;
     }
     updateProfile({
       name: editName.trim(),
-      contact: formatUzbekPhone(editContact.trim()),
+      contact: fullPhone,
       city: editCity,
       telegramUsername: editTelegram.trim() ? editTelegram.trim().replace(/^@/, '') : undefined,
       avatar: editAvatar || undefined,
@@ -443,14 +445,20 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">
                     Telefon raqam (majburiy) *
                   </label>
-                  <input
-                    type="tel"
-                    required
-                    value={editContact}
-                    onChange={(e) => setEditContact(e.target.value)}
-                    placeholder="+998 90 123 45 67"
-                    className="w-full px-3 py-2 rounded-xl border border-stone-200 dark:border-zinc-800 text-xs bg-stone-50 dark:bg-zinc-900 text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-[#141413] dark:focus:ring-stone-400 dark:focus:border-stone-400"
-                  />
+                  <div className="flex items-center rounded-xl border border-stone-200 dark:border-zinc-800 bg-stone-50 dark:bg-zinc-900 overflow-hidden focus-within:ring-1 focus-within:ring-[#141413] dark:focus-within:ring-stone-400 transition-all">
+                    <div className="px-3 py-2 bg-stone-100 dark:bg-zinc-800 text-xs font-bold text-stone-600 dark:text-stone-300 border-r border-stone-200 dark:border-zinc-800 shrink-0 select-none">
+                      +998
+                    </div>
+                    <input
+                      type="tel"
+                      required
+                      value={formatLocalPhone(editContact)}
+                      onChange={(e) => setEditContact(extractUzbek9Digits(e.target.value))}
+                      placeholder="90 123 45 67"
+                      maxLength={12}
+                      className="w-full px-3 py-2 bg-transparent text-xs text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-zinc-500 focus:outline-none"
+                    />
+                  </div>
                 </div>
 
                 <div>

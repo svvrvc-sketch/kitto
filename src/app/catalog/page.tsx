@@ -3,6 +3,7 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Book, AppTab, FeedFilterType, BookStatus } from '@/types/book';
 import { Header } from '@/components/Header';
 import { BookCard } from '@/components/BookCard';
@@ -33,6 +34,7 @@ import {
   X,
   Clock,
   ArrowLeftRight,
+  ArrowLeft,
   Gift,
   MapPinOff,
   BookOpen,
@@ -725,10 +727,23 @@ export default function CatalogPage() {
           <>
             {/* Editorial Tab Header */}
             <div className="mb-5">
+              {/* Breadcrumb Navigation */}
+              <div className="mb-3 flex items-center gap-2 text-xs font-semibold text-stone-500">
+                <Link
+                  href="/"
+                  className="hover:text-amber-600 transition-colors flex items-center gap-1.5 text-stone-500 dark:text-stone-400"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Bosh sahifa</span>
+                </Link>
+                <span className="text-stone-300 dark:text-stone-700">/</span>
+                <span className="text-amber-600 dark:text-amber-400 font-bold">Katalog (Do&#39;kon)</span>
+              </div>
+
               <div className="flex items-center justify-between">
                 <div>
                   <h1 className="font-sans text-2xl sm:text-3xl font-extrabold tracking-tight text-stone-900 dark:text-stone-100">
-                    {currentTab === 'home' && 'Kitoblar lentasi'}
+                    {currentTab === 'home' && 'Kitoblar katalogi'}
                     {currentTab === 'saved' && 'Saqlangan kitoblar'}
                     {currentTab === 'my_listings' && 'Eʼlonlarim'}
                   </h1>

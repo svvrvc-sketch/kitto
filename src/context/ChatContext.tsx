@@ -31,6 +31,7 @@ interface ChatContextType {
     status: 'accepted' | 'declined'
   ) => Promise<void>;
   markAsRead: (threadId: string) => void;
+  clearAllChats: () => void;
   totalUnreadCount: number;
 }
 
@@ -446,6 +447,19 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const clearAllChats = useCallback(() => {
+    setThreads([]);
+    setActiveThreadId(null);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.removeItem(STORAGE_CHATS_KEY);
+        localStorage.removeItem('bookswap_chats');
+      } catch {
+        // ignore
+      }
+    }
+  }, []);
+
   const totalUnreadCount = threads.reduce((acc, t) => {
     const unread = t.messages.filter((m) => !m.isRead && m.senderId !== user?.id).length;
     return acc + unread;
@@ -467,6 +481,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         sendExchangeProposal,
         updateProposalStatus,
         markAsRead,
+        clearAllChats,
         totalUnreadCount,
       }}
     >

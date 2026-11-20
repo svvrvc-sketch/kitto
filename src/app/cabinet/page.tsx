@@ -34,7 +34,7 @@ import { Footer } from '@/components/Footer';
 import { Book } from '@/types/book';
 import { booksService, exchangeTransactionsService, profilesService } from '@/services/db';
 import { uploadImageToStorage } from '@/utils/storage';
-import { isValidUzbekPhone, formatUzbekPhone, formatLocalPhone, getUzbekOperator } from '@/utils/phone';
+import { isValidUzbekPhone, formatUzbekPhone, formatLocalPhone, getUzbekOperator, extractUzbek9Digits } from '@/utils/phone';
 import { UZBEKISTAN_REGIONS, normalizeRegionName } from '@/lib/regions';
 import { Sidebar } from '@/components/Sidebar';
 import { SwapQRModal } from '@/components/SwapQRModal';
@@ -145,8 +145,7 @@ function CabinetContent() {
     if (user) {
       setEditName(user.name || '');
       if (user.contact && !user.contact.includes('@')) {
-        const clean = user.contact.replace('+998', '').replace(/\D/g, '');
-        setEditContact(clean.substring(0, 9));
+        setEditContact(extractUzbek9Digits(user.contact));
       } else {
         setEditContact('');
       }
@@ -591,16 +590,14 @@ function CabinetContent() {
                     </label>
                     <div className="flex items-center rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 overflow-hidden focus-within:ring-1 focus-within:ring-stone-900 transition-all">
                       <div className="px-3 py-2 bg-stone-100 dark:bg-zinc-700/60 text-xs font-bold text-stone-600 dark:text-stone-300 border-r border-stone-200 dark:border-zinc-700 shrink-0 select-none">
-                        UZ +998
+                        +998
                       </div>
                       <input
                         type="tel"
                         required
                         value={formatLocalPhone(editContact)}
                         onChange={(e) => {
-                          let digits = e.target.value.replace(/\D/g, '');
-                          if (digits.startsWith('998')) digits = digits.substring(3);
-                          setEditContact(digits.substring(0, 9));
+                          setEditContact(extractUzbek9Digits(e.target.value));
                         }}
                         placeholder="90 123 45 67"
                         maxLength={12}
@@ -1292,21 +1289,19 @@ function CabinetContent() {
                       )}
                     </div>
                     <div className="flex items-center rounded-xl bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 focus-within:ring-2 focus-within:ring-amber-500/40 focus-within:border-amber-500 overflow-hidden transition-all">
-                      <div className="px-3 py-2.5 bg-stone-100 dark:bg-stone-700/60 text-xs font-bold text-stone-600 dark:text-stone-300 border-r border-stone-200 dark:border-stone-700 shrink-0 select-none">
-                        UZ +998
+                      <div className="px-3.5 py-2.5 bg-stone-100 dark:bg-stone-700/60 text-xs sm:text-sm font-bold text-stone-700 dark:text-stone-300 border-r border-stone-200 dark:border-stone-700 shrink-0 select-none">
+                        +998
                       </div>
                       <input
                         type="tel"
                         required
                         value={formatLocalPhone(editContact)}
                         onChange={(e) => {
-                          let digits = e.target.value.replace(/\D/g, '');
-                          if (digits.startsWith('998')) digits = digits.substring(3);
-                          setEditContact(digits.substring(0, 9));
+                          setEditContact(extractUzbek9Digits(e.target.value));
                         }}
                         placeholder="90 123 45 67"
                         maxLength={12}
-                        className="w-full px-3 py-2.5 bg-transparent text-xs sm:text-sm font-medium text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none"
+                        className="w-full px-3.5 py-2.5 bg-transparent text-xs sm:text-sm font-medium text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none"
                       />
                     </div>
                   </div>

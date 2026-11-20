@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { UserCheck, ShieldCheck, X } from 'lucide-react';
-import { isValidUzbekPhone, formatLocalPhone, getUzbekOperator } from '@/utils/phone';
+import { isValidUzbekPhone, formatLocalPhone, getUzbekOperator, extractUzbek9Digits } from '@/utils/phone';
 import { UZBEKISTAN_REGIONS } from '@/lib/regions';
 import { profilesService } from '@/services/db';
 
@@ -31,8 +31,7 @@ export const PhonePromptModal: React.FC = () => {
     if (user) {
       setName(user.name || '');
       if (user.contact && !user.contact.includes('@')) {
-        const clean = user.contact.replace('+998', '').replace(/\s+/g, '');
-        setPhoneInput(clean.substring(0, 9));
+        setPhoneInput(extractUzbek9Digits(user.contact));
       } else {
         setPhoneInput('');
       }
@@ -51,15 +50,11 @@ export const PhonePromptModal: React.FC = () => {
 
   if (!isPhonePromptOpen || !isAuthenticated || !user) return null;
 
-  const rawDigits = phoneInput.replace(/\D/g, '');
+  const rawDigits = extractUzbek9Digits(phoneInput);
   const operator = getUzbekOperator(phoneInput);
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let val = e.target.value.replace(/[^\d\s]/g, '');
-    if (val.startsWith('998')) {
-      val = val.substring(3);
-    }
-    const digitsOnly = val.replace(/\D/g, '').substring(0, 9);
+    const digitsOnly = extractUzbek9Digits(e.target.value);
     setPhoneInput(digitsOnly);
     if (error) setError('');
   };
@@ -182,8 +177,8 @@ export const PhonePromptModal: React.FC = () => {
               )}
             </div>
             <div className="flex items-center rounded-xl bg-stone-50 dark:bg-stone-800/80 border border-stone-200 dark:border-stone-700 focus-within:ring-2 focus-within:ring-amber-500/40 focus-within:border-amber-500 overflow-hidden transition-all">
-              <div className="px-3 py-2.5 bg-stone-100 dark:bg-stone-800 text-xs font-bold text-stone-600 dark:text-stone-300 border-r border-stone-200 dark:border-stone-700 shrink-0">
-                UZ +998
+              <div className="px-3.5 py-2.5 bg-stone-100 dark:bg-stone-800 text-xs sm:text-sm font-bold text-stone-700 dark:text-stone-300 border-r border-stone-200 dark:border-stone-700 shrink-0 select-none">
+                +998
               </div>
               <input
                 type="tel"
@@ -191,7 +186,7 @@ export const PhonePromptModal: React.FC = () => {
                 onChange={handlePhoneChange}
                 placeholder="90 123 45 67"
                 maxLength={12}
-                className="w-full px-3 py-2.5 bg-transparent text-xs sm:text-sm font-medium text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 focus:outline-none"
+                className="w-full px-3.5 py-2.5 bg-transparent text-xs sm:text-sm font-medium text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 focus:outline-none"
               />
             </div>
           </div>
