@@ -18,7 +18,7 @@ const BottomNavInner: React.FC<BottomNavProps> = ({
   const searchParams = useSearchParams();
   const tab = searchParams.get('tab');
 
-  const isHome = pathname === '/';
+  const isCatalog = pathname === '/catalog' || pathname === '/';
   const isAddBook = pathname === '/add-book';
   const isMessages = pathname === '/messages';
   const isWishlist = pathname === '/cabinet' && tab === 'wishlist';
@@ -29,16 +29,16 @@ const BottomNavInner: React.FC<BottomNavProps> = ({
       <div className="max-w-md mx-auto grid grid-cols-5 items-center px-1 py-1.5">
         {/* 1. Asosiy (Do'kon) */}
         <Link
-          href="/"
+          href="/catalog"
           className={`flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all ${
-            isHome
+            isCatalog
               ? 'text-amber-600 dark:text-amber-400 font-bold'
               : 'text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 font-medium'
           }`}
         >
           <div className="relative">
             <Compass className="w-5 h-5 stroke-[1.8]" />
-            {isHome && (
+            {isCatalog && (
               <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-amber-600" />
             )}
           </div>

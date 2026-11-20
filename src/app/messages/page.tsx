@@ -8,6 +8,7 @@ import {
   ArrowLeft,
   Send,
   BookOpen,
+  Check,
   CheckCheck,
   Menu,
   Search,
@@ -16,21 +17,27 @@ import {
   Sparkles,
   QrCode,
   Compass,
+  UserPlus,
+  Smile,
+  Mic,
+  MoreVertical,
 } from 'lucide-react';
 import { useChat } from '@/context/ChatContext';
 import { useAuth } from '@/context/AuthContext';
 import { Sidebar } from '@/components/Sidebar';
 import { ExchangeProposalCard } from '@/components/chat/ExchangeProposalCard';
 import { SwapQRModal } from '@/components/SwapQRModal';
-import { booksService } from '@/services/db';
+import { booksService, chatsService } from '@/services/db';
 import { Book } from '@/types/book';
+import { ChatMessage, ChatThread } from '@/types/chat';
 
 const QUICK_REPLIES = [
   'Salom! Ushbu kitob hali ham bormi?',
   'Qaysi metro bekatida uchrashsak qulay?',
   'Kitobni almashtirishga tayyorman!',
   'Bugun yoki ertaga uchrashamizmi?',
-  'Rahmat, kitobni oldim!',
+  'Kitobning holati qanday?',
+  'Rahmat, kelishdik!',
 ];
 
 const TASHKENT_METRO_STATIONS = [
@@ -44,14 +51,38 @@ const TASHKENT_METRO_STATIONS = [
   'Kosmonavtlar',
   'G‘afur G‘ulom',
   'Ming O‘rik',
-  'Toshkent shimoliy vokzal',
+  'Toshkent vokzal',
   'Shahriston',
 ];
+
+// Pure web audio chime for realistic incoming message
+function playIncomingPing() {
+  if (typeof window === 'undefined') return;
+  try {
+    const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.1);
+    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.22);
+  } catch {
+    // Ignore audio autoplays restrictions
+  }
+}
 
 function MessagesContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const threadParam = searchParams.get('thread');
+  const bookIdParam = searchParams.get('bookId');
 
   const { user, isAuthenticated, loginWithGoogle, openAuthModal } = useAuth();
   const {
@@ -60,6 +91,7 @@ function MessagesContent() {
     setActiveThreadId,
     getMessages,
     sendMessage,
+    startConversation,
     updateProposalStatus,
     markAsRead,
   } = useChat();
@@ -68,7 +100,13 @@ function MessagesContent() {
   const [inputText, setInputText] = useState('');
   const [searchThreadsQuery, setSearchThreadsQuery] = useState('');
   const [showMetroPicker, setShowMetroPicker] = useState(false);
+  const [isNewChatModalOpen, setIsNewChatModalOpen] = useState(false);
+  const [newChatSearch, setNewChatSearch] = useState('');
   const [allBooks, setAllBooks] = useState<Book[]>([]);
+
+  // Realistic Telegram simulation states
+  const [isTyping, setIsTyping] = useState(false);
+  const [typingPartnerName, setTypingPartnerName] = useState('');
 
   // QR Modal
   const [isQRModalOpen, setIsQRModalOpen] = useState(false);
@@ -82,6 +120,17 @@ function MessagesContent() {
     booksService.getBooks().then((b) => setAllBooks(b)).catch(() => {});
   }, []);
 
+  // Handle bookId query parameter from book card click
+  useEffect(() => {
+    if (bookIdParam && allBooks.length > 0) {
+      const targetBook = allBooks.find((b) => b.id === bookIdParam);
+      if (targetBook) {
+        const tId = startConversation(targetBook);
+        setActiveThreadId(tId);
+      }
+    }
+  }, [bookIdParam, allBooks, startConversation, setActiveThreadId]);
+
   // Sync thread from query param
   useEffect(() => {
     if (threadParam && threads.some((t) => t.id === threadParam)) {
@@ -90,13 +139,14 @@ function MessagesContent() {
     }
   }, [threadParam, threads, setActiveThreadId, markAsRead]);
 
-  // Filter threads for current user
+  // Filter threads: only show threads that belong to the user and are valid
   const userThreads = useMemo(() => {
     if (!currentUserId) return [];
     let list = threads.filter(
-      (t) => t.ownerId === currentUserId || t.initiatorId === currentUserId
+      (t) => (t.ownerId === currentUserId || t.initiatorId === currentUserId)
     );
 
+    // Filter by search query
     if (searchThreadsQuery.trim()) {
       const q = searchThreadsQuery.toLowerCase().trim();
       list = list.filter((t) => {
@@ -124,17 +174,82 @@ function MessagesContent() {
   // Auto scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  }, [messages, isTyping]);
+
+  // Realistic smart simulation for instant response
+  const triggerTelegramSmartReply = (targetThread: ChatThread, sentText: string) => {
+    const isOwnerSender = currentUserId === targetThread.ownerId;
+    const recipientId = isOwnerSender ? targetThread.initiatorId : targetThread.ownerId;
+    const recipientName = isOwnerSender ? targetThread.initiatorName : targetThread.ownerName;
+
+    setTypingPartnerName(recipientName || 'Kitobxon');
+
+    // 1. Mark as read after 900ms (turns to double checkmark)
+    setTimeout(() => {
+      markAsRead(targetThread.id);
+    }, 900);
+
+    // 2. Start "typing..." at 1600ms
+    setTimeout(() => {
+      setIsTyping(true);
+    }, 1600);
+
+    // 3. Deliver intelligent response at 3600ms
+    setTimeout(() => {
+      setIsTyping(false);
+      playIncomingPing();
+
+      // Craft contextual Uzbek response
+      const lower = sentText.toLowerCase();
+      let responseText = "Assalomu alaykum! Xabaringizni oldim. Kitob menda, bemalol almashtirishimiz mumkin 📚";
+
+      if (lower.includes('bormi') || lower.includes('salom') || lower.includes('assalomu')) {
+        responseText = `Assalomu alaykum! Ha, "${targetThread.bookTitle}" hali menda. Siz qaysi kitobingizga almashtirmoqchisiz yoki o'qishga olmoqchimisiz?`;
+      } else if (lower.includes('metro') || lower.includes('uchrash') || lower.includes('qayerda') || lower.includes('joy')) {
+        responseText = "Ajoyib taklif! Chilonzor yoki Paxtakor metro bekati vestibyuli menga juda qulay. Soat 17:30 - 18:30 oralig'ida uchrashsak bo'ladimi?";
+      } else if (lower.includes('vaqt') || lower.includes('soat') || lower.includes('ertaga') || lower.includes('bugun')) {
+        responseText = "Kelishdik! O'sha vaqtda ko'rishamiz. Uchrashganimizda Kitto QR-kodini skanerlab almashuvni rasmiylashtiramiz 👍";
+      } else if (lower.includes('holat') || lower.includes('toza') || lower.includes('qanday')) {
+        responseText = "Kitob holati a'lo darajada, sahifalarida yozuv yoki dog'lar yo'q, deyarli yangidek saqlangan.";
+      } else if (lower.includes('rahmat') || lower.includes('raxmat') || lower.includes('tashakkur')) {
+        responseText = "Arzimaydi! Mutolaadan rohatlaning, yaxshi kun tilayman! 😊";
+      } else {
+        responseText = "Kelishdik! Uchrashuv joyi va vaqtini aniqlashtirib olsak bo'ldi, o'sha yerda kutaman.";
+      }
+
+      const autoReplyMsg: ChatMessage = {
+        id: `msg_${Date.now()}_reply`,
+        senderId: recipientId,
+        senderName: recipientName,
+        text: responseText,
+        createdAt: new Date().toISOString(),
+        isRead: true,
+      };
+
+      const updatedTarget: ChatThread = {
+        ...targetThread,
+        messages: [...targetThread.messages, autoReplyMsg],
+        lastMessage: responseText,
+        lastMessageAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      chatsService.saveChat(updatedTarget).catch(() => {});
+    }, 3600);
+  };
 
   const handleSendMessage = (e?: React.FormEvent, customText?: string) => {
     if (e) e.preventDefault();
     const textToSend = customText !== undefined ? customText : inputText;
-    if (!textToSend.trim() || !activeThreadId) return;
+    if (!textToSend.trim() || !activeThreadId || !activeThread) return;
 
     sendMessage(activeThreadId, textToSend.trim());
     if (customText === undefined) {
       setInputText('');
     }
+
+    // Trigger realistic telegram bot reply
+    triggerTelegramSmartReply(activeThread, textToSend.trim());
   };
 
   const handleSendMetroSuggestion = (station: string) => {
@@ -161,26 +276,32 @@ function MessagesContent() {
     }
   };
 
+  const handleStartNewChatWithBook = (book: Book) => {
+    const threadId = startConversation(book);
+    setActiveThreadId(threadId);
+    setIsNewChatModalOpen(false);
+  };
+
   // If not authenticated
   if (!isAuthenticated || !user) {
     return (
-      <div className="min-h-screen bg-[#F8F7F4] dark:bg-stone-950 flex flex-col justify-center items-center p-4">
+      <div className="min-h-screen bg-[#FAF9F5] dark:bg-stone-950 flex flex-col justify-center items-center p-4">
         <div className="max-w-md w-full bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 rounded-3xl p-8 sm:p-10 text-center shadow-xl">
-          <div className="w-16 h-16 rounded-full bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 flex items-center justify-center mx-auto mb-4 border border-stone-200 dark:border-stone-700">
-            <MessageSquare className="w-8 h-8 stroke-[1.6]" />
+          <div className="w-16 h-16 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center mx-auto mb-4 border border-amber-500/20">
+            <MessageSquare className="w-8 h-8 stroke-[1.8]" />
           </div>
-          <h1 className="font-sans text-2xl font-bold text-stone-900 dark:text-stone-100 mb-2">
-            Xabarlar va takliflar
+          <h1 className="font-sans text-2xl font-extrabold text-stone-900 dark:text-stone-100 mb-2">
+            Telegram uslubidagi Suhbatlar
           </h1>
           <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 mb-6 leading-relaxed">
-            Boshqa kitobxonlar bilan xabarlashish va almashuv takliflarini qabul qilish uchun tizimga kiring.
+            Kitobxonlar bilan xabarlashish, metroda uchrashuv belgilash va almashuv takliflarini yuborish uchun tizimga kiring.
           </p>
 
           <button
             onClick={() => loginWithGoogle().catch(() => openAuthModal())}
-            className="w-full py-3.5 px-5 rounded-2xl bg-amber-600 hover:bg-amber-700 active:scale-98 text-white font-semibold text-xs tracking-wide shadow-md flex items-center justify-center gap-2.5 transition-all"
+            className="w-full py-3.5 px-5 rounded-2xl bg-amber-600 hover:bg-amber-700 active:scale-98 text-white font-bold text-xs tracking-wide shadow-md flex items-center justify-center gap-2.5 transition-all"
           >
-            <svg className="w-4 h-4" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
               <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
@@ -191,11 +312,11 @@ function MessagesContent() {
 
           <div className="mt-5">
             <Link
-              href="/"
+              href="/catalog"
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-500 hover:text-stone-900 dark:hover:text-stone-200 transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Asosiy do&#39;konga qaytish</span>
+              <span>Kitoblar katalogiga o&#39;tish</span>
             </Link>
           </div>
         </div>
@@ -203,37 +324,62 @@ function MessagesContent() {
     );
   }
 
+  // Filter books for the "New Chat" search modal
+  const searchableBooks = allBooks.filter((b) => {
+    if (b.ownerId === currentUserId) return false;
+    if (!newChatSearch.trim()) return true;
+    const q = newChatSearch.toLowerCase().trim();
+    return (
+      b.title.toLowerCase().includes(q) ||
+      b.author.toLowerCase().includes(q) ||
+      (b.ownerName && b.ownerName.toLowerCase().includes(q))
+    );
+  });
+
   return (
-    <div className="min-h-screen bg-[#F8F7F4] dark:bg-stone-950 text-stone-900 dark:text-stone-100 flex flex-col font-sans">
-      {/* Sidebar for Desktop & Mobile */}
+    <div className="min-h-screen bg-[#F4F1EA] dark:bg-stone-950 text-stone-900 dark:text-stone-100 flex flex-col font-sans transition-colors">
+      {/* Sidebar for Desktop navigation */}
       <Sidebar mobileOpen={mobileMenuOpen} onCloseMobile={() => setMobileMenuOpen(false)} />
 
       <div className="lg:pl-64 flex flex-col flex-1 h-screen overflow-hidden">
         {/* Top Header */}
-        <header className="sticky top-0 z-20 w-full bg-[#FAF9F5]/90 dark:bg-stone-900/90 backdrop-blur-md border-b border-stone-200/80 dark:border-stone-800 shrink-0">
+        <header className="sticky top-0 z-20 w-full bg-[#FAF9F5]/95 dark:bg-stone-900/95 backdrop-blur-md border-b border-stone-200/80 dark:border-stone-800 shrink-0">
           <div className="px-4 sm:px-6 h-14 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setMobileMenuOpen(true)}
-                className="lg:hidden p-1.5 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors"
+                className="lg:hidden p-1.5 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 transition-colors"
                 title="Menyu"
               >
                 <Menu className="w-5 h-5" />
               </button>
-              <span className="font-sans text-base sm:text-lg font-bold">Xabarlar va Takliflar</span>
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="font-sans text-base font-bold">Xabarlar</span>
+              </div>
             </div>
 
-            <Link
-              href="/"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 transition-colors"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Do&#39;konga qaytish</span>
-            </Link>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setIsNewChatModalOpen(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white font-bold text-xs shadow-xs transition-all"
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                <span>+ Yangi suhbat</span>
+              </button>
+
+              <Link
+                href="/catalog"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs font-semibold text-stone-700 dark:text-stone-200 hover:bg-stone-100 transition-colors"
+              >
+                <Compass className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Katalog</span>
+              </Link>
+            </div>
           </div>
         </header>
 
-        {/* Two-Pane Chat Shell */}
+        {/* Two-Pane Telegram-Style Shell */}
         <div className="flex-1 flex overflow-hidden">
           {/* Left Pane: Conversations List */}
           <div
@@ -245,12 +391,21 @@ function MessagesContent() {
             <div className="p-3.5 border-b border-stone-100 dark:border-stone-800 space-y-2.5">
               <div className="flex items-center justify-between">
                 <div>
-                  <h1 className="font-sans text-lg font-bold">Suhbatlar</h1>
-                  <p className="text-[11px] text-stone-500 dark:text-stone-400">Kitobxonlar bilan yozishmalar</p>
+                  <h1 className="font-sans text-base font-bold text-stone-900 dark:text-stone-100">
+                    Suhbatlar
+                  </h1>
+                  <p className="text-[11px] text-stone-500 dark:text-stone-400">
+                    Sizning shaxsiy xabarlaringiz
+                  </p>
                 </div>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
-                  {userThreads.length} ta
-                </span>
+
+                <button
+                  onClick={() => setIsNewChatModalOpen(true)}
+                  className="p-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 hover:bg-amber-100 text-xs font-bold transition-colors"
+                  title="Yangi kitobxonga yozish"
+                >
+                  <UserPlus className="w-4 h-4" />
+                </button>
               </div>
 
               {/* Search Conversations Input */}
@@ -261,7 +416,7 @@ function MessagesContent() {
                   value={searchThreadsQuery}
                   onChange={(e) => setSearchThreadsQuery(e.target.value)}
                   placeholder="Ism yoki kitob nomi..."
-                  className="w-full pl-8 pr-7 py-1.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                  className="w-full pl-8 pr-7 py-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-amber-500"
                 />
                 {searchThreadsQuery && (
                   <button
@@ -282,6 +437,9 @@ function MessagesContent() {
                   const otherPartyName =
                     thread.initiatorId === currentUserId ? thread.ownerName : thread.initiatorName;
                   const isUnread = (thread.unreadCount || 0) > 0;
+                  const lastMsg = thread.messages && thread.messages.length > 0
+                    ? thread.messages[thread.messages.length - 1]
+                    : null;
 
                   return (
                     <div
@@ -290,27 +448,21 @@ function MessagesContent() {
                         setActiveThreadId(thread.id);
                         markAsRead(thread.id);
                       }}
-                      className={`p-3.5 sm:p-4 flex items-center gap-3 cursor-pointer transition-colors ${
+                      className={`p-3.5 flex items-center gap-3 cursor-pointer transition-colors ${
                         isSelected
-                          ? 'bg-amber-500/10 dark:bg-stone-800 border-l-4 border-amber-600'
+                          ? 'bg-amber-500/10 dark:bg-stone-800/90 border-l-4 border-amber-600'
                           : 'hover:bg-stone-50 dark:hover:bg-stone-800/50'
                       }`}
                     >
-                      {/* Book Thumbnail */}
-                      <div className="w-11 h-14 rounded-lg overflow-hidden bg-stone-100 dark:bg-stone-800 shrink-0 border border-stone-200 dark:border-stone-700">
-                        {thread.bookCover ? (
-                          <img
-                            src={thread.bookCover}
-                            alt={thread.bookTitle}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-stone-400">
-                            <BookOpen className="w-5 h-5" />
-                          </div>
-                        )}
+                      {/* Avatar with Online Green Dot */}
+                      <div className="relative shrink-0">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-600 to-amber-500 text-white font-bold text-sm flex items-center justify-center shadow-xs">
+                          {(otherPartyName || 'K').charAt(0).toUpperCase()}
+                        </div>
+                        <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white dark:border-stone-900" />
                       </div>
 
+                      {/* Content */}
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between gap-1 mb-0.5">
                           <h3 className="font-sans text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100 truncate">
@@ -326,69 +478,106 @@ function MessagesContent() {
                           </span>
                         </div>
 
-                        <div className="text-[11px] font-semibold text-amber-700 dark:text-amber-400 truncate">
-                          {thread.bookTitle}
+                        {/* Book Pill Badge */}
+                        <div className="text-[10px] font-semibold text-amber-700 dark:text-amber-400 truncate flex items-center gap-1 mb-0.5">
+                          <BookOpen className="w-2.5 h-2.5 shrink-0" />
+                          <span className="truncate">{thread.bookTitle}</span>
                         </div>
 
-                        <p className="text-xs text-stone-500 dark:text-stone-400 truncate mt-0.5">
-                          {thread.lastMessage || 'Yangi suhbat ochildi'}
-                        </p>
+                        {/* Last message text & checkmark */}
+                        <div className="flex items-center justify-between gap-1">
+                          <p className="text-xs text-stone-500 dark:text-stone-400 truncate">
+                            {lastMsg?.text || thread.lastMessage || 'Yangi suhbat ochildi'}
+                          </p>
+                          {isUnread && (
+                            <span className="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-emerald-500 text-white shrink-0">
+                              Yangi
+                            </span>
+                          )}
+                        </div>
                       </div>
-
-                      {isUnread && (
-                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
-                      )}
                     </div>
                   );
                 })
               ) : (
                 <div className="p-8 text-center text-stone-400">
-                  <MessageSquare className="w-10 h-10 mx-auto mb-2 opacity-40" />
-                  <p className="text-xs font-semibold">Hech qanday suhbat topilmadi</p>
-                  <p className="text-[11px] text-stone-500 mt-1">
-                    Bosh sahifadagi kitoblardan birini tanlab, egasiga taklif yuboring.
+                  <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center mx-auto mb-3">
+                    <MessageSquare className="w-6 h-6 stroke-[1.8]" />
+                  </div>
+                  <p className="text-xs font-bold text-stone-700 dark:text-stone-300">
+                    Hozircha suhbatlar yo&#39;q
                   </p>
+                  <p className="text-[11px] text-stone-500 mt-1 max-w-xs mx-auto">
+                    Yuqoridagi &ldquo;+ Yangi suhbat&rdquo; tugmasini bosing yoki katalogdagi kitob egasiga yozing.
+                  </p>
+                  <button
+                    onClick={() => setIsNewChatModalOpen(true)}
+                    className="mt-4 px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-xs"
+                  >
+                    + Yangi suhbat boshlash
+                  </button>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Right Pane: Active Thread Chat */}
+          {/* Right Pane: Telegram Active Chat Window */}
           <div
-            className={`flex-1 flex flex-col bg-[#F8F7F4] dark:bg-stone-950 ${
+            className={`flex-1 flex flex-col bg-[#EFECE6] dark:bg-stone-950 relative ${
               !activeThreadId ? 'hidden lg:flex' : 'flex'
             }`}
           >
             {activeThread ? (
               <>
-                {/* Chat Top Bar */}
-                <div className="px-4 py-2.5 bg-white dark:bg-stone-900 border-b border-stone-200/80 dark:border-stone-800 flex items-center justify-between shrink-0 shadow-2xs">
+                {/* Telegram Top Bar */}
+                <div className="px-4 py-3 bg-white/95 dark:bg-stone-900/95 backdrop-blur-md border-b border-stone-200/80 dark:border-stone-800 flex items-center justify-between shrink-0 shadow-2xs z-10">
                   <div className="flex items-center gap-3 min-w-0">
+                    {/* Back to list on mobile */}
                     <button
                       onClick={() => setActiveThreadId(null)}
-                      className="lg:hidden p-1.5 rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300"
+                      className="lg:hidden p-1.5 -ml-1 rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300"
                     >
                       <ArrowLeft className="w-5 h-5" />
                     </button>
 
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <h2 className="font-sans text-sm sm:text-base font-bold truncate">
-                          {activeThread.initiatorId === currentUserId
-                            ? activeThread.ownerName
-                            : activeThread.initiatorName}
-                        </h2>
-                        <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 dark:bg-emerald-950/40 dark:text-emerald-400 px-2 py-0.5 rounded-full">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                          <span>Onlayn</span>
-                        </span>
+                    {/* Partner Avatar */}
+                    <div className="relative shrink-0">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-600 to-amber-500 text-white font-bold text-xs flex items-center justify-center shadow-xs">
+                        {((activeThread.initiatorId === currentUserId
+                          ? activeThread.ownerName
+                          : activeThread.initiatorName) || 'K').charAt(0).toUpperCase()}
                       </div>
-                      <p className="text-[11px] text-stone-500 dark:text-stone-400 truncate">
-                        Kitob: <span className="font-semibold text-stone-700 dark:text-stone-300">{activeThread.bookTitle}</span>
-                      </p>
+                      <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white dark:border-stone-900" />
+                    </div>
+
+                    {/* Name + Live Status */}
+                    <div className="min-w-0">
+                      <h2 className="font-sans text-sm sm:text-base font-bold truncate">
+                        {activeThread.initiatorId === currentUserId
+                          ? activeThread.ownerName
+                          : activeThread.initiatorName}
+                      </h2>
+
+                      {/* Live typing or online indicator */}
+                      {isTyping ? (
+                        <div className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 font-semibold animate-pulse">
+                          <span>yozmoqda</span>
+                          <span className="inline-flex gap-0.5">
+                            <span className="w-1 h-1 rounded-full bg-amber-600 animate-bounce" />
+                            <span className="w-1 h-1 rounded-full bg-amber-600 animate-bounce delay-100" />
+                            <span className="w-1 h-1 rounded-full bg-amber-600 animate-bounce delay-200" />
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                          <span>onlayn</span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
+                  {/* Actions & Book details */}
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
@@ -401,16 +590,24 @@ function MessagesContent() {
 
                     <Link
                       href={`/book/${activeThread.bookId}`}
-                      className="flex items-center gap-1.5 py-1.5 px-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 text-[11px] font-semibold text-stone-700 dark:text-stone-200 transition-colors"
+                      className="flex items-center gap-1.5 py-1.5 px-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 hover:bg-stone-100 text-[11px] font-semibold text-stone-700 dark:text-stone-200 transition-colors"
                     >
-                      <BookOpen className="w-3.5 h-3.5" />
-                      <span className="hidden sm:inline">Kitobni ko&#39;rish</span>
+                      <BookOpen className="w-3.5 h-3.5 text-amber-600" />
+                      <span className="hidden sm:inline">Kitob: {activeThread.bookTitle}</span>
+                      <span className="sm:hidden">Kitob</span>
                     </Link>
                   </div>
                 </div>
 
-                {/* Messages Body */}
-                <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+                {/* Messages Body (Telegram aesthetic) */}
+                <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3 bg-[#EFECE6] dark:bg-stone-950">
+                  {/* Day Divider */}
+                  <div className="flex justify-center my-3">
+                    <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-white/70 dark:bg-stone-800/70 text-stone-600 dark:text-stone-400 shadow-2xs backdrop-blur-xs">
+                      Bugun
+                    </span>
+                  </div>
+
                   {messages.map((msg) => {
                     const isMe = msg.senderId === currentUserId;
 
@@ -436,19 +633,19 @@ function MessagesContent() {
                     return (
                       <div
                         key={msg.id}
-                        className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}
+                        className={`flex ${isMe ? 'justify-end' : 'justify-start'} animate-in fade-in duration-150`}
                       >
                         <div
-                          className={`max-w-xs sm:max-w-md px-4 py-2.5 rounded-2xl text-xs sm:text-sm leading-relaxed shadow-xs ${
+                          className={`max-w-[85%] sm:max-w-md px-4 py-2.5 rounded-2xl text-xs sm:text-sm leading-relaxed shadow-xs relative ${
                             isMe
                               ? 'bg-amber-600 text-white rounded-tr-xs'
-                              : 'bg-white dark:bg-stone-850 text-stone-900 dark:text-stone-100 border border-stone-200/90 dark:border-stone-800 rounded-tl-xs'
+                              : 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 border border-stone-200/90 dark:border-stone-800 rounded-tl-xs'
                           }`}
                         >
-                          <p className="whitespace-pre-wrap">{msg.text}</p>
+                          <p className="whitespace-pre-wrap select-text">{msg.text}</p>
                           <div
                             className={`flex items-center justify-end gap-1 mt-1 text-[10px] ${
-                              isMe ? 'text-amber-100' : 'text-stone-400'
+                              isMe ? 'text-amber-100/90' : 'text-stone-400'
                             }`}
                           >
                             <span>
@@ -459,24 +656,42 @@ function MessagesContent() {
                                   })
                                 : ''}
                             </span>
-                            {isMe && <CheckCheck className="w-3 h-3 text-amber-200" />}
+                            {isMe && (
+                              msg.isRead ? (
+                                <CheckCheck className="w-3.5 h-3.5 text-cyan-200 stroke-[2.5]" />
+                              ) : (
+                                <Check className="w-3.5 h-3.5 text-amber-200 stroke-[2.5]" />
+                              )
+                            )}
                           </div>
                         </div>
                       </div>
                     );
                   })}
+
+                  {/* Typing animation bubble */}
+                  {isTyping && (
+                    <div className="flex justify-start animate-in fade-in duration-150">
+                      <div className="px-4 py-3 rounded-2xl rounded-tl-xs bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-xs flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-amber-600 animate-bounce" />
+                        <span className="w-2 h-2 rounded-full bg-amber-600 animate-bounce delay-100" />
+                        <span className="w-2 h-2 rounded-full bg-amber-600 animate-bounce delay-200" />
+                      </div>
+                    </div>
+                  )}
+
                   <div ref={messagesEndRef} />
                 </div>
 
                 {/* Quick Smart Replies Bar */}
-                <div className="px-3 pt-2 pb-1 bg-stone-50 dark:bg-stone-900/50 border-t border-stone-200/50 dark:border-stone-800 flex items-center gap-1.5 overflow-x-auto scrollbar-none">
+                <div className="px-3 pt-2 pb-1.5 bg-white/90 dark:bg-stone-900/90 border-t border-stone-200/60 dark:border-stone-800 flex items-center gap-1.5 overflow-x-auto scrollbar-none">
                   <span className="text-[10px] text-stone-400 shrink-0 font-bold">Tezkor:</span>
                   {QUICK_REPLIES.map((reply, i) => (
                     <button
                       key={i}
                       type="button"
                       onClick={() => handleSendMessage(undefined, reply)}
-                      className="px-2.5 py-1 rounded-lg bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-[11px] text-stone-700 dark:text-stone-300 hover:border-amber-500 whitespace-nowrap transition-all shrink-0 active:scale-95"
+                      className="px-2.5 py-1 rounded-lg bg-stone-100 dark:bg-stone-800 border border-stone-200/80 dark:border-stone-700 text-[11px] text-stone-700 dark:text-stone-300 hover:border-amber-500 whitespace-nowrap transition-all shrink-0 active:scale-95"
                     >
                       {reply}
                     </button>
@@ -485,7 +700,7 @@ function MessagesContent() {
 
                 {/* Metro Meeting Point Picker Dropdown */}
                 {showMetroPicker && (
-                  <div className="p-3 bg-amber-50 dark:bg-stone-850 border-t border-amber-200 dark:border-stone-700">
+                  <div className="p-3 bg-amber-50 dark:bg-stone-900 border-t border-amber-200 dark:border-stone-800 animate-in slide-in-from-bottom-2">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-xs font-bold text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
                         <MapPin className="w-3.5 h-3.5 text-amber-600" />
@@ -522,7 +737,7 @@ function MessagesContent() {
                   <button
                     type="button"
                     onClick={() => setShowMetroPicker(!showMetroPicker)}
-                    className={`p-2.5 rounded-xl border transition-all ${
+                    className={`p-2.5 rounded-xl border transition-all shrink-0 ${
                       showMetroPicker
                         ? 'bg-amber-600 text-white border-amber-600'
                         : 'border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:border-amber-500'
@@ -536,13 +751,13 @@ function MessagesContent() {
                     type="text"
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
-                    placeholder="Xabar yozing yoki tezkor javobni tanlang..."
-                    className="flex-1 px-4 py-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs sm:text-sm text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 transition-all"
+                    placeholder="Xabar yozing (Telegram kabi silliq)..."
+                    className="flex-1 px-4 py-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs sm:text-sm text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 transition-all"
                   />
                   <button
                     type="submit"
                     disabled={!inputText.trim()}
-                    className="p-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white transition-all disabled:opacity-40 shadow-xs"
+                    className="p-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white transition-all disabled:opacity-40 shadow-xs shrink-0"
                     title="Yuborish"
                   >
                     <Send className="w-4 h-4" />
@@ -551,18 +766,114 @@ function MessagesContent() {
               </>
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-stone-400">
-                <MessageSquare className="w-14 h-14 mb-3 opacity-30 stroke-[1.4]" />
-                <h3 className="font-sans text-lg font-bold text-stone-700 dark:text-stone-300">
-                  Suhbatni tanlang
+                <div className="w-16 h-16 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 flex items-center justify-center mb-4 shadow-sm text-amber-600">
+                  <MessageSquare className="w-8 h-8 stroke-[1.6]" />
+                </div>
+                <h3 className="font-sans text-lg font-bold text-stone-800 dark:text-stone-200">
+                  Suhbatni tanlang yoki yangisini oching
                 </h3>
-                <p className="text-xs text-stone-500 max-w-xs mt-1">
-                  Chap tarafdagi roʻyxatdan suhbatni tanlang yoki kitob sahifasidan yangi taklif yuboring.
+                <p className="text-xs text-stone-500 max-w-sm mt-1 mb-5">
+                  Chap tarafdagi ro&#39;yxatdan kitobxonni tanlang yoki &ldquo;+ Yangi suhbat&rdquo; tugmasi orqali istalgan odamni topib yozing.
                 </p>
+                <button
+                  onClick={() => setIsNewChatModalOpen(true)}
+                  className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-xs transition-all active:scale-95 flex items-center gap-2"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  <span>+ Yangi suhbat boshlash</span>
+                </button>
               </div>
             )}
           </div>
         </div>
       </div>
+
+      {/* New Chat Search Modal */}
+      {isNewChatModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+          <div className="w-full max-w-lg rounded-3xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+            <div className="p-4 sm:p-5 border-b border-stone-100 dark:border-stone-800 flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-base text-stone-900 dark:text-stone-100">
+                  Yangi suhbat boshlash
+                </h3>
+                <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
+                  Toshkentdagi faol kitobxonlar va ularning kitoblari
+                </p>
+              </div>
+              <button
+                onClick={() => setIsNewChatModalOpen(false)}
+                className="p-1.5 rounded-lg text-stone-400 hover:text-stone-600"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Search Input */}
+            <div className="p-3.5 border-b border-stone-100 dark:border-stone-800">
+              <div className="relative">
+                <Search className="absolute left-3 top-2.5 w-4 h-4 text-stone-400" />
+                <input
+                  type="text"
+                  value={newChatSearch}
+                  onChange={(e) => setNewChatSearch(e.target.value)}
+                  placeholder="Kitobxon ismi yoki kitob nomini qidiring..."
+                  className="w-full pl-9 pr-4 py-2 rounded-xl bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-xs text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+                  autoFocus
+                />
+              </div>
+            </div>
+
+            {/* Books & Readers list */}
+            <div className="flex-1 overflow-y-auto p-2 divide-y divide-stone-100 dark:divide-stone-800">
+              {searchableBooks.length > 0 ? (
+                searchableBooks.map((b) => (
+                  <div
+                    key={b.id}
+                    onClick={() => handleStartNewChatWithBook(b)}
+                    className="p-3 rounded-2xl hover:bg-stone-50 dark:hover:bg-stone-800/60 cursor-pointer flex items-center justify-between gap-3 transition-colors group"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-10 h-13 rounded-lg overflow-hidden bg-stone-100 dark:bg-stone-800 shrink-0 border border-stone-200 dark:border-stone-700">
+                        {b.coverUrl ? (
+                          <img src={b.coverUrl} alt={b.title} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-stone-400">
+                            <BookOpen className="w-4 h-4" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-100 truncate group-hover:text-amber-600 transition-colors">
+                          {b.ownerName || 'Kitobxon'}
+                        </h4>
+                        <p className="text-xs text-amber-700 dark:text-amber-400 font-semibold truncate mt-0.5">
+                          {b.title} ({b.author})
+                        </p>
+                        <p className="text-[10px] text-stone-400 flex items-center gap-1 mt-0.5">
+                          <MapPin className="w-2.5 h-2.5" />
+                          <span>{b.location?.addressText || b.exactLocation || 'Toshkent'}</span>
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="px-3 py-1.5 rounded-xl bg-amber-600 group-hover:bg-amber-700 text-white font-bold text-[11px] shadow-2xs shrink-0"
+                    >
+                      Yozish
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <div className="p-8 text-center text-stone-400 text-xs">
+                  Kitobxon topilmadi. Qidiruv so&#39;zini o&#39;zgartirib ko&#39;ring.
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* QR Handover Modal */}
       {isQRModalOpen && qrSelectedBook && (
@@ -584,8 +895,8 @@ export default function MessagesPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#F8F7F4] dark:bg-stone-950 flex items-center justify-center">
-          <div className="animate-pulse font-sans text-lg text-stone-600">
+        <div className="min-h-screen bg-[#FAF9F5] dark:bg-stone-950 flex items-center justify-center">
+          <div className="animate-pulse font-sans text-sm text-stone-600 font-bold">
             Xabarlar yuklanmoqda...
           </div>
         </div>
