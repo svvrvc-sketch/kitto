@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const id = params?.id;
   const book = id ? await getBook(id) : null;
 
-  const defaultTitle = 'Kitto.uz — Toshkentda kitob almashing';
+  const defaultTitle = 'Kitto.uz — O‘zbekistonda kitob almashing';
   const defaultDesc = 'Kitoblarni bepul almashing, vaqtincha oʻqishga oling yoki javoningizdagi kitoblarni boshqalar bilan ulashing.';
   const defaultImage = 'https://kitto.uz/og-image.jpg';
 
@@ -46,7 +46,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const title = `${book.title} — ${book.author} | Kitto.uz`;
-  const description = `Kitto.uz — Toshkentda kitob almashing. ${book.title} (${book.author}). Holati: ${book.condition || 'Yaxshi'}. ${book.city || 'Toshkent'}.`;
+  const description = `Kitto.uz — O‘zbekistonda bepul kitob almashing. ${book.title} (${book.author}). Holati: ${book.condition || 'Yaxshi'}. ${book.city || 'O‘zbekiston'}.`;
   const imageUrl = book.cover_url && book.cover_url.startsWith('http')
     ? book.cover_url
     : defaultImage;
@@ -93,11 +93,11 @@ export default async function BookSharePage({ params }: PageProps) {
     ownerId: String(rawBook.owner_id || ''),
     ownerName: String(rawBook.owner_name || 'Kitobxon'),
     ownerContact: String(rawBook.owner_contact || ''),
-    city: String(rawBook.city || 'Toshkent shahri'),
+    city: String(rawBook.city || 'O‘zbekiston'),
     location: {
       lat: rawBook.lat || 41.311081,
       lng: rawBook.lng || 69.240562,
-      addressText: rawBook.address_text || rawBook.city || 'Toshkent shahri',
+      addressText: rawBook.address_text || rawBook.city || 'O‘zbekiston',
     },
     swapTerm: rawBook.swap_term || {
       type: rawBook.type === 'gift' ? 'gift' : 'permanent',

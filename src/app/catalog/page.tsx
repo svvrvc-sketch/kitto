@@ -82,13 +82,8 @@ export default function CatalogPage() {
   const [pendingSwapTargetBook, setPendingSwapTargetBook] = useState<Book | null>(null);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
-  // Regional check: whether user is detected outside Tashkent
-  const isOutsideTashkent = useMemo(() => {
-    if (user?.city && !isRegionTashkent(user.city)) {
-      return true;
-    }
-    return isLocationOutsideTashkent(userCoordinates);
-  }, [userCoordinates, user?.city]);
+  // Regional check: Kitto now operates throughout the entire Republic of Uzbekistan!
+  const isOutsideTashkent = false;
 
   // Live Autocomplete Suggestions
   const autocompleteSuggestions = useMemo(() => {
@@ -491,14 +486,8 @@ export default function CatalogPage() {
     router.push(`/messages?thread=${threadId}`);
   };
 
-  // Guarded handler for opening Add Book page: blocks action if outside Tashkent or phone missing
+  // Guarded handler for opening Add Book page: anyone across Uzbekistan can list
   const handleOpenAddBookModal = useCallback(() => {
-    if (isOutsideTashkent) {
-      setIsRegionBlockedModalOpen(true);
-      showToast("E'lon joylash hozircha faqat Toshkent shahri foydalanuvchilari uchun ochiq.", 'info');
-      return;
-    }
-
     if (!user) {
       openAuthModal("Kitob almashish va e'lon joylash uchun profilingizga kiring");
       return;
@@ -510,7 +499,7 @@ export default function CatalogPage() {
     }
 
     router.push('/add-book');
-  }, [isOutsideTashkent, user, openAuthModal, openPhonePrompt, hasValidPhone, showToast, router]);
+  }, [user, openAuthModal, openPhonePrompt, hasValidPhone, router]);
 
   // Handle Geolocation permission
   const handleAllowGeo = (coords: { lat: number; lng: number }) => {
@@ -545,6 +534,16 @@ export default function CatalogPage() {
       list = list.filter((b) => b && b.id && savedBookIds.has(b.id));
     } else if (currentTab === 'my_listings') {
       list = list.filter((b) => b && user && b.ownerId === user.id);
+    } else if (currentTab === 'home') {
+      // Swapped / completed books MUST NOT appear in public catalog
+      list = list.filter(
+        (b) =>
+          b &&
+          b.status !== 'swapped' &&
+          !b.isCompleted &&
+          (b as { is_available?: boolean }).is_available !== false &&
+          (b as { isAvailable?: boolean }).isAvailable !== false
+      );
     }
 
     // Filter by search query
@@ -718,7 +717,7 @@ export default function CatalogPage() {
                   </h1>
                   <p className="text-xs sm:text-sm text-stone-500 dark:text-zinc-400 mt-1">
                     {currentTab === 'home' &&
-                      "Toshkent boʻylab kitobxonlar bilan bevosita o'qishga oling yoki almashtiring"}
+                      "Oʻzbekiston boʻylab kitobxonlar bilan bevosita mutolaaga oling yoki almashtiring"}
                     {currentTab === 'saved' &&
                       'Sizga yoqqan va keyinroq bogʻlanish uchun saqlangan kitoblar'}
                     {currentTab === 'my_listings' &&

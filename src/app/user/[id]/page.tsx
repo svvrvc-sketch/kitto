@@ -18,6 +18,7 @@ import { normalizeRegionName } from '@/lib/regions';
 import { useAuth } from '@/context/AuthContext';
 import { useChat } from '@/context/ChatContext';
 import { SwapRequestModal } from '@/components/exchange/SwapRequestModal';
+import { BottomNav } from '@/components/BottomNav';
 import { LogoIcon } from '@/components/Logo';
 
 function UserProfileContent() {
@@ -91,7 +92,7 @@ function UserProfileContent() {
   }
 
   const displayName = profile?.name || userBooks[0]?.ownerName || 'Kitobxon';
-  const displayCity = profile?.city || userBooks[0]?.city || 'Toshkent shahri';
+  const displayCity = profile?.city || userBooks[0]?.city || 'O‘zbekiston';
   const displayAvatar = profile?.avatar || profile?.avatar_url;
   const wishlist = profile?.wishlistBooks || userBooks[0]?.ownerWishlist || [];
   const genres = profile?.favoriteGenres || userBooks[0]?.ownerFavoriteGenres || [];
@@ -343,6 +344,8 @@ function UserProfileContent() {
           }}
         />
       )}
+      {/* Mobile Bottom Nav */}
+      <BottomNav />
     </div>
   );
 }

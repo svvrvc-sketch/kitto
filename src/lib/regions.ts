@@ -22,7 +22,7 @@ export const UZBEKISTAN_REGIONS: RegionOption[] = [
 ];
 
 export function normalizeRegionName(raw?: string | null): string {
-  if (!raw) return 'Toshkent shahri';
+  if (!raw) return 'O‘zbekiston';
   const trimmed = raw.trim();
   const found = UZBEKISTAN_REGIONS.find(
     (r) =>

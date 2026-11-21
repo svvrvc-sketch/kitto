@@ -136,7 +136,7 @@ export const ThreeBookScene: React.FC<{ className?: string }> = ({ className = '
 
       ctx.fillStyle = '#fbbf24';
       ctx.font = '700 56px "Plus Jakarta Sans", sans-serif';
-      ctx.fillText('TOSHKENT P2P KUTUBXONASI', 1024, 1460);
+      ctx.fillText('O‘ZBEKISTON P2P KUTUBXONASI', 1024, 1460);
 
       ctx.fillStyle = '#cbd5e1';
       ctx.font = '600 48px "Plus Jakarta Sans", sans-serif';
@@ -229,7 +229,7 @@ export const ThreeBookScene: React.FC<{ className?: string }> = ({ className = '
         {
           num: '04',
           title: 'Haqiqiy Kitobxonlar Hamjamiyati',
-          desc: 'Adabiy suhbatlar, yangi do‘stlar va o‘zaro ishonchga asoslangan Toshkent kitobxonlar birlashmasi.',
+          desc: 'Adabiy suhbatlar, yangi do‘stlar va o‘zaro ishonchga asoslangan kitobxonlar birlashmasi.',
         },
       ];
 
@@ -322,7 +322,7 @@ export const ThreeBookScene: React.FC<{ className?: string }> = ({ className = '
       ctx.fillStyle = '#b45309';
       ctx.font = 'bold 56px "Plus Jakarta Sans", sans-serif';
       ctx.textAlign = 'right';
-      ctx.fillText('TOSHKENT • 2024', 1868, 280);
+      ctx.fillText('O‘ZBEKISTON • 2024', 1868, 280);
 
       ctx.fillStyle = '#0f172a';
       ctx.font = '900 96px "Plus Jakarta Sans", sans-serif';

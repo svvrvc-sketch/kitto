@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ChevronDown, HelpCircle, Sparkles, MessageCircle } from 'lucide-react';
 import { Header } from '@/components/Header';
+import { BottomNav } from '@/components/BottomNav';
 
 interface FAQItem {
   q: string;
@@ -27,8 +28,8 @@ export default function FAQPage() {
       a: 'Kitto’da har bir almashuv QR-kod va telefon raqami orqali qayd etiladi. Qaytarish muddati o‘tganda tizim eslatma yuboradi. Agar foydalanuvchi kitobni qaytarishdan bosh tortsa, uning akkaunti bloklanadi, reytingi 0 ga tushadi va telefon raqami "Ishonchsizlar qora ro‘yxati"ga tushadi.',
     },
     {
-      q: 'Toshkentdan boshqa viloyatlar qachon ulanadi?',
-      a: 'Hozirda Kitto Toshkent shahrida faoliyat yuritmoqda. Saytimizdagi "Hududlar" tugmasi orqali o‘z viloyatingizga ovoz bering. Viloyat bo‘yicha 100 ta ovoz yig‘ilishi bilan o‘sha hududda ham rasmiy ochilish e’lon qilinadi.',
+      q: 'Kitto boshqa viloyatlarda ham ishlaydimi?',
+      a: 'Ha! Kitto butun O‘zbekiston bo‘ylab — Toshkent shahri va barcha viloyatlarda to‘liq faoliyat yuritadi. Har bir kitobxon o‘z hududidagi kitobxonlar bilan xolis va qulay almashishi mumkin.',
     },
     {
       q: 'Kitob holatini qanday to‘g‘ri baholash kerak?',
@@ -129,6 +130,9 @@ export default function FAQPage() {
           </a>
         </div>
       </main>
+
+      {/* Mobile App Bottom Nav */}
+      <BottomNav />
     </div>
   );
 }

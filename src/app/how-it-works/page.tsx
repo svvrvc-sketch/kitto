@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { ArrowLeft, BookOpen, MessageSquare, Repeat, ShieldCheck, Sparkles, CheckCircle2 } from 'lucide-react';
 import { Header } from '@/components/Header';
+import { BottomNav } from '@/components/BottomNav';
 
 export default function HowItWorksPage() {
   const steps = [
@@ -69,7 +70,7 @@ export default function HowItWorksPage() {
             Kitto qanday ishlaydi?
           </h1>
           <p className="text-sm sm:text-base text-stone-600 dark:text-stone-400 leading-relaxed">
-            Kitto — Toshkent bo‘ylab kitobxonlarni birlashtiruvchi zamonaviy P2P kitob almashish platformasi. Kitoblaringiz tokchada chang bosib yotmasin, boshqalar bilan baham ko‘ring!
+            Kitto — O‘zbekiston bo‘ylab kitobxonlarni birlashtiruvchi zamonaviy P2P kitob almashish platformasi. Kitoblaringiz tokchada chang bosib yotmasin, boshqalar bilan baham ko‘ring!
           </p>
         </div>
 
@@ -123,7 +124,7 @@ export default function HowItWorksPage() {
             </div>
             <div className="flex items-start gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-              <span><strong>Toshkent xaritasi:</strong> O‘zingizga eng yaqin tuman yoki metro bekatidan toping.</span>
+              <span><strong>Hududlar xaritasi:</strong> O‘zingizga eng yaqin viloyat yoki shahar kitobxonlaridan toping.</span>
             </div>
             <div className="flex items-start gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
@@ -143,6 +144,9 @@ export default function HowItWorksPage() {
           </Link>
         </div>
       </main>
+
+      {/* Mobile App Bottom Nav */}
+      <BottomNav />
     </div>
   );
 }

@@ -118,8 +118,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
     : fetchedProfile?.contact || firstBook?.ownerContact || '';
 
   const userCity = isSelf
-    ? currentUser?.city || 'Toshkent'
-    : fetchedProfile?.city || firstBook?.city || 'Toshkent';
+    ? currentUser?.city || 'O‘zbekiston'
+    : fetchedProfile?.city || firstBook?.city || 'O‘zbekiston';
 
   const userAvatar = isSelf
     ? currentUser?.avatar

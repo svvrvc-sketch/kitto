@@ -31,20 +31,19 @@ import { booksService, chatsService } from '@/services/db';
 import { Book } from '@/types/book';
 import { ChatMessage, ChatThread } from '@/types/chat';
 import { useToast } from '@/context/ToastContext';
+import { BottomNav } from '@/components/BottomNav';
 
-const TASHKENT_METRO_STATIONS = [
-  'Chilonzor',
-  'Paxtakor',
+const POPULAR_MEETING_PLACES = [
+  'Markaziy kutubxona',
+  'Shahar xiyoboni',
+  'Qulay metro bekati',
   'Amir Temur xiyoboni',
+  'Chilonzor',
   'Oybek',
+  'Paxtakor',
   'Buyuk Ipak Yo‘li',
-  'Novza',
-  'Beruniy',
-  'Kosmonavtlar',
-  'G‘afur G‘ulom',
-  'Ming O‘rik',
-  'Toshkent vokzal',
-  'Shahriston',
+  'Universitet / Kollej oldi',
+  'Savdo majmuasi',
 ];
 
 // Pure web audio chime for realistic incoming message
@@ -341,21 +340,14 @@ function MessagesContent() {
             <span className="hidden sm:inline">+ Yangi suhbat</span>
           </button>
 
-          {/* Sidebar Drawer Toggle */}
-          <button
-            onClick={() => {
-              if (typeof window !== 'undefined' && window.innerWidth < 1024) {
-                setShowSidebarDrawer(true);
-              } else {
-                setIsSidebarCollapsed(!isSidebarCollapsed);
-              }
-            }}
-            className="p-2 sm:px-3 sm:py-1.5 rounded-xl border border-stone-200/90 dark:border-stone-800 bg-white/80 dark:bg-stone-800/80 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 text-xs font-semibold shadow-2xs transition-all flex items-center gap-1.5"
-            title="Kabinet menyusini ochish"
+          {/* Link to Cabinet (Desktop only) */}
+          <Link
+            href="/cabinet"
+            className="hidden lg:flex px-3 py-1.5 rounded-xl border border-stone-200/90 dark:border-stone-800 bg-white/80 dark:bg-stone-800/80 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 text-xs font-semibold shadow-2xs transition-all items-center gap-1.5"
+            title="Kabinetga o'tish"
           >
-            <Menu className="w-4 h-4 text-amber-500" />
-            <span className="hidden sm:inline">Kabinetim</span>
-          </button>
+            <span>Kabinetim</span>
+          </Link>
 
           {/* Clear Chats Button (Desktop only on top bar; mobile has it inside chat list header) */}
           {userThreads.length > 0 && (
@@ -701,13 +693,13 @@ function MessagesContent() {
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Metro Meeting Point Picker Dropdown */}
+              {/* Meeting Point Picker Dropdown */}
               {showMetroPicker && (
                 <div className="p-3 bg-amber-50 dark:bg-stone-900 border-t border-amber-200 dark:border-stone-800 animate-in slide-in-from-bottom-2">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-bold text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
                       <MapPin className="w-3.5 h-3.5 text-amber-600" />
-                      <span>Toshkent metrosida uchrashuv joyini tanlang:</span>
+                      <span>Qulay uchrashuv manzilini tanlang:</span>
                     </span>
                     <button
                       onClick={() => setShowMetroPicker(false)}
@@ -718,14 +710,14 @@ function MessagesContent() {
                   </div>
 
                   <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto pr-1">
-                    {TASHKENT_METRO_STATIONS.map((station) => (
+                    {POPULAR_MEETING_PLACES.map((station) => (
                       <button
                         key={station}
                         type="button"
                         onClick={() => handleSendMetroSuggestion(station)}
                         className="px-2.5 py-1 rounded-lg bg-white dark:bg-stone-800 text-stone-800 dark:text-stone-200 border border-amber-200/80 dark:border-stone-700 hover:border-amber-500 text-[11px] font-semibold transition-all active:scale-95"
                       >
-                        {station} bekati
+                        {station}
                       </button>
                     ))}
                   </div>
@@ -877,16 +869,10 @@ function MessagesContent() {
         </div>
       )}
 
-      {/* Sliding Off-Canvas Cabinet Sidebar Drawer */}
-      {showSidebarDrawer && (
-        <div className="fixed inset-0 z-50 flex">
-          <div
-            className="fixed inset-0 bg-stone-950/60 backdrop-blur-xs animate-in fade-in duration-200"
-            onClick={() => setShowSidebarDrawer(false)}
-          />
-          <div className="relative w-72 max-w-[85vw] h-full bg-[#FAF9F5] dark:bg-stone-900 border-r border-stone-200 dark:border-stone-800 shadow-2xl flex flex-col z-10 animate-in slide-in-from-left duration-200 overflow-y-auto">
-            <Sidebar standalone onCloseMobile={() => setShowSidebarDrawer(false)} />
-          </div>
+      {/* Mobile App Bottom Nav (visible on mobile when browsing chat list) */}
+      {!activeThreadId && (
+        <div className="sm:hidden">
+          <BottomNav />
         </div>
       )}
     </div>

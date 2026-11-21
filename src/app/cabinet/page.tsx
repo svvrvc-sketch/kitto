@@ -78,7 +78,7 @@ function CabinetContent() {
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [editName, setEditName] = useState('');
   const [editContact, setEditContact] = useState('');
-  const [editCity, setEditCity] = useState('Toshkent shahri');
+  const [editCity, setEditCity] = useState('O‘zbekiston');
   const [editTelegram, setEditTelegram] = useState('');
   const [editAge, setEditAge] = useState('');
   const [editBio, setEditBio] = useState('');
@@ -148,7 +148,7 @@ function CabinetContent() {
       } else {
         setEditContact('');
       }
-      setEditCity(user.city ? normalizeRegionName(user.city) : 'Toshkent shahri');
+      setEditCity(user.city ? normalizeRegionName(user.city) : 'O‘zbekiston');
       setEditTelegram(user.telegramUsername ? user.telegramUsername.replace(/^@/, '') : '');
       setEditAge(user.age ? String(user.age) : '');
       setEditBio(user.bio || '');
@@ -550,7 +550,7 @@ function CabinetContent() {
                     )}
                     <span className="flex items-center gap-1">
                       <MapPin className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
-                      <span>{user.city ? normalizeRegionName(user.city) : 'Toshkent shahri'}</span>
+                      <span>{user.city ? normalizeRegionName(user.city) : 'O‘zbekiston'}</span>
                     </span>
                   </div>
                 </div>
@@ -1432,7 +1432,7 @@ function CabinetContent() {
                   Kitto qanday ishlaydi?
                 </h2>
                 <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 max-w-2xl leading-relaxed">
-                  Kitto — Toshkent bo‘ylab kitobxonlarni birlashtiruvchi zamonaviy P2P kitob almashish ekotizimi. Kitoblaringiz javonda chang bosib yotmasin, boshqalar bilan baham ko‘ring!
+                  Kitto — O‘zbekiston bo‘ylab kitobxonlarni birlashtiruvchi zamonaviy P2P kitob almashish ekotizimi. Kitoblaringiz javonda chang bosib yotmasin, boshqalar bilan baham ko‘ring!
                 </p>
               </div>
 
@@ -1456,7 +1456,7 @@ function CabinetContent() {
                       Kitobingizni javonga joylang
                     </h3>
                     <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
-                      O‘qib bo‘lgan yoki javoningizda turgan kitobni suratga olib, nomini, holatini va Toshkentdagi uchrashuv hududini (tuman/metro) belgilang. E’lon berish butunlay bepul.
+                      O‘qib bo‘lgan yoki javoningizda turgan kitobni suratga olib, nomini, holatini va uchrashuv hududini (viloyat/shahar) belgilang. E’lon berish butunlay bepul.
                     </p>
                   </div>
                   <div className="mt-5 pt-4 border-t border-stone-100 dark:border-stone-800">
@@ -1578,7 +1578,7 @@ function CabinetContent() {
                       1. Gavjum va xavfsiz joylarda uchrashing
                     </h3>
                     <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
-                      Toshkent metrosi vestibyullari, kutubxonalar, yorug‘ qahvaxonalar yoki savdo markazlari uchrashuv uchun eng ideal joylardir.
+                      Shahar markazlari, ommaviy kutubxonalar, yorug‘ qahvaxonalar, metro bekatlari yoki savdo markazlari uchrashuv uchun eng ideal joylardir.
                     </p>
                   </div>
                 </div>

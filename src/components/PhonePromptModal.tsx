@@ -22,7 +22,7 @@ export const PhonePromptModal: React.FC = () => {
   const [phoneInput, setPhoneInput] = useState('');
   const [telegramUsername, setTelegramUsername] = useState('');
   const [age, setAge] = useState('');
-  const [city, setCity] = useState('Toshkent shahri');
+  const [city, setCity] = useState('O‘zbekiston');
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
 
@@ -98,7 +98,7 @@ export const PhonePromptModal: React.FC = () => {
         contact: fullPhone,
         telegramUsername: cleanTg,
         age: cleanAge,
-        city: city || 'Toshkent shahri',
+        city: city || 'O‘zbekiston',
       };
 
       // 1. Save to Supabase and LocalStorage

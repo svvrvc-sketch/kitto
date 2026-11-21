@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { BottomNav } from '@/components/BottomNav';
 import { HeroExchangeShowcase } from '@/components/HeroExchangeShowcase';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
@@ -60,8 +61,8 @@ export default function LandingPage() {
       a: 'Kitto’da har bir almashuv tekshirilgan profil va haqiqiy telefon raqamlari orqali kafolatlanadi. Qaytarish muddati yaqinlashganda eslatmalar yuboriladi. Agar kimdir kitobni qaytarishdan bosh tortsa, uning akkaunti butunlay bloklanadi va telefon raqami "Ishonchsizlar qora ro‘yxati"ga kiritiladi.',
     },
     {
-      q: 'Toshkentdan boshqa viloyatlar ham bormi?',
-      a: 'Hozirda Kitto rasman Toshkent shahrining barcha 12 ta tumanida faol ishlamoqda. Viloyatlardagi kitobxonlar ham o‘z hududlari uchun saytda ovoz berishlari mumkin. Viloyat bo‘yicha 100 ta ovoz yig‘ilishi bilan u yerda ham rasmiy ochilish e’lon qilinadi.',
+      q: 'Kitto butun O‘zbekiston bo‘ylab ishlaydimi?',
+      a: 'Ha! Kitto butun O‘zbekiston bo‘ylab — Toshkent shahri hamda barcha viloyatlarda to‘liq faoliyat yuritadi. Har bir kitobxon o‘z hududidan kitob joylashi, o‘ziga yaqin kitobxonlarni topishi va mutlaqo bepul almashishi mumkin.',
     },
     {
       q: 'Kitob holatini qanday to‘g‘ri baholash kerak?',
@@ -92,7 +93,7 @@ export default function LandingPage() {
                 {/* Live Platform Badge */}
                 <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 dark:bg-amber-400/10 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-[11px] sm:text-xs font-bold shadow-2xs backdrop-blur-md mb-4 sm:mb-6">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>Toshkentning 1-raqamli P2P Kitob Hamjamiyati</span>
+                  <span>O‘zbekistonning 1-raqamli P2P Kitob Hamjamiyati</span>
                 </div>
 
                 {/* Main Headline */}
@@ -105,7 +106,7 @@ export default function LandingPage() {
 
                 {/* Subtitle */}
                 <p className="text-xs sm:text-base md:text-lg text-stone-600 dark:text-stone-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal mb-6 sm:mb-8">
-                  Kitto — Toshkent bo‘ylab kitobxonlar o‘rtasida 100% bepul kitob almashish ekotizimi. Yangi kitob sotib olishga pul sarflamasdan, javondagi kitoblarni boshqalar bilan xolis va qulay almashing.
+                  Kitto — O‘zbekiston bo‘ylab kitobxonlar o‘rtasida 100% bepul kitob almashish ekotizimi. Yangi kitob sotib olishga pul sarflamasdan, javondagi kitoblarni boshqalar bilan xolis va qulay almashing.
                 </p>
 
                 {/* Primary & Secondary Action Buttons (Compact & Ergonomic on Mobile) */}
@@ -236,7 +237,7 @@ export default function LandingPage() {
                 </h2>
                 <div className="space-y-4 text-sm sm:text-base text-stone-600 dark:text-stone-300 leading-relaxed">
                   <p>
-                    <strong className="text-stone-900 dark:text-stone-100 font-bold">Kitto</strong> — 2024-yilda Toshkent shahrida bir guruh kitobsevar yoshlar tashabbusi bilan asos solingan erkin, mustaqil va notijorat kitob almashish ekotizimidir.
+                    <strong className="text-stone-900 dark:text-stone-100 font-bold">Kitto</strong> — 2024-yilda O‘zbekistonda bir guruh kitobsevar yoshlar tashabbusi bilan asos solingan erkin, mustaqil va notijorat kitob almashish ekotizimidir.
                   </p>
                   <p>
                     Bugungi kunda yangi kitoblar narxi ancha qimmatlashgani ko‘pchilikka maʼlum. Boshqa tomondan, har bir kitobxonning xonadonida o‘qib bo‘lingan va shunchaki tokchada chang bosib yotgan o‘nlab sara asarlar bor.
@@ -363,7 +364,7 @@ export default function LandingPage() {
                   Qidiring & Tanlang
                 </h3>
                 <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
-                  Katalogdan yoki Toshkent xaritasidan sizga eng yaqin kitobni toping va tanlang.
+                  Katalogdan yoki xaritadan o‘zingizga eng yaqin kitobni toping va tanlang.
                 </p>
               </div>
 
@@ -376,7 +377,7 @@ export default function LandingPage() {
                   Suhbatda kelishing
                 </h3>
                 <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
-                  Telegram uslubidagi qulay chat orqali kitob egasi bilan qulay metro bekatida uchrashuv belgilang.
+                  Telegram uslubidagi qulay chat orqali kitob egasi bilan qulay manzil yoki bekatda uchrashuv belgilang.
                 </p>
               </div>
 
@@ -449,7 +450,7 @@ export default function LandingPage() {
                 Kitobxonlar safiga siz ham qo‘shiling!
               </h2>
               <p className="text-sm sm:text-base text-amber-100 max-w-xl mx-auto mb-8 leading-relaxed">
-                Tokchangizdagi kitoblarni yangilariga almashtiring, Toshkent bo‘ylab o‘zingizga qiziq mutolaa do‘stlarini toping.
+                Tokchangizdagi kitoblarni yangilariga almashtiring, O‘zbekiston bo‘ylab o‘zingizga qiziq mutolaa do‘stlarini toping.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -475,6 +476,9 @@ export default function LandingPage() {
 
       {/* Footer */}
       <Footer />
+
+      {/* Mobile App-style Bottom Navigation Dock */}
+      <BottomNav />
     </div>
   );
 }

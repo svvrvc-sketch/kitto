@@ -126,7 +126,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           Hozircha e&#39;lonlar yo&#39;q, birinchi bo&#39;lib qo&#39;shing
         </h3>
         <p className="max-w-md text-sm text-stone-500 dark:text-zinc-400 font-sans leading-relaxed mb-6">
-          Toshkent bo&#39;ylab birinchi bo&#39;lib o&#39;z kitobingizni joylang va boshqa kitobxonlar bilan ulashing.
+          O&#39;zbekiston bo&#39;ylab birinchi bo&#39;lib o&#39;z kitobingizni joylang va boshqa kitobxonlar bilan ulashing.
         </p>
 
         {isAuthenticated ? (

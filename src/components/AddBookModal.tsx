@@ -71,7 +71,7 @@ export const AddBookModal: React.FC<AddBookModalProps> = ({
   const [returnConditionNote, setReturnConditionNote] = useState('');
 
   // Location Engine
-  const [addressText, setAddressText] = useState('Toshkent shahri');
+  const [addressText, setAddressText] = useState(user?.city || 'O‘zbekiston');
   const [coordinates, setCoordinates] = useState<Coordinates>({ lat: 41.311081, lng: 69.240562 });
 
   // Description
@@ -217,7 +217,7 @@ export const AddBookModal: React.FC<AddBookModalProps> = ({
       ownerId: user.id,
       ownerName: user.name || 'Kitobxon',
       ownerContact: user.contact,
-      city: user?.city || 'Toshkent shahri',
+      city: user?.city || 'O‘zbekiston',
       location,
       swapTerm,
       status: 'active',
@@ -264,7 +264,7 @@ export const AddBookModal: React.FC<AddBookModalProps> = ({
               Kitob joylash
             </h2>
             <p className="text-xs text-stone-500 dark:text-zinc-400 mt-0.5">
-              Toshkent boʻyicha kitobingizni boshqalar bilan ulashing
+              O‘zbekiston boʻyicha kitobingizni boshqalar bilan ulashing
             </p>
           </div>
           <button

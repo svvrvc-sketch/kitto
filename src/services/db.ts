@@ -13,10 +13,10 @@ export const STORAGE_VOTES_KEY = 'kitto_region_votes';
 export const STORAGE_SAVED_KEY = 'kitto_saved_ids';
 export const STORAGE_EXCHANGE_KEY = 'kitto_exchange_transactions';
 
-const TASHKENT_DEFAULT_LOCATION = {
+const UZBEKISTAN_DEFAULT_LOCATION = {
   lat: 41.311081,
   lng: 69.240562,
-  addressText: 'Toshkent shahri',
+  addressText: 'O‘zbekiston',
 };
 
 // ==============================================================================
@@ -34,8 +34,8 @@ export function mapRowToBook(row: any): Book {
       ownerId: 'owner',
       ownerName: 'Kitobxon',
       ownerContact: '+998 90 000 00 00',
-      city: 'Toshkent',
-      location: TASHKENT_DEFAULT_LOCATION,
+      city: 'O‘zbekiston',
+      location: UZBEKISTAN_DEFAULT_LOCATION,
       swapTerm: { type: 'permanent', durationLabel: 'Doimiy almashish' },
       status: 'active',
       createdAt: new Date().toISOString(),
@@ -59,15 +59,15 @@ export function mapRowToBook(row: any): Book {
 
   const rawLoc = typeof row.location === 'object' && row.location !== null ? row.location : {};
   const location = {
-    lat: typeof rawLoc.lat === 'number' ? rawLoc.lat : (row.coordinates?.lat ?? TASHKENT_DEFAULT_LOCATION.lat),
-    lng: typeof rawLoc.lng === 'number' ? rawLoc.lng : (row.coordinates?.lng ?? TASHKENT_DEFAULT_LOCATION.lng),
+    lat: typeof rawLoc.lat === 'number' ? rawLoc.lat : (row.coordinates?.lat ?? UZBEKISTAN_DEFAULT_LOCATION.lat),
+    lng: typeof rawLoc.lng === 'number' ? rawLoc.lng : (row.coordinates?.lng ?? UZBEKISTAN_DEFAULT_LOCATION.lng),
     addressText:
       rawLoc.addressText ||
       (typeof row.location === 'string' ? row.location : undefined) ||
       row.exact_location ||
       row.exactLocation ||
       row.city ||
-      TASHKENT_DEFAULT_LOCATION.addressText,
+      UZBEKISTAN_DEFAULT_LOCATION.addressText,
   };
 
   const status: BookStatus = row.status || (row.is_completed ? 'swapped' : 'active');
@@ -88,7 +88,7 @@ export function mapRowToBook(row: any): Book {
         : row.ownerContact && !String(row.ownerContact).includes('@')
         ? String(row.ownerContact)
         : '',
-    city: String(row.city || 'Toshkent'),
+    city: String(row.city || 'O‘zbekiston'),
     location,
     swapTerm: {
       type: swapTermType,
@@ -138,8 +138,8 @@ export function mapBookToRow(book: Book): Record<string, any> {
     owner_id: book.ownerId,
     owner_name: book.ownerName,
     owner_contact: book.ownerContact,
-    city: book.city || 'Toshkent',
-    location: book.location || TASHKENT_DEFAULT_LOCATION,
+    city: book.city || 'O‘zbekiston',
+    location: book.location || UZBEKISTAN_DEFAULT_LOCATION,
     swap_term: swapTerm,
     status: book.status || 'active',
     loan_info: book.loanInfo || null,
@@ -156,7 +156,7 @@ export function mapRowToProfile(row: any): UserProfile {
     name: row.name || 'Kitobxon',
     contact: rawContact && !rawContact.includes('@') ? rawContact : '',
     email: row.email || undefined,
-    city: row.city || 'Toshkent',
+    city: row.city || 'O‘zbekiston',
     favoriteGenres: row.favorite_genres || [],
     wishlistBooks: row.wishlist_books || [],
     avatar: avatarVal,
@@ -181,7 +181,7 @@ export function mapProfileToRow(profile: UserProfile): Record<string, any> {
     name: profile.name,
     contact: profile.contact,
     email: profile.email || null,
-    city: profile.city || 'Toshkent',
+    city: profile.city || 'O‘zbekiston',
     favorite_genres: profile.favoriteGenres || [],
     wishlist_books: profile.wishlistBooks || [],
     avatar: avatarVal,

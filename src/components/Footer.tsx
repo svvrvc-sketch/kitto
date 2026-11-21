@@ -95,11 +95,11 @@ export const Footer: React.FC = () => {
               <Logo showTagline={true} />
             </Link>
             <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed pt-1">
-              Toshkent bo‘ylab kitobxonlar o‘rtasida o‘zaro ishonch asosidagi kitob almashish va mutolaa platformasi.
+              O‘zbekiston bo‘ylab kitobxonlar o‘rtasida o‘zaro ishonch asosidagi kitob almashish va mutolaa platformasi.
             </p>
             <div className="flex items-center gap-2 text-[11px] text-amber-700 dark:text-amber-400 font-bold">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Toshkentda 100% bepul faoliyat</span>
+              <span>Respublika bo‘ylab 100% bepul faoliyat</span>
             </div>
           </div>
 

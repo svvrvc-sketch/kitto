@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { ArrowLeft, BookOpen, Heart, Users, Globe2, Sparkles, ShieldCheck } from 'lucide-react';
 import { Header } from '@/components/Header';
+import { BottomNav } from '@/components/BottomNav';
 
 export default function AboutPage() {
   return (
@@ -28,7 +29,7 @@ export default function AboutPage() {
             <img src="/kittologo.jpg" alt="Kitto" className="w-full h-full object-cover" />
           </div>
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
-            Kitto — Toshkent Kitobxonlari Hamjamiyati
+            Kitto — O‘zbekiston Kitobxonlari Hamjamiyati
           </h1>
           <p className="text-sm sm:text-base text-stone-600 dark:text-stone-400 leading-relaxed">
             Biz kitoblarning tokchalarda chang bosib yotishiga emas, balki qo‘ldan-qo‘lga o‘tib, insonlar tafakkurini boyitishiga ishonamiz.
@@ -53,9 +54,9 @@ export default function AboutPage() {
               </div>
             </div>
             <div>
-              <div className="text-2xl sm:text-3xl font-extrabold text-amber-600">12 ta</div>
+              <div className="text-2xl sm:text-3xl font-extrabold text-amber-600">14 ta</div>
               <div className="text-xs text-stone-500 dark:text-stone-400 font-medium mt-0.5">
-                Toshkent tumanlari qamrovi
+                Barcha viloyatlar va shaharlar
               </div>
             </div>
             <div>
@@ -112,6 +113,9 @@ export default function AboutPage() {
           </div>
         </div>
       </main>
+
+      {/* Mobile App Bottom Nav */}
+      <BottomNav />
     </div>
   );
 }

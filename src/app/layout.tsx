@@ -18,20 +18,20 @@ const sansFont = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   metadataBase: new URL('https://kitto.uz'),
   title: {
-    default: 'Kitto — Toshkentda kitob almashish platformasi',
+    default: "Kitto — O'zbekistonda bepul kitob almashish platformasi",
     template: '%s | Kitto.uz',
   },
   description:
-    "Toshkentda kitobxonlar bilan kitob almashing. Xaritadan eng yaqin kitobni toping.",
-  keywords: ['kitto', 'kitto.uz', 'kitob almashish', 'kitob ulashish', 'Toshkent kitoblar', 'mutolaa'],
+    "O'zbekiston bo'ylab kitobxonlar bilan bepul kitob almashing. Istalgan viloyatdan qulay mutolaa va xolis kitob almashish ekotizimi.",
+  keywords: ['kitto', 'kitto.uz', 'kitob almashish', 'kitob ulashish', 'bepul kitoblar', 'mutolaa', 'O\'zbekiston kitobxonlari'],
   icons: {
     icon: '/kittologo.jpg',
     shortcut: '/kittologo.jpg',
     apple: '/kittologo.jpg',
   },
   openGraph: {
-    title: 'Kitto — Toshkentda kitob almashish platformasi',
-    description: "Toshkentda kitobxonlar bilan kitob almashing. Xaritadan eng yaqin kitobni toping.",
+    title: "Kitto — O'zbekistonda bepul kitob almashish platformasi",
+    description: "O'zbekiston bo'ylab kitobxonlar bilan bepul kitob almashing. Istalgan viloyatdan qulay mutolaa va xolis kitob almashish ekotizimi.",
     url: 'https://kitto.uz',
     siteName: 'Kitto.uz',
     locale: 'uz_UZ',

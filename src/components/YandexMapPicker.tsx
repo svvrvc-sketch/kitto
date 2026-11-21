@@ -93,7 +93,7 @@ export const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
   const userPlacemarkRef = useRef<any>(null);
 
   const [coords, setCoords] = useState<Coordinates>(initialCoordinates);
-  const [currentAddress, setCurrentAddress] = useState<string>(addressText || 'Toshkent shahri');
+  const [currentAddress, setCurrentAddress] = useState<string>(addressText || 'O‘zbekiston');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isLocating, setIsLocating] = useState<boolean>(false);
@@ -287,7 +287,7 @@ export const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
     setIsSearching(true);
     const timer = setTimeout(async () => {
       try {
-        const queryWithCity = `${searchQuery.trim()}, Toshkent`;
+        const queryWithCity = `${searchQuery.trim()}, O‘zbekiston`;
         const res = await fetch(
           `https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(
             queryWithCity
@@ -590,7 +590,7 @@ export const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
                 Hozirgi joylashuvimni aniqlash
               </p>
               <p className="text-[11px] text-stone-600 dark:text-stone-400">
-                {currentAddress || 'Toshkent shahri'}
+                {currentAddress || 'O‘zbekiston'}
               </p>
             </div>
           </div>
@@ -661,7 +661,7 @@ export const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
         <div>
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-[11px] font-bold text-stone-600 dark:text-stone-300">
-              Toshkent tumanlari:
+              Tezkor tumanlar:
             </span>
             <span className="text-[10px] text-stone-500 dark:text-zinc-400">
               Bir bosishda tanlang

@@ -59,7 +59,7 @@ function LoginFormContent() {
       await loginWithProfile({
         name: cleanName,
         contact: cleanPhone,
-        city: 'Toshkent shahri',
+        city: 'O‘zbekiston',
         provider: 'direct',
       });
       router.replace(redirectTarget);

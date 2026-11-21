@@ -124,7 +124,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
 
   const bookLat = book.location?.lat ?? book.coordinates?.lat ?? 41.311081;
   const bookLng = book.location?.lng ?? book.coordinates?.lng ?? 69.240562;
-  const addressText = book.location?.addressText || book.exactLocation || 'Toshkent shahri';
+  const addressText = book.location?.addressText || book.exactLocation || book.city || 'O‘zbekiston';
   const isSwapped = book.status === 'swapped' || Boolean(book.isCompleted);
 
   const distanceKm =
@@ -412,7 +412,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
                     )}
                   </div>
                   <div className="text-[11px] text-stone-500 dark:text-zinc-400">
-                    {!book.ownerContact || book.ownerContact.includes('@') ? 'Toshkent shahri' : book.ownerContact}
+                    {!book.ownerContact || book.ownerContact.includes('@') ? (book.city || 'O‘zbekiston') : book.ownerContact}
                   </div>
                 </div>
               </div>

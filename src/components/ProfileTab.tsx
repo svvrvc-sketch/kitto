@@ -75,7 +75,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState('');
   const [editContact, setEditContact] = useState('');
-  const [editCity, setEditCity] = useState('Toshkent shahri');
+  const [editCity, setEditCity] = useState('O‘zbekiston');
   const [editTelegram, setEditTelegram] = useState('');
   const [editAvatar, setEditAvatar] = useState<string | null>(null);
   const [wishlistInput, setWishlistInput] = useState('');
@@ -86,7 +86,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
     if (!user) return;
     setEditName(user.name || '');
     setEditContact(user.contact && !user.contact.includes('@') ? extractUzbek9Digits(user.contact) : '');
-    setEditCity(user.city ? normalizeRegionName(user.city) : 'Toshkent shahri');
+    setEditCity(user.city ? normalizeRegionName(user.city) : 'O‘zbekiston');
     setEditTelegram(user.telegramUsername || '');
     setEditAvatar(user.avatar || null);
     setIsEditing(true);
@@ -323,7 +323,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   )}
                   <span className="flex items-center gap-1 font-medium text-stone-500 dark:text-zinc-400">
                     <MapPin className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
-                    <span>{user.city ? normalizeRegionName(user.city) : 'Toshkent shahri'}</span>
+                    <span>{user.city ? normalizeRegionName(user.city) : 'O‘zbekiston'}</span>
                   </span>
                 </div>
 

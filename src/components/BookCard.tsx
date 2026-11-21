@@ -70,7 +70,7 @@ export const BookCard: React.FC<BookCardProps> = ({
       ? calculateDistanceKm(effectiveCoords.lat, effectiveCoords.lng, bookLat, bookLng)
       : null;
 
-  const address = book.location?.addressText || book.exactLocation || 'Toshkent shahri';
+  const address = book.location?.addressText || book.exactLocation || book.city || 'O‘zbekiston';
   const isSwapped = book.status === 'swapped' || Boolean(book.isCompleted);
 
   const isTemporary = book.swapTerm?.type === 'temporary';

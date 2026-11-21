@@ -64,7 +64,7 @@ function AddBookContent() {
   const [returnConditionNote, setReturnConditionNote] = useState('');
 
   // Geolocation
-  const [addressText, setAddressText] = useState('Toshkent shahri');
+  const [addressText, setAddressText] = useState(user?.city || 'O‘zbekiston');
   const [coordinates, setCoordinates] = useState<Coordinates>({
     lat: 41.311081,
     lng: 69.240562,
@@ -514,7 +514,7 @@ function AddBookContent() {
                   type="text"
                   value={addressText}
                   onChange={(e) => setAddressText(e.target.value)}
-                  placeholder="Masalan: Chilonzor 9-mavze, metro bekati yonida"
+                  placeholder="Masalan: Samarqand shahri, Registon yonida yoki Chilonzor 9-mavze"
                   className="w-full px-4 py-2.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-xs text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-amber-600 dark:focus:ring-amber-500"
                 />
               </div>
@@ -524,7 +524,7 @@ function AddBookContent() {
                   initialCoordinates={coordinates}
                   onCoordinatesChange={(coords) => setCoordinates(coords)}
                   onAddressChange={(addr) => {
-                    if (!addressText || addressText.includes('Toshkent')) {
+                    if (!addressText) {
                       setAddressText(addr);
                     }
                   }}

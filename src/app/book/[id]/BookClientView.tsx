@@ -19,6 +19,7 @@ import { useToast } from '@/context/ToastContext';
 import { Book } from '@/types/book';
 import { booksService } from '@/services/db';
 import { SwapRequestModal } from '@/components/exchange/SwapRequestModal';
+import { BottomNav } from '@/components/BottomNav';
 import { LogoIcon } from '@/components/Logo';
 
 interface BookClientViewProps {
@@ -197,7 +198,7 @@ export const BookClientView: React.FC<BookClientViewProps> = ({ initialBook, boo
 
                     <div className="flex items-center gap-2 text-xs text-stone-600 dark:text-zinc-400">
                       <MapPin className="w-4 h-4 text-amber-600 shrink-0" />
-                      <span>{book.location?.addressText || book.city || 'Toshkent shahri'}</span>
+                      <span>{book.location?.addressText || book.city || 'O‘zbekiston'}</span>
                     </div>
 
                     {book.description && (
@@ -334,6 +335,8 @@ export const BookClientView: React.FC<BookClientViewProps> = ({ initialBook, boo
           }}
         />
       )}
+      {/* Mobile Bottom Nav */}
+      <BottomNav />
     </div>
   );
 };
