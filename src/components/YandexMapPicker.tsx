@@ -111,7 +111,7 @@ export const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
   const reverseGeocode = useCallback(
     async (lat: number, lng: number) => {
       const closest = getClosestTashkentDistrict(lat, lng);
-      const fallbackDistrictAddress = `Toshkent shahri, ${closest.name} tumani`;
+      const fallbackDistrictAddress = closest?.name ? `${closest.name} tumani` : 'O‘zbekiston';
 
       try {
         const controller = new AbortController();
@@ -141,7 +141,7 @@ export const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
           const formatted =
             parts.length > 0
               ? parts.join(', ')
-              : `Toshkent shahri, ${closest.name} tumani`;
+              : (closest?.name ? `${closest.name} tumani` : 'O‘zbekiston');
 
           setCurrentAddress(formatted);
           if (onAddressChange) onAddressChange(formatted);
@@ -620,7 +620,7 @@ export const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
               onFocus={() => {
                 if (searchResults.length > 0) setShowSearchResults(true);
               }}
-              placeholder="Ko'cha, metro yoki mo'ljalni qidiring..."
+              placeholder="Ko'cha yoki mo'ljalni qidiring..."
               className="w-full pl-8.5 pr-8 py-2 rounded-xl border border-stone-200 dark:border-zinc-800 text-xs bg-white dark:bg-zinc-900 text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-amber-600 dark:focus:ring-amber-500 transition-all"
             />
             {isSearching && (

@@ -12,7 +12,7 @@ export async function POST(req: Request) {
       contact: contact || 'Kiritilmagan',
       telegramUsername,
       email,
-      city: city || 'Toshkent',
+      city: city || 'O‘zbekiston',
       provider: provider || 'Sayt orqali',
       id,
     });

@@ -54,7 +54,7 @@ export default function SafetyPage() {
                 1. Uchrashuvlarni gavjum va xavfsiz joylarda o‘tkazing
               </h3>
               <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
-                Shahar markazlari, ommaviy kutubxonalar, yorug‘ qahvaxonalar, metro bekatlari yoki savdo markazlari uchrashuv uchun eng ideal va xavfsiz maskanlardir. Noma’lum yoki chekka manzillarga bormang.
+                Shahar markazlari, ommaviy kutubxonalar, yorug‘ qahvaxonalar, xiyobonlar yoki savdo markazlari uchrashuv uchun eng ideal va xavfsiz maskanlardir. Noma’lum yoki chekka manzillarga bormang.
               </p>
             </div>
           </div>

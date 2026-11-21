@@ -3,7 +3,7 @@ export interface UserProfile {
   name: string;
   contact: string;                 // Phone or Telegram username
   email?: string;
-  city: string;                    // Default: "Toshkent"
+  city: string;                    // Default: "O‘zbekiston"
   favoriteGenres?: string[];       // e.g., ["Biznes va moliya", "Jahon adabiyoti"]
   wishlistBooks?: string[];        // Books the user is looking for in exchange
   createdAt: string;

@@ -28,8 +28,8 @@ export default function FAQPage() {
       a: 'Kitto’da har bir almashuv QR-kod va telefon raqami orqali qayd etiladi. Qaytarish muddati o‘tganda tizim eslatma yuboradi. Agar foydalanuvchi kitobni qaytarishdan bosh tortsa, uning akkaunti bloklanadi, reytingi 0 ga tushadi va telefon raqami "Ishonchsizlar qora ro‘yxati"ga tushadi.',
     },
     {
-      q: 'Kitto boshqa viloyatlarda ham ishlaydimi?',
-      a: 'Ha! Kitto butun O‘zbekiston bo‘ylab — Toshkent shahri va barcha viloyatlarda to‘liq faoliyat yuritadi. Har bir kitobxon o‘z hududidagi kitobxonlar bilan xolis va qulay almashishi mumkin.',
+      q: 'Kitto butun O‘zbekiston bo‘ylab ishlaydimi?',
+      a: 'Ha! Kitto butun O‘zbekiston bo‘ylab barcha viloyatlar va shaharlarda to‘liq faoliyat yuritadi. Har bir kitobxon o‘z hududidagi kitobxonlar bilan xolis va qulay almashishi mumkin.',
     },
     {
       q: 'Kitob holatini qanday to‘g‘ri baholash kerak?',

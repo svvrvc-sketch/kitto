@@ -2,60 +2,77 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { BookOpen, Sparkles, MapPin, ArrowRight } from 'lucide-react';
+import { BookOpen, Sparkles, ArrowRight, ShieldCheck, HeartHandshake, MapPin } from 'lucide-react';
 
 export const HeroExchangeShowcase: React.FC<{ className?: string }> = ({ className = '' }) => {
   return (
-    <div className={`relative w-full max-w-md mx-auto select-none py-4 sm:py-6 ${className}`}>
+    <div className={`relative w-full max-w-md mx-auto select-none ${className}`}>
       {/* Warm ambient background glow */}
-      <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/20 via-orange-400/10 to-emerald-500/15 blur-3xl rounded-full pointer-events-none -z-10" />
+      <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/15 via-orange-500/10 to-emerald-500/10 blur-3xl rounded-3xl pointer-events-none -z-10" />
 
-      {/* Fan-Out of 3 Realistic Books from Uzbek Literature */}
-      <div className="relative h-60 sm:h-72 flex items-center justify-center">
-        {/* Book 1 (Left - Tilted) */}
-        <div className="absolute left-2 sm:left-4 top-4 sm:top-6 w-36 sm:w-44 h-48 sm:h-56 rounded-2xl bg-gradient-to-br from-emerald-950 via-stone-900 to-stone-950 border border-emerald-500/40 shadow-xl p-3.5 text-white -rotate-12 transition-transform duration-300 hover:rotate-0 hover:z-20 hover:scale-105 cursor-pointer">
-          <div className="flex items-center justify-between text-[10px] text-emerald-300 font-bold mb-2">
-            <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/30">Doimiy</span>
-            <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+      {/* Modern Matte Dark Card inspired by reference UI */}
+      <div className="relative rounded-3xl bg-[#121413] border border-zinc-800/80 p-5 sm:p-7 shadow-2xl text-white overflow-hidden">
+        {/* Top Eyebrow Tag */}
+        <div className="flex items-center justify-between gap-2 mb-4">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-[11px] font-bold tracking-wide uppercase">
+            <Sparkles className="w-3 h-3 text-amber-400" />
+            <span>100% Xolis Hamjamiyat</span>
           </div>
-          <h4 className="font-sans font-black text-xs sm:text-sm leading-tight mt-4">O&#39;tkan kunlar</h4>
-          <p className="text-[10px] text-stone-300 mt-1">Abdulla Qodiriy</p>
-          <div className="mt-6 pt-2 border-t border-emerald-800/80 flex items-center gap-1.5 text-[9px] text-stone-400">
-            <MapPin className="w-2.5 h-2.5 text-amber-400" />
-            <span>Chilonzor metrosi</span>
+          <span className="text-[11px] font-semibold text-zinc-400 flex items-center gap-1">
+            <MapPin className="w-3 h-3 text-emerald-400" />
+            <span>O‘zbekiston</span>
+          </span>
+        </div>
+
+        {/* Card Title & Description */}
+        <h3 className="text-lg sm:text-xl font-black text-white tracking-tight leading-snug">
+          Kitoblarga erkinlik bering — javoningizdagi durdonalarni ulashing
+        </h3>
+        <p className="text-xs text-zinc-400 mt-2 leading-relaxed">
+          O‘qilgan kitob tokchada chang bosmasin. Boshqa kitobxonlar bilan to‘g‘ridan-to‘g‘ri, xavfsiz va mutlaqo bepul almashing.
+        </p>
+
+        {/* Clean Spec Badges */}
+        <div className="grid grid-cols-3 gap-2.5 my-5">
+          <div className="p-3 rounded-2xl bg-zinc-900/90 border border-zinc-800/80 text-center">
+            <div className="text-base sm:text-lg font-black text-amber-400">0 so‘m</div>
+            <div className="text-[10px] text-zinc-400 font-medium mt-0.5">Xarajat yo‘q</div>
+          </div>
+          <div className="p-3 rounded-2xl bg-zinc-900/90 border border-zinc-800/80 text-center">
+            <div className="text-base sm:text-lg font-black text-emerald-400">P2P</div>
+            <div className="text-[10px] text-zinc-400 font-medium mt-0.5">Xolis almashuv</div>
+          </div>
+          <div className="p-3 rounded-2xl bg-zinc-900/90 border border-zinc-800/80 text-center">
+            <div className="text-base sm:text-lg font-black text-amber-300">14 ta</div>
+            <div className="text-[10px] text-zinc-400 font-medium mt-0.5">Barcha hudud</div>
           </div>
         </div>
 
-        {/* Book 3 (Right - Tilted) */}
-        <div className="absolute right-2 sm:right-4 top-4 sm:top-6 w-36 sm:w-44 h-48 sm:h-56 rounded-2xl bg-gradient-to-br from-sky-950 via-stone-900 to-stone-950 border border-sky-500/40 shadow-xl p-3.5 text-white rotate-12 transition-transform duration-300 hover:rotate-0 hover:z-20 hover:scale-105 cursor-pointer">
-          <div className="flex items-center justify-between text-[10px] text-sky-300 font-bold mb-2">
-            <span className="px-2 py-0.5 rounded-full bg-sky-500/20 border border-sky-500/30">Hadya</span>
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-          </div>
-          <h4 className="font-sans font-black text-xs sm:text-sm leading-tight mt-4">Sariq devni minib</h4>
-          <p className="text-[10px] text-stone-300 mt-1">X. To&#39;xtaboyev</p>
-          <div className="mt-6 pt-2 border-t border-sky-800/80 flex items-center gap-1.5 text-[9px] text-stone-400">
-            <MapPin className="w-2.5 h-2.5 text-emerald-400" />
-            <span>Paxtakor metrosi</span>
-          </div>
-        </div>
-
-        {/* Book 2 (Center - Prominent Front) */}
-        <div className="relative z-10 w-40 sm:w-48 h-56 sm:h-64 rounded-2xl bg-gradient-to-br from-amber-950 via-stone-900 to-zinc-950 border-2 border-amber-500/60 shadow-2xl p-4 sm:p-5 text-white transition-transform duration-300 hover:scale-105 cursor-pointer">
-          <div className="flex items-center justify-between text-[10px] text-amber-300 font-bold mb-3">
-            <span className="px-2 py-0.5 rounded-full bg-amber-500/25 border border-amber-500/40">Vaqtincha</span>
-            <span className="text-[9px] text-amber-400 font-extrabold uppercase">14 kunga</span>
-          </div>
-          <h4 className="font-sans font-black text-sm sm:text-base leading-tight mt-6">Dunyoning ishlari</h4>
-          <p className="text-[11px] text-amber-200/90 mt-1">O&#39;tkir Hoshimov</p>
-          <div className="mt-8 pt-3 border-t border-amber-800/80 flex items-center justify-between text-[10px] text-stone-300">
-            <div className="flex items-center gap-1.5">
-              <MapPin className="w-3 h-3 text-amber-400" />
-              <span>Oybek metrosi</span>
+        {/* Feature Points */}
+        <div className="space-y-2 mb-6 text-xs text-zinc-300">
+          <div className="flex items-center gap-2.5">
+            <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-3 h-3" />
             </div>
-            <span className="text-emerald-400 font-bold">A&#39;lo holat</span>
+            <span>Tasdiqlangan kitobxonlar bilan ishonchli aloqa</span>
+          </div>
+          <div className="flex items-center gap-2.5">
+            <div className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+              <HeartHandshake className="w-3 h-3" />
+            </div>
+            <span>Doimiy almashish yoki vaqtincha mutolaa</span>
           </div>
         </div>
+
+        {/* CTA link */}
+        <Link
+          href="/catalog"
+          className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-600 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 active:scale-95 transition-all"
+        >
+          <BookOpen className="w-4 h-4" />
+          <span>Katalogni ochish</span>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
       </div>
     </div>
   );

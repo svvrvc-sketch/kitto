@@ -34,16 +34,14 @@ import { useToast } from '@/context/ToastContext';
 import { BottomNav } from '@/components/BottomNav';
 
 const POPULAR_MEETING_PLACES = [
-  'Markaziy kutubxona',
-  'Shahar xiyoboni',
-  'Qulay metro bekati',
-  'Amir Temur xiyoboni',
-  'Chilonzor',
-  'Oybek',
-  'Paxtakor',
-  'Buyuk Ipak Yo‘li',
-  'Universitet / Kollej oldi',
-  'Savdo majmuasi',
+  'Markaziy kutubxona oldi',
+  'Shahar xiyoboni / Park',
+  'Universitet / Kollej kirish joyi',
+  'Markaziy savdo majmuasi',
+  'Shahar maydoni',
+  'Qulay jamoat maskani',
+  'Kitob do‘koni oldi',
+  'Kafeda uchrashish',
 ];
 
 // Pure web audio chime for realistic incoming message
@@ -192,7 +190,7 @@ function MessagesContent() {
   };
 
   const handleSendMetroSuggestion = (station: string) => {
-    const text = `📍 Uchrashuv joyi taklifi: ${station} metro bekati vestibyuli`;
+    const text = `📍 Uchrashuv joyi taklifi: ${station}`;
     handleSendMessage(undefined, text);
     setShowMetroPicker(false);
   };
@@ -737,7 +735,7 @@ function MessagesContent() {
                       ? 'bg-amber-600 text-white border-amber-600'
                       : 'border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:border-amber-500'
                   }`}
-                  title="Uchrashuv joyi taklif qilish (Metro)"
+                  title="Uchrashuv joyi taklif qilish"
                 >
                   <MapPin className="w-4 h-4 text-amber-600" />
                 </button>
@@ -846,7 +844,7 @@ function MessagesContent() {
                         </p>
                         <p className="text-[10px] text-stone-400 flex items-center gap-1 mt-0.5">
                           <MapPin className="w-2.5 h-2.5" />
-                          <span>{b.location?.addressText || b.exactLocation || 'Toshkent'}</span>
+                          <span>{b.location?.addressText || b.exactLocation || 'O‘zbekiston'}</span>
                         </p>
                       </div>
                     </div>

@@ -45,7 +45,7 @@ export interface Book {
   ownerContact: string;
   ownerTrustScore?: number;        // Ishonch bali
   ownerIsTrusted?: boolean;        // Ishonchli kitobxon
-  city: string;                    // Default: "Toshkent"
+  city: string;                    // Default: "O‘zbekiston"
   location: BookLocation;
   swapTerm: SwapTerm;
   status: BookStatus;

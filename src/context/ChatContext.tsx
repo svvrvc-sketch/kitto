@@ -179,7 +179,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       initiatorName: currentUserName,
       messages: [],
       updatedAt: new Date().toISOString(),
-      exactLocation: book.location?.addressText || book.exactLocation || 'Toshkent',
+      exactLocation: book.location?.addressText || book.exactLocation || 'O‘zbekiston',
     };
 
     const updated = [newThread, ...threads];

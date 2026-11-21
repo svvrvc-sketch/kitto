@@ -139,7 +139,7 @@ function AddBookContent() {
       const location: BookLocation = {
         lat: coordinates.lat,
         lng: coordinates.lng,
-        addressText: addressText || 'Toshkent shahri',
+        addressText: addressText || 'O‘zbekiston',
       };
 
       const newBook: Book = {
@@ -153,7 +153,7 @@ function AddBookContent() {
         ownerId: user.id,
         ownerName: user.name || 'Kitobxon',
         ownerContact: user.contact,
-        city: user.city || 'Toshkent shahri',
+        city: user.city || 'O‘zbekiston',
         location,
         swapTerm,
         status: 'active',

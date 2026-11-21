@@ -186,7 +186,7 @@ export async function notifyAdminNewUser(user: {
     ? user.contact
     : 'Kiritilmagan';
 
-  const userCity = user.city ? user.city.trim() : 'Toshkent shahri';
+  const userCity = user.city ? user.city.trim() : 'O‘zbekiston';
 
   const text =
     `<b>YANGI FOYDALANUVCHI ROʻYXATDAN OʻTDI</b>\n\n` +

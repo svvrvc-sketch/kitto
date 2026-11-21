@@ -1520,7 +1520,7 @@ function CabinetContent() {
                       Uchrashing va chatda tasdiqlang
                     </h3>
                     <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
-                      Belgilangan metro yoki qulay jamoat joyida ko‘rishib kitobni topshiring. Suhbatda &apos;Topshirildi&apos; tugmasini bir marta bosish orqali almashuv yakunlanadi.
+                      Belgilangan qulay jamoat joyida ko‘rishib kitobni topshiring. Suhbatda &apos;Topshirildi&apos; tugmasini bir marta bosish orqali almashuv yakunlanadi.
                     </p>
                   </div>
                 </div>
@@ -1578,7 +1578,7 @@ function CabinetContent() {
                       1. Gavjum va xavfsiz joylarda uchrashing
                     </h3>
                     <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
-                      Shahar markazlari, ommaviy kutubxonalar, yorug‘ qahvaxonalar, metro bekatlari yoki savdo markazlari uchrashuv uchun eng ideal joylardir.
+                      Shahar markazlari, ommaviy kutubxonalar, yorug‘ qahvaxonalar, xiyobonlar yoki savdo markazlari uchrashuv uchun eng ideal joylardir.
                     </p>
                   </div>
                 </div>

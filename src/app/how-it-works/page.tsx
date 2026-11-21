@@ -11,7 +11,7 @@ export default function HowItWorksPage() {
     {
       num: '01',
       title: 'Kitobingizni javonga joylang',
-      desc: 'O‘qib bo‘lgan yoki javoningizda turgan kitobni suratga olib, nomini, holatini va Toshkentdagi uchrashuv hududini (tuman/metro) belgilang. E’lon berish 1 daqiqa vaqt oladi va butunlay bepul.',
+      desc: 'O‘qib bo‘lgan yoki javoningizda turgan kitobni suratga olib, nomini, holatini va hududingizdagi qulay uchrashuv manzilini belgilang. E’lon berish 1 daqiqa vaqt oladi va butunlay bepul.',
       icon: BookOpen,
       badge: '1 daqiqada',
     },
@@ -25,7 +25,7 @@ export default function HowItWorksPage() {
     {
       num: '03',
       title: 'Uchrashing va chatda tasdiqlang',
-      desc: 'Belgilangan jamoat joyida (metro, qahvaxona yoki xiyobonda) ko‘rishib, kitobni oling. Tomonlar chat orqali almashuv yakunlanganini tasdiqlaydi — bu orqali hech bir kitob yo‘qolmaydi.',
+      desc: 'Belgilangan qulay jamoat maskanida (kutubxona, qahvaxona yoki xiyobonda) ko‘rishib, kitobni oling. Tomonlar chat orqali almashuv yakunlanganini tasdiqlaydi — bu orqali hech bir kitob yo‘qolmaydi.',
       icon: ShieldCheck,
       badge: 'Ishonch & Kafolat',
     },

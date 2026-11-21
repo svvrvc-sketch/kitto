@@ -62,7 +62,7 @@ export default function LandingPage() {
     },
     {
       q: 'Kitto butun O‘zbekiston bo‘ylab ishlaydimi?',
-      a: 'Ha! Kitto butun O‘zbekiston bo‘ylab — Toshkent shahri hamda barcha viloyatlarda to‘liq faoliyat yuritadi. Har bir kitobxon o‘z hududidan kitob joylashi, o‘ziga yaqin kitobxonlarni topishi va mutlaqo bepul almashishi mumkin.',
+      a: 'Ha! Kitto butun O‘zbekiston bo‘ylab — barcha viloyatlar va shaharlarda to‘liq faoliyat yuritadi. Har bir kitobxon o‘z hududidan kitob joylashi, o‘ziga yaqin kitobxonlarni topishi va mutlaqo bepul almashishi mumkin.',
     },
     {
       q: 'Kitob holatini qanday to‘g‘ri baholash kerak?',

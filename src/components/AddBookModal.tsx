@@ -203,7 +203,7 @@ export const AddBookModal: React.FC<AddBookModalProps> = ({
     const location: BookLocation = {
       lat: coordinates.lat,
       lng: coordinates.lng,
-      addressText: addressText || 'Toshkent shahri',
+      addressText: addressText || 'O‘zbekiston',
     };
 
     const newBook: Book = {

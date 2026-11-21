@@ -605,7 +605,7 @@ export default function CatalogPage() {
           onSkip={handleSkipGeo}
         />
 
-        {/* Main Header with Toshkent location trigger */}
+        {/* Main Header with Region location trigger */}
         <Header
           darkMode={isDark}
           onToggleTheme={toggleTheme}
@@ -641,28 +641,6 @@ export default function CatalogPage() {
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-24 sm:pb-16">
-        {/* Outside Tashkent Notice Banner */}
-        {isOutsideTashkent && (
-          <div className="mb-5 p-3.5 sm:p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-900/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-amber-900 dark:text-amber-200 shadow-sm animate-in fade-in duration-200">
-            <div className="flex items-start gap-2.5">
-              <MapPinOff className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-              <div>
-                <h4 className="font-sans font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-100">
-                  Kitto hozircha faqat Toshkent shahrida ishlamoqda
-                </h4>
-                <p className="text-[11px] sm:text-xs text-stone-600 dark:text-zinc-300 mt-0.5 leading-relaxed">
-                  Siz katalogdagi kitoblarni ko&#39;rishingiz mumkin. Tez orada viloyatingizda ham ishga tushishimiz uchun ovoz bering.
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={() => setIsCityModalOpen(true)}
-              className="px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs whitespace-nowrap shadow-xs transition-all active:scale-95 shrink-0 self-end sm:self-center"
-            >
-              Viloyat uchun ovoz berish
-            </button>
-          </div>
-        )}
 
         {/* Profile Tab View (Shaxsiy Kabinet) */}
         {currentTab === 'profile' ? (
